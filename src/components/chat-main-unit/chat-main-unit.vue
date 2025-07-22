@@ -6,7 +6,7 @@
       :data="chatList"
       :text-loading="loading"
       :is-stream-load="isStreamLoad"
-      style="height: 600px"
+      style="height: 100%"
       @scroll="handleChatScroll"
       @clear="clearConfirm"
     >
@@ -375,6 +375,7 @@ onBeforeUnmount(() => {
 }
 .chat-box {
   position: relative;
+  height: 100%;
   .bottomBtn {
     position: absolute;
     left: 50%;

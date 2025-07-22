@@ -9,17 +9,8 @@
 
       <div class="flex space-x-4 mt-4 md:mt-0">
         <!-- 搜索框 -->
-        <div class="relative flex-1">
-          <input type="text" placeholder="Search"
-            class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
+        <search @search="handleSearch" />
+
 
         <!-- 创建知识库按钮 -->
         <button
@@ -34,34 +25,9 @@
     </div>
 
     <!-- 知识库卡片网格 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 width-200px">
       <!-- 知识库卡片示例 -->
-      <div
-        class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-        @click="goToDetail('asf-m')">
-        <!-- 卡片顶部区域 -->
-        <div class="border-b border-gray-100 bg-blue-50 px-6 py-4">
-          <div class="flex items-center">
-            <div class="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
-              <span class="text-gray-700 font-bold">ASF</span>
-            </div>
-            <div class="ml-4">
-              <h3 class="font-semibold text-gray-800">ASF-M</h3>
-              <p class="text-sm text-gray-600">ASF</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 卡片底部信息 -->
-        <div class="px-6 py-4 flex justify-between items-center">
-          <div>
-            <span class="text-sm text-gray-600">1 Docs</span>
-          </div>
-          <div>
-            <span class="text-xs text-gray-500">17/07/2025 10:47:32</span>
-          </div>
-        </div>
-      </div>
+      
 
       <knowledge-cards
       id = "knowledge-cards"
@@ -85,6 +51,7 @@
 import { useRouter } from 'vue-router';
 import knowledgeCards from '../components/knowledge-unit/knowledge-cards.vue';
 import { ref } from 'vue';
+import search from '../components/search-unit/search.vue';
 
 const router = useRouter();
 
@@ -92,23 +59,107 @@ const goToDetail = (id: string) => {
   router.push(`/knowledge/${id}`);
 };
 
+const handleSearch = (keyword: string) => {
+  console.log('搜索关键词:', keyword);
+  // 执行搜索逻辑，比如调用接口、过滤列表等
+};
+
+
 const cards = ref([
   {
-    id: 'asf-m',
+    id: 'asf-m1',
+    title: 'ASF-M1',
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '卡片内容',
+    description: '简介1',
+    createdTime: '1970-01-01 00.00.00',
     cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
   },
   {
-    id: 'asf-m',
+    id: 'asf-m2',
+    title: 'ASF-M2',
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '卡片内容',
+    description: '简介2',
+    createdTime: '1970-01-01 00.00.00',
     cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
   },
   {
-    id: 'asf-m',
+    id: 'asf-m3',
+    title: 'ASF-M3',
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '卡片内容',
+    description: '简介3',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+  },
+  {
+    id: 'asf-m1',
+    title: 'ASF-M1',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介1',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m2',
+    title: 'ASF-M2',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介2',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m3',
+    title: 'ASF-M3',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介3',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+  },
+  {
+    id: 'asf-m1',
+    title: 'ASF-M1',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介1',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m2',
+    title: 'ASF-M2',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介2',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m3',
+    title: 'ASF-M3',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介3',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+  },
+  {
+    id: 'asf-m1',
+    title: 'ASF-M1',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介1',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m2',
+    title: 'ASF-M2',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介2',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m3',
+    title: 'ASF-M3',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介3',
+    createdTime: '1970-01-01 00.00.00',
     cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
   },
   // 其他卡片数据
@@ -125,4 +176,16 @@ const cards = ref([
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
+
+.grid {
+  display: grid;
+
+}
+
+main {
+  max-width: 100wv; /* 根据需要调整最大宽度 */
+
+  overflow-x: hidden;
+}
+
 </style>

@@ -1,16 +1,8 @@
 <template>
-  <t-card 
-    title="标题" 
-    :description="props.card.description" 
-    :style="{ width: '400px' }"
-    @click="handleClick"
-  >
+  <t-card :title="props.card.title" :description="props.card.description" :style="{ width: '400px' }" @click="handleClick">
     <!-- 使用 cover 插槽来自定义封面 -->
     <template #cover>
-      <img 
-        :src="props.card.cover" 
-        class="knowledge-card-image" 
-      />
+      <img :src="props.card.cover" class="knowledge-card-image" />
     </template>
 
     <template #avatar>
@@ -20,7 +12,7 @@
     <template #actions>
       <t-dropdown :options="options" :min-column-width="112" @click="clickHandler">
         <div class="tdesign-demo-dropdown-trigger">
-          <t-button variant="text" shape="square"  @click.stop>
+          <t-button variant="text" shape="square" @click.stop>
             <more-icon />
           </t-button>
         </div>
@@ -38,6 +30,9 @@
         <t-button variant="text" shape="square">
           <share-icon />
         </t-button>
+      </div>
+      <div class="created-time">
+        Created at: {{ props.card.createdTime }}
       </div>
     </template>
   </t-card>
@@ -60,9 +55,11 @@ const options: DropdownProps['options'] = [
 
 const props = defineProps<{
   card: {
+    title: string;
     avatar: string;
     description: string;
     cover: string;
+    createdTime: string;
   };
   goToDetail: Function;
 }>();
@@ -86,13 +83,20 @@ const clickHandler: DropdownProps['onClick'] = (data) => {
 }
 
 .knowledge-card-footer-buttonlists:hover {
-  background-color: #d4d4d47e; /* 悬停时的背景色 */
+  background-color: #d4d4d47e;
+  /* 悬停时的背景色 */
 }
 
 .knowledge-card-image {
   width: 100%;
   height: 200px;
-  object-fit: cover; /* 超出部分进行裁剪 */
+  object-fit: cover;
+  /* 超出部分进行裁剪 */
 }
 
+.created-time {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #888;
+}
 </style>

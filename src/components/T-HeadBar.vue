@@ -96,10 +96,10 @@ const navToHelper = () => {
   // 你的帮助页面链接
 };
 
-//const toggleSettingPanel = () => {
-//  settingStore.updateConfig({
-//    showSettingPanel: !settingStore.showSettingPanel,
-//  });
-//};
+// 新增 toggleSettingPanel 方法
+const toggleSettingPanel = () => {
+  console.log('Toggle setting panel');
+  // 在这里添加你的设置面板切换逻辑
+};
 
 </script>

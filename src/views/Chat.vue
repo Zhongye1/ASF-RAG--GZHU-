@@ -160,6 +160,7 @@ const inputEnter = function (inputValue: string) {
     // 添加到当前会话
     chatSessions.value[currentSessionIndex.value].history.push(assistantMessage);
     
+
     
     isStreamLoad.value = false;
   }, 2000);
