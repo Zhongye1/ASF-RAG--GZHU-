@@ -5,7 +5,7 @@
       <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <h2 class="font-medium text-gray-900 dark:text-white">对话历史</h2>
         <button class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" @click="createNewSession">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </button>
@@ -49,14 +49,15 @@
     </div>
     
     <!-- 主聊天区域 -->
-    <div id="chat-container" class="flex-1 flex flex-col">
+    <div id="chat-container" class="flex height-full">
     <chatMainUnit></chatMainUnit>
+    
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-
+import chatSender from '../components/chat-main-unit/chat-sender.vue';
 import chatMainUnit from '../components/chat-main-unit/chat-main-unit.vue';
 const loading = ref(false);
 const isStreamLoad = ref(false);
@@ -67,13 +68,13 @@ const currentSessionIndex = ref(0);
 const chatSessions = ref([
   {
     title: '南极的ATM',
-    lastMessage: '南极的自动提款机叫什么名字？',
+    lastMessage: '南极的自动提款机',
     history: [
       {
         avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
         name: 'ASF助手',
         datetime: '今天16:38',
-        content: '它叫 McMurdo Station ATM，是美国富国银行安装在南极洲最大科学中心麦克默多站的一台自动提款机。',
+        content: 'McMurdo Station ATM，美国富国银行安装在南极洲最大科学中心麦克默多站的一台自动提款机。',
         role: 'assistant',
       },
       {
@@ -226,8 +227,5 @@ const inputEnter = function (inputValue: string) {
   }
 }
 
-main {
-  /* 计算内容高度，减去导航栏高度 */
- 
-}
+
 </style>
