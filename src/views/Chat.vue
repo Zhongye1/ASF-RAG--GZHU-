@@ -50,69 +50,14 @@
     
     <!-- 主聊天区域 -->
     <div id="chat-container" class="flex-1 flex flex-col">
-      <!-- 聊天历史区域 -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4" ref="chatHistoryRef">
-        <template v-for="(item, index) in currentChatHistory" :key="index">
-          <!-- 助手消息 -->
-          <div v-if="item.role === 'assistant'" class="flex items-start mb-4">
-            <t-avatar size="large" shape="circle" :image="item.avatar" class="flex-shrink-0 mr-3" />
-            <div class="flex-1">
-              <div class="flex items-center mb-1">
-                <span class="font-medium text-gray-900 dark:text-white">{{ item.name }}</span>
-                <span class="ml-2 text-xs text-gray-500">{{ item.datetime }}</span>
-              </div>
-              <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <t-chat-content :content="item.content" class="text-gray-800 dark:text-gray-200" />
-              </div>
-            </div>
-          </div>
-          
-          <!-- 用户消息 -->
-          <div v-else class="flex items-start justify-end mb-4">
-            <div class="flex-1 max-w-[80%]">
-              <div class="flex items-center justify-end mb-1">
-                <span class="text-xs text-gray-500">{{ item.datetime }}</span>
-                <span class="ml-2 font-medium text-gray-900 dark:text-white">{{ item.name }}</span>
-              </div>
-              <div class="p-3 bg-slate-200 rounded-lg">
-                <t-chat-content :content="item.content" class="text-white" />
-              </div>
-            </div>
-            <t-avatar size="large" shape="circle" :image="item.avatar" class="flex-shrink-0 ml-3" />
-          </div>
-        </template>
-        
-        <!-- 加载状态指示器 -->
-        <div v-if="loading" class="flex items-center justify-center py-3">
-          <t-loading theme="dots" size="medium" />
-        </div>
-      </div>
-      
-      <!-- 输入区域 -->
-      <div class="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
-        <t-chat-input 
-          class="rounded-full shadow-sm"
-          :stop-disabled="isStreamLoad" 
-          @send="inputEnter" 
-          @stop="handleStop"
-          placeholder="请输入您的问题..."
-        />
-      </div>
+    <chatMainUnit></chatMainUnit>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import {
-  Chat as TChat,
-  ChatAction as TChatAction,
-  ChatContent as TChatContent,
-  ChatInput as TChatInput,
-  ChatItem as TChatItem,
-  //Avatar as TAvatar,
-  //Loading as TLoading
-} from '@tdesign-vue-next/chat';
 
+import chatMainUnit from '../components/chat-main-unit/chat-main-unit.vue';
 const loading = ref(false);
 const isStreamLoad = ref(false);
 const chatHistoryRef = ref(null);
