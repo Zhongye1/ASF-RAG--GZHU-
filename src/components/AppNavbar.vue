@@ -4,7 +4,7 @@
     <div class="flex items-center space-x-6">
       <!-- Logo -->
       <div class="flex items-center text-blue-600 font-bold text-xl">
-        RAGFlow
+        RAG文档知识库系统
       </div>
       
       <!-- 主要功能菜单 -->
