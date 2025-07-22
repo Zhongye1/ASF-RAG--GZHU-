@@ -2,9 +2,9 @@
   <t-config-provider :global-config="{ classPrefix: 't' }">
     <div class="app-container">
       <!-- 应用导航栏 -->
-      <app-navbar class="navbar"/>
-      
-      <!-- 路由视图 -->
+      <thea></thea>
+      <!-- <app-navbar class="navbar"/> -->
+       <!-- 路由视图 -->
       <router-view class="router-view"/>
     </div>
   </t-config-provider>
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import AppNavbar from './components/AppNavbar.vue';
+import thea from './components/T-HeadBar.vue'
 </script>
 
 <style>

@@ -142,12 +142,7 @@ const inputEnter = function (inputValue: string) {
   isStreamLoad.value = true;
   loading.value = true;
   
-  // 滚动到底部
-  setTimeout(() => {
-    if (chatHistoryRef.value) {
-      chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight;
-    }
-  }, 0);
+
   
   // 模拟响应
   setTimeout(() => {
@@ -165,12 +160,6 @@ const inputEnter = function (inputValue: string) {
     // 添加到当前会话
     chatSessions.value[currentSessionIndex.value].history.push(assistantMessage);
     
-    // 滚动到底部
-    setTimeout(() => {
-      if (chatHistoryRef.value) {
-        chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight;
-      }
-    }, 0);
     
     isStreamLoad.value = false;
   }, 2000);

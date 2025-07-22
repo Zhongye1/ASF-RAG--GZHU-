@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@tdesign-vue-next/chat": "^0.4.3",
+    "pinia": "^3.0.3",
     "tdesign-icons-vue-next": "latest",
     "tdesign-vue-next": "latest",
+    "tvision-color": "^1.6.0",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.4.21",
     "vue-router": "^4.5.1"
@@ -20,6 +22,8 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.31.0",
+    "eslint-plugin-vue": "^10.3.0",
     "less": "^4.4.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",

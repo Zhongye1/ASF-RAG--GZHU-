@@ -1,4 +1,5 @@
 <template>
+  
   <nav class="bg-white shadow-md px-6 py-3 flex justify-between items-center sticky top-0 z-50 ">
     <!-- 左侧: Logo + 主要功能菜单 -->
     <div class="flex items-center space-x-6">
