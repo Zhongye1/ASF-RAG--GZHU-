@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { AddIcon } from "tdesign-icons-vue-next";
 import knowledgeCards from "../components/knowledge-unit/knowledge-cards.vue";
 import { ref } from "vue";
 import search from "../components/search-unit/search.vue";
@@ -82,5 +83,9 @@ main {
   /* 根据需要调整最大宽度 */
 
   overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
 }
 </style>

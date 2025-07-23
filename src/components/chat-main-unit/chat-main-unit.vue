@@ -128,6 +128,8 @@ const checkClick = () => {
 };
 
 // 聊天数据
+//[Vue warn] toRefs() expects a reactive object but received a plain one.
+// 解决方法：这里要使用toRefs()将reactive对象转换为响应式对象
 const state = reactive({
   chatList: [
     {
@@ -294,16 +296,21 @@ const fetchSSE = async (fetchFn, options) => {
 // src/components/chat-main-unit/chat-main-unit.vue
 
 // 修改数据处理函数
+// 修改数据处理函数
 const handleData = async (messageContent) => {
   console.log("开始处理数据:", messageContent);
   
   const lastItem = chatList.value[0];
-  const selectedModel = selectValue.value.value; // 获取用户选择的模型
+  const selectedModel = selectValue.value.value;
+  
+  // 用于追踪思考过程状态
+  let isInThinking = false;
+  let thinkingStarted = false;
+  let accumulatedResponse = ''; // 累积所有响应内容
   
   try {
-    // 使用Ollama API获取响应
     const { response, controller } = await fetchOllamaStream(messageContent, selectedModel);
-    fetchCancel.value = { controller }; // 保存控制器以便可以停止请求
+    fetchCancel.value = { controller };
     
     if (!response.ok) {
       throw new Error(`Ollama API responded with status: ${response.status}`);
@@ -319,7 +326,6 @@ const handleData = async (messageContent) => {
       
       const chunk = decoder.decode(value, { stream: true });
       try {
-        // Ollama API返回的是换行符分隔的JSON对象
         const lines = chunk.trim().split('\n');
         
         for (const line of lines) {
@@ -327,19 +333,82 @@ const handleData = async (messageContent) => {
           
           const data = JSON.parse(line);
           
-          // 如果是深度思考模式，将前面部分的输出放到reasoning中
-          if (isChecked.value && !data.done && lastItem.reasoning.length < 200) {
-            lastItem.reasoning += data.response;
-          } else {
-            // 正常添加到内容中
-            lastItem.content += data.response;
+          if (data.response) {
+            accumulatedResponse += data.response;
+            
+            // 检测 <think> 标签开始
+            if (!thinkingStarted && accumulatedResponse.includes('<think>')) {
+              isInThinking = true;
+              thinkingStarted = true;
+              console.log('开始思考过程');
+              
+              // 提取 <think> 之前的内容作为正式回答
+              const beforeThink = accumulatedResponse.split('<think>')[0];
+              if (beforeThink.trim()) {
+                lastItem.content = beforeThink;
+              }
+              
+              // 提取 <think> 之后的内容作为思考过程开始
+              const afterThink = accumulatedResponse.split('<think>')[1];
+              if (afterThink) {
+                lastItem.reasoning = afterThink;
+              }
+            }
+            // 检测 </think> 标签结束
+            else if (isInThinking && accumulatedResponse.includes('</think>')) {
+              isInThinking = false;
+              console.log('结束思考过程');
+              
+              // 分割思考内容和后续回答
+              const thinkContent = accumulatedResponse.split('<think>')[1].split('</think>')[0];
+              const afterThink = accumulatedResponse.split('</think>')[1];
+              
+              // 更新思考内容（去掉标签）
+              lastItem.reasoning = thinkContent;
+              
+              // 添加 </think> 后的内容到正式回答
+              if (afterThink) {
+                lastItem.content += afterThink;
+              }
+            }
+            // 在思考过程中
+            else if (isInThinking) {
+              // 更新思考内容（去掉 <think> 标签）
+              const currentThinking = accumulatedResponse.split('<think>')[1];
+              if (currentThinking && !currentThinking.includes('</think>')) {
+                lastItem.reasoning = currentThinking;
+              }
+            }
+            // 正常回答过程（不在思考中）
+            else if (!isInThinking) {
+              // 如果还没开始思考，或者思考已结束
+              if (!thinkingStarted) {
+                // 还没遇到 <think> 标签，正常添加到内容
+                lastItem.content += data.response;
+              } else {
+                // 思考已结束，继续添加到内容（排除 </think> 标签）
+                const cleanResponse = data.response.replace('</think>', '');
+                if (cleanResponse) {
+                  lastItem.content += cleanResponse;
+                }
+              }
+            }
           }
           
           // 检查是否完成
           if (data.done) {
+            // 最终清理：确保移除所有标签
+            lastItem.content = lastItem.content.replace(/<\/?think>/g, '');
+            lastItem.reasoning = lastItem.reasoning.replace(/<\/?think>/g, '');
+            
             lastItem.duration = data.total_duration ? 
-              Math.round(data.total_duration / 1000000) : // 转换为毫秒
-              20; // 默认值
+              Math.round(data.total_duration / 1000000) : 
+              20;
+            
+            console.log('最终内容:', {
+              reasoning: lastItem.reasoning,
+              content: lastItem.content
+            });
           }
         }
       } catch (error) {
