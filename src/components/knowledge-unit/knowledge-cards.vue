@@ -60,6 +60,8 @@ const props = defineProps<{
     description: string;
     cover: string;
     createdTime: string;
+    //hoverShadow: true;
+    //headerBordered: true;
   };
   goToDetail: Function;
 }>();

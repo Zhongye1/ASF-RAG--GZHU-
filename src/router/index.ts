@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
     component: KnowledgeBase
   },
   {
-    path: '/knowledge/:id',
+    path: '/knowledge/knowledgeDetail/:id',
     name: 'KnowledgeDetail',
     component: () => import('../views/KnowledgeDetail.vue')
   },

@@ -8,35 +8,23 @@
       </div>
 
       <div class="flex space-x-4 mt-4 md:mt-0">
-        <!-- 搜索框 -->
-        <search @search="handleSearch" />
-
-
-        <!-- 创建知识库按钮 -->
-        <button
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium whitespace-nowrap flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Create knowledge base
-        </button>
-      </div>
+  <!-- 搜索框 -->
+  <search @search="handleSearch" class="h-[40px]" />
+  <!-- 创建知识库按钮 -->
+  <t-button theme="primary" class="h-[40px]">
+    <template #icon><add-icon /></template>
+    新建知识库
+  </t-button>
+</div>
     </div>
 
     <!-- 知识库卡片网格 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 width-200px">
       <!-- 知识库卡片示例 -->
-      
 
-      <knowledge-cards
-      id = "knowledge-cards"
-        v-for="card in cards"
-        :key="card.id"
-        :card="card"
-        :go-to-detail="goToDetail"
-        @click="goToDetail(card.id)"
-      />
+
+      <knowledge-cards id="knowledge-cards" v-for="card in cards" :key="card.id" :card="card" :go-to-detail="goToDetail"
+        @click="goToDetail(card.id)" />
 
       <!-- 更多卡片占位符 -->
       <div
@@ -56,7 +44,7 @@ import search from '../components/search-unit/search.vue';
 const router = useRouter();
 
 const goToDetail = (id: string) => {
-  router.push(`/knowledge/${id}`);
+  router.push(`/knowledge/knowledgeDetail/${id}`);
 };
 
 const handleSearch = (keyword: string) => {
@@ -88,7 +76,31 @@ const cards = ref([
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
     description: '简介3',
     createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
+  },
+  {
+    id: 'asf-m1',
+    title: 'ASF-M1',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介1',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
+  },
+  {
+    id: 'asf-m2',
+    title: 'ASF-M2',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介2',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
+  },
+  {
+    id: 'asf-m3',
+    title: 'ASF-M3',
+    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+    description: '简介3',
+    createdTime: '1970-01-01 00.00.00',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
   },
   {
     id: 'asf-m1',
@@ -112,7 +124,7 @@ const cards = ref([
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
     description: '简介3',
     createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
   },
   {
     id: 'asf-m1',
@@ -128,7 +140,7 @@ const cards = ref([
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
     description: '简介2',
     createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
   },
   {
     id: 'asf-m3',
@@ -136,31 +148,7 @@ const cards = ref([
     avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
     description: '简介3',
     createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
-  },
-  {
-    id: 'asf-m1',
-    title: 'ASF-M1',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介1',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m2',
-    title: 'ASF-M2',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介2',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m3',
-    title: 'ASF-M3',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介3',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic3.zhimg.com/80/v2-9fe27c8996ec8773b72ebad72e97ac62_720w.webp',
+    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
   },
   // 其他卡片数据
 ]);
@@ -183,9 +171,9 @@ const cards = ref([
 }
 
 main {
-  max-width: 100wv; /* 根据需要调整最大宽度 */
+  max-width: 100wv;
+  /* 根据需要调整最大宽度 */
 
   overflow-x: hidden;
 }
-
 </style>
