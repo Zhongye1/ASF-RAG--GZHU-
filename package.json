@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@tdesign-vue-next/chat": "^0.4.3",
+    "dompurify": "^3.2.6",
+    "highlight.js": "^11.11.1",
+    "marked": "^16.1.1",
     "pinia": "^3.0.3",
     "tdesign-icons-vue-next": "latest",
     "tdesign-vue-next": "latest",

@@ -19,6 +19,9 @@
       <t-menu-item value="item5" @click="navigateTo('/files')" :class="$route.path === '/files'">
         Files Manager
       </t-menu-item>
+      <t-menu-item value="item6" @click="navigateTo('/DOC')" :class="$route.path === '/DOC'">
+        开发文档
+      </t-menu-item>
       <template #operations>
         <t-tooltip placement="bottom">
           <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
@@ -74,6 +77,8 @@ const currentMenuItem = computed(() => {
       return 'item4';
     case '/files':
       return 'item5';
+    case '/DOC':
+      return 'item6';
     default:
       return 'item1';
   }

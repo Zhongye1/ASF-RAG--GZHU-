@@ -38,6 +38,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'FileManagement',
     component: () => import('../views/FileManagement.vue')
   },
+  {
+    path: '/DOC',
+    name: '开发文档',
+    component: () => import('../views/DOC.vue')
+  },
   // 添加专门的404页面路由
   {
     path: '/404',
