@@ -10,8 +10,6 @@
 
 ---
 
-
-
 **栈：**（待补充）
 
 [![My Skills](https://skillicons.dev/icons?i=python,nodejs,vue,tailwindcss,html,css,js,ts,fastapi,electron,mysql,docker,git,npm,eslint,anaconda,github,githubactions,figma,windows,ubuntu)](https://skillicons.dev)
@@ -19,13 +17,6 @@
 ### 目前实现的是前端功能，后端还在架构
 
 有更好的建议可以找我
-
-
-
-
-
-
-
 
 ### Contributors 📋
 
@@ -46,6 +37,17 @@
           Contributions: Code 💻, Documentation 📖
         </a>
       </td>
+       <td align="center">
+        <a https://github.com/ <ID>">
+          <img src="https://avatars.githubusercontent.com/u/173872687?v=4" alt="GITHUB" width="100" height="100" />
+          <br />
+          <strong>褚喧</strong>
+          <br />
+          <em>GitHub: <a href="https://github.com/ourcx">褚喧</a></em>
+          <br />
+          Contributions: 正在贡献
+        </a>
+      </td>
       <td align="center">
         <a https://github.com/ <ID>">
           <img src="<Github头像url>" alt="GITHUB" width="100" height="100" />
@@ -60,26 +62,20 @@
     </tr>
   </table>
 
-
-
 # RAGF-01 项目开发文档
 
-本文档描述了RAGF-01项目的架构、页面和功能实现。
+本文档描述了 RAGF-01 项目的架构、页面和功能实现。
 
 ## 项目概述
 
-RAGF-01是一个基于Vue 3和TDesign组件库开发的RAG（检索增强生成）前端框架，主要提供知识库管理、文档检索和AI对话等功能。
-
-
+RAGF-01 是一个基于 Vue 3 和 TDesign 组件库开发的 RAG（检索增强生成）前端框架，主要提供知识库管理、文档检索和 AI 对话等功能。
 
 - **前端框架**：Vue 3
-- **UI组件库**：TDesign Vue Next
+- **UI 组件库**：TDesign Vue Next
 - **路由管理**：Vue Router
 - **构建工具**：Vite
-- **CSS框架**：Tailwind CSS
+- **CSS 框架**：Tailwind CSS
 - **TypeScript**
-
-
 
 ### 进行开发（前端）
 
@@ -94,15 +90,13 @@ npm run dev
 npm run build
 ```
 
-
-
 ## 提交指南
 
 1. Fork 项目仓库
 2. 创建功能分支: `git checkout -b feature/amazing-feature`
 3. 提交更改: `git commit -m 'Add amazing feature'`
 4. 推送分支: `git push origin feature/amazing-feature`
-5. 创建Pull Request
+5. 创建 Pull Request
 
 ### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
 
@@ -141,6 +135,9 @@ ASF-RAG/                         # 项目根目录
 │   │   ├── KnowledgeBase.vue    # 知识库页面
 │   │   ├── KnowledgeDetail.vue  # 知识库详情页面
 │   │   └── Search.vue           # 搜索页面
+│   ├── store/                   # 状态管理目录
+│   │   ├── modules/             # 状态模块目录
+│   │   └── index.ts             # 状态管理文件
 │   └── vite-env.d.ts            # Vite环境类型声明文件
 ├── tailwind.config.js           # Tailwind CSS配置文件
 ├── tsconfig.json                # TypeScript配置文件
@@ -149,23 +146,21 @@ ASF-RAG/                         # 项目根目录
 
 ```
 
-
-
 ## 目前页面及功能 src/views
 
 ### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
 
-- ### 知识库（Knowledge Base）施工中📋
+- ### 知识库（Knowledge Base）施工中 📋
 
   **目前实现了**
 
   1. **基础页面框架**
 
-     - 知识库列表页面 (KnowledgeBase.vue) 的基本UI结构
-     - 知识库详情页面 (KnowledgeDetail.vue) 的基本UI结构
+     - 知识库列表页面 (KnowledgeBase.vue) 的基本 UI 结构
+     - 知识库详情页面 (KnowledgeDetail.vue) 的基本 UI 结构
      - 导航栏中的知识库入口
 
-  2. **UI组件**
+  2. **UI 组件**
 
      - 欢迎区域显示用户信息
 
@@ -191,7 +186,7 @@ ASF-RAG/                         # 项目根目录
        - 文件列表显示（名称、分块数、上传日期等信息）
        - 文件操作（选择、启用/禁用、删除）
        - 文件搜索和批量操作
-       - 文件上传功能（支持PDF、DOCX和TXT格式）
+       - 文件上传功能（支持 PDF、DOCX 和 TXT 格式）
        - 分页功能
      - 检索测试
        - 跨语言搜索（支持多种语言）
@@ -203,13 +198,11 @@ ASF-RAG/                         # 项目根目录
        - 删除知识库的功能
        - 保存设置的功能
 
-  **这些功能目前只做了UI，后端逻辑和数据交互尚未实现**
+  **这些功能目前只做了 UI，后端逻辑和数据交互尚未实现**
 
   ![img](https://picx.zhimg.com/80/v2-62e0c8025ff9d60e506fae3c59db615f_720w.png?source=d16d100b)
 
-
-
-- ### 聊天（Chat）施工中📋
+- ### 聊天（Chat）施工中 📋
 
   ![img](https://pica.zhimg.com/v2-b982906fb07aea6100b180c1c9689ba8_r.jpg)
 
@@ -224,7 +217,7 @@ ASF-RAG/                         # 项目根目录
 2. **消息展示功能**
    - Markdown 渲染支持
    - 思考过程（推理过程）展示
-   - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有UI）
+   - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有 UI）
 3. **基本交互功能**
    - 发送消息功能
    - 停止生成功能（通过按钮和 Ctrl+C 快捷键）
@@ -236,25 +229,21 @@ ASF-RAG/                         # 项目根目录
    - 分阶段显示推理过程和内容
    - 模拟网络错误处理
 
-
-
 目前要实现的功能：
 
 ![img](https://pic4.zhimg.com/v2-213b04b98eeac770e81800390145ce17_r.jpg)
 
 1. **消息展示功能**
-   - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有UI）
+   - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有 UI）
 2. **基本交互功能**
    - 模型选择切换
    - 模型选择下拉菜单触发模型选择
    - "深度思考"开关触发模型深度思考
 3. **SSE 流式响应**
 
-目前要考虑接模型后端API进行对话，目前模型的回复为硬编码的预设结果
+目前要考虑接模型后端 API 进行对话，目前模型的回复为硬编码的预设结果
 
 侧边栏对话历史管理，实现正确的新建对话功能
-
-
 
 ### 导航栏 (T-HeadBar.vue)
 
@@ -262,42 +251,38 @@ ASF-RAG/                         # 项目根目录
 
 ![img](https://pic2.zhimg.com/80/v2-c49b6d95809145a2e2e39ed97667aca7_720w.webp)
 
-- 右侧工具菜单（GitHub链接、帮助、设置、首页和用户的触发处理逻辑）（目前功能还在实现）
+- 右侧工具菜单（GitHub 链接、帮助、设置、首页和用户的触发处理逻辑）（目前功能还在实现）
 - 这一块要新增一个文档页面
 
 ![img](https://pica.zhimg.com/80/v2-886faf9509f6db51b747f7accef5a8aa_720w.webp)
 
-
-
 ### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
 
-
-
-### 搜索页面 (Search.vue) 施工中📋
+### 搜索页面 (Search.vue) 施工中 📋
 
 提供全局搜索功能，允许用户搜索整个知识库集合。
 
-### 文件管理页面 (FileManagement.vue) 施工中📋
+### 文件管理页面 (FileManagement.vue) 施工中 📋
 
 提供对上传文件的集中管理功能。
 
-### 智能代理页面 (Agent.vue) 施工中📋
+### 智能代理页面 (Agent.vue) 施工中 📋
 
 提供智能代理功能，可能用于自动执行特定任务。
 
 ## 特色功能
 
-1. **流式对话响应**：使用SSE（Server-Sent Events）模拟实现流式响应，在chat-main-unit中提供实时的对话反馈。
-2. **推理过程展示**：通过"深度思考"开关，可以查看AI的推理过程，增强透明度和可解释性。
+1. **流式对话响应**：使用 SSE（Server-Sent Events）模拟实现流式响应，在 chat-main-unit 中提供实时的对话反馈。
+2. **推理过程展示**：通过"深度思考"开关，可以查看 AI 的推理过程，增强透明度和可解释性。
 
 ## # 后续开发
 
 1. 实现用户认证和权限管理
 2. 添加模型支持和参数配置
 3. 实现文件处理能力，支持更多格式
-4. 知识库管理：完整的知识库CRUD操作，支持文件上传、管理和检索测试。
+4. 知识库管理：完整的知识库 CRUD 操作，支持文件上传、管理和检索测试。
 5. 搜索功能：支持多语言环境下的文档检索，包括自动语言检测。
 6. 分页和批量操作：针对大量文档提供高效的管理界面。
 7. 群友们在这里写别的需求
 8. 实现文档协作功能
-9. 打包并支持docker部署或者封装为electron应用什么的
+9. 打包并支持 docker 部署或者封装为 electron 应用什么的

@@ -1,5 +1,5 @@
 {
-  "name": "ASF-RAG",
+  "name": "asf-rag",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -23,6 +23,7 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@types/node": "^24.1.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.31.0",
@@ -35,5 +36,16 @@
     "vite-plugin-vue-devtools": "^7.7.7",
     "vue-tsc": "^2.0.10"
   },
-  "description": "GZHU"
+  "description": "GZHU",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ourcx/ASF-RAG--GZHU-.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ourcx/ASF-RAG--GZHU-/issues"
+  },
+  "homepage": "https://github.com/ourcx/ASF-RAG--GZHU-#readme"
 }

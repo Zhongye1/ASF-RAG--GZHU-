@@ -8,27 +8,33 @@
       </div>
 
       <div class="flex space-x-4 mt-4 md:mt-0">
-  <!-- 搜索框 -->
-  <search @search="handleSearch" class="h-[40px]" />
-  <!-- 创建知识库按钮 -->
-  <t-button theme="primary" class="h-[40px]">
-    <template #icon><add-icon /></template>
-    新建知识库
-  </t-button>
-</div>
+        <!-- 搜索框 -->
+        <search @search="handleSearch" class="h-[40px]" />
+        <!-- 创建知识库按钮 -->
+        <t-button theme="primary" class="h-[40px]">
+          <template #icon><add-icon /></template>
+          新建知识库
+        </t-button>
+      </div>
     </div>
 
     <!-- 知识库卡片网格 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 width-200px">
       <!-- 知识库卡片示例 -->
 
-
-      <knowledge-cards id="knowledge-cards" v-for="card in cards" :key="card.id" :card="card" :go-to-detail="goToDetail"
-        @click="goToDetail(card.id)" />
-
+      <knowledge-cards
+        id="knowledge-cards"
+        v-for="card in filteredCards"
+        :key="card.id"
+        :card="card"
+        :go-to-detail="goToDetail"
+        @click="goToDetail(card.id)"
+      />
+      <!-- 这里的key不是唯一的数据渲染有问题 -->
       <!-- 更多卡片占位符 -->
       <div
-        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center min-h-[150px]">
+        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center min-h-[150px]"
+      >
         <p class="text-gray-500">That's all. Nothing more.</p>
       </div>
     </div>
@@ -36,123 +42,25 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import knowledgeCards from '../components/knowledge-unit/knowledge-cards.vue';
-import { ref } from 'vue';
-import search from '../components/search-unit/search.vue';
+import { useRouter } from "vue-router";
+import knowledgeCards from "../components/knowledge-unit/knowledge-cards.vue";
+import { ref } from "vue";
+import search from "../components/search-unit/search.vue";
+import { useCardDataStore } from "../store";
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
-
+const cardDataStore = useCardDataStore();
 const goToDetail = (id: string) => {
   router.push(`/knowledge/knowledgeDetail/${id}`);
 };
 
 const handleSearch = (keyword: string) => {
-  console.log('搜索关键词:', keyword);
+  console.log("搜索关键词:", keyword);
   // 执行搜索逻辑，比如调用接口、过滤列表等
 };
 
-
-const cards = ref([
-  {
-    id: 'asf-m1',
-    title: 'ASF-M1',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介1',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m2',
-    title: 'ASF-M2',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介2',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m3',
-    title: 'ASF-M3',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介3',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  {
-    id: 'asf-m1',
-    title: 'ASF-M1',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介1',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m2',
-    title: 'ASF-M2',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介2',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  {
-    id: 'asf-m3',
-    title: 'ASF-M3',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介3',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  {
-    id: 'asf-m1',
-    title: 'ASF-M1',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介1',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m2',
-    title: 'ASF-M2',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介2',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m3',
-    title: 'ASF-M3',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介3',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  {
-    id: 'asf-m1',
-    title: 'ASF-M1',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介1',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b',
-  },
-  {
-    id: 'asf-m2',
-    title: 'ASF-M2',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介2',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  {
-    id: 'asf-m3',
-    title: 'ASF-M3',
-    avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-    description: '简介3',
-    createdTime: '1970-01-01 00.00.00',
-    cover: 'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp',
-  },
-  // 其他卡片数据
-]);
-
+const { filteredCards } = storeToRefs(cardDataStore);
 </script>
 <style scoped>
 #knowledge-cards {
@@ -167,7 +75,6 @@ const cards = ref([
 
 .grid {
   display: grid;
-
 }
 
 main {
