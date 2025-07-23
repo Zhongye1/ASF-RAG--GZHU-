@@ -34,7 +34,7 @@
           <br />
           <em>GitHub: <a href="https://github.com/Zhongye1">@Zhongye1</a></em>
           <br />
-          Contributions: Code 💻, Documentation 📖
+          Contributions: Code 💻 <br>Documentation 📖
         </a>
       </td>
        <td align="center">
@@ -61,6 +61,7 @@
       </td>
     </tr>
   </table>
+
 
 # RAGF-01 项目开发文档
 
