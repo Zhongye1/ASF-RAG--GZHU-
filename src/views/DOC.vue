@@ -138,4 +138,50 @@ onMounted(async () => {
 .markdown-body table tr:nth-child(2n) {
   background-color: #f6f8fa;
 }
+
+/* 列表样式改进 */
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-body li+li {
+  margin-top: 0.25em;
+}
+
+/* 任务列表 */
+.markdown-body ul.task-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.markdown-body .task-list-item {
+  padding-left: 1.5em;
+  position: relative;
+}
+
+.markdown-body .task-list-item input {
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+}
+.doc-container {
+    min-height: calc(100vh - 80px);
+    height: max-content;
+}
+
 </style>
