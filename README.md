@@ -74,6 +74,17 @@
           Contributions: 贡献
         </a>
       </td>
+      <td align="center">
+        <a https://github.com/ <ID>">
+          <img src="https://avatars.githubusercontent.com/u/222624613?s=400&u=3778bd14e4e096302f3677074fe9c07545b18467&v=4" alt="GITHUB" width="100" height="100" />
+          <br />
+          <strong>A1r</strong>
+          <br />
+          <em>GitHub: <a href="https://github.com/z1pperexplorer">@z1pperexplorer</a></em>
+          <br />
+          Contributions: Contributing
+        </a>
+      </td>
     </tr>
   </table>
 
