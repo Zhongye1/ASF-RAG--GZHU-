@@ -61,24 +61,6 @@ export const useCardDataStore = defineStore('CardData', {
           'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
       },
       {
-        id: 'asf-m3',
-        title: 'ASF-M3',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: '个人笔记',
-        title: 'ASF-M1',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
-      {
         id: 'asf-m2',
         title: 'ASF-M2',
         avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',

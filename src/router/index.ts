@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/service',
     name: 'Search',
-    component: () => import('../views/Search.vue')
+    component: () => import('../views/OllamaMangement.vue')
   },
   {
     path: '/agent',
