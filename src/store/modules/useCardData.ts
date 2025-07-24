@@ -50,7 +50,7 @@ export const useCardDataStore = defineStore('CardData', {
         createdTime: '1970-01-01 00.00.00',
         cover:
           'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
+      }, 
       {
         id: 'asf-m2',
         title: 'ASF-M2122',
