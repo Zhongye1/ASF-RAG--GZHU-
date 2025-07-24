@@ -78,12 +78,12 @@
             </div>
             <div class="col-span-4 flex items-center">
               <div class="flex-shrink-0 mr-3">
-                <template v-if="doc.type === 'pdf'">
+                <template v-if="doc.fileType === 'pdf'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </template>
-                <template v-else-if="doc.type === 'docx'">
+                <template v-else-if="doc.fileType === 'docx'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -106,7 +106,7 @@
               <button 
                 @click="toggleDocumentStatus(doc)"
                 :class="[
-                  'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+                  'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none',
                   doc.enabled ? 'bg-blue-600' : 'bg-gray-200'
                 ]"
                 role="switch"
@@ -938,5 +938,14 @@ onMounted(() => {
 <style scoped>
 .dragover {
   @apply border-blue-500 bg-blue-50;
+}
+
+.app-container {
+  background-color: #f9fafb;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: -1;
+  overflow-x: hidden;
 }
 </style>
