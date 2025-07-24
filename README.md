@@ -1,4 +1,3 @@
-![微信图片_20250724153340](https://github.com/user-attachments/assets/d51caece-073f-4af8-ba52-33fc799ad6b2)<p style="display:flex; justify-content: center">
 
 ## This is @RAGF-01
 
