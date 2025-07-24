@@ -20,11 +20,13 @@
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center">
           <div class="relative">
-            <select class="border bg-gray-50 text-gray-700 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>批量</option>
+            <select 
+              class="border bg-gray-50 text-gray-700 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              v-model="filterStatus"
+            >
+              <option>全部</option>
               <option>启用</option>
               <option>禁用</option>
-              <option>删除</option>
             </select>
           </div>
           <div class="relative ml-3">
@@ -65,9 +67,9 @@
           <div class="col-span-1">启用</div>
         </div>
         
-        <div v-if="filteredDocuments.length > 0">
+        <div v-if="displayedDocuments.length > 0">
           <div 
-            v-for="(doc, index) in filteredDocuments" 
+            v-for="(doc, index) in displayedDocuments" 
             :key="doc.id"
             class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b"
           >
@@ -603,11 +605,13 @@ const uploadedFiles = ref<File[]>([]);
 const isUploading = ref(false);
 const dragover = ref(false);
 const currentPage = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = ref(5);
 const showDeleteConfirmation = ref(false);
 const selectedDocuments = ref<number[]>([]);
 
 // 检索测试功能
+const filterStatus = ref('全部');
+
 const isHelpVisible = ref(true);
 const similarityThreshold = ref(0.75);
 const keywordWeight = ref(50);
@@ -641,6 +645,14 @@ interface Document {
   slicingMethod: string;
   enabled: boolean;
 }
+
+const displayedDocuments = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredDocuments.value.slice(start, end);
+});
+
+
 
 const documents = ref<Document[]>([
   {
@@ -708,16 +720,28 @@ interface SearchResult {
   score: number;
 }
 
-// 过滤后的文档
+
 const filteredDocuments = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
-  if (!query) return documents.value;
-  
-  return documents.value.filter(doc => 
-    doc.name.toLowerCase().includes(query) || 
-    doc.fileType.toLowerCase().includes(query) ||
-    doc.slicingMethod.toLowerCase().includes(query)
-  );
+  let filteredDocs = documents.value;
+
+  // 根据搜索关键词过滤
+  if (query) {
+    filteredDocs = filteredDocs.filter(doc => 
+      doc.name.toLowerCase().includes(query) || 
+      doc.fileType.toLowerCase().includes(query) ||
+      doc.slicingMethod.toLowerCase().includes(query)
+    );
+  }
+
+  // 根据启用状态过滤
+  if (filterStatus.value === '启用') {
+    filteredDocs = filteredDocs.filter(doc => doc.enabled);
+  } else if (filterStatus.value === '禁用') {
+    filteredDocs = filteredDocs.filter(doc => !doc.enabled);
+  }
+
+  return filteredDocs;
 });
 
 // 分页计算
@@ -803,6 +827,7 @@ const processFileUpload = () => {
 // 切换文档启用状态
 const toggleDocumentStatus = (doc: Document) => {
   doc.enabled = !doc.enabled;
+  console.log('文档状态已更新', doc.enabled);
 };
 
 // 全选/取消全选
