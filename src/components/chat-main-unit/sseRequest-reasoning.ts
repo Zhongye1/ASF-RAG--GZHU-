@@ -99,3 +99,36 @@ export class MockSSEResponse {
     });
   }
 }
+
+
+
+// src/components/chat-main-unit/sseRequest-reasoning.ts
+
+// 添加一个新的函数用于Ollama API通信
+export async function fetchOllamaStream(prompt: string, model: string = "llama2") {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  
+  try {
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        prompt: prompt,
+        stream: true
+      }),
+      signal
+    });
+    
+    return {
+      response,
+      controller
+    };
+  } catch (error) {
+    console.error("Failed to connect to Ollama，检查本地相应的模型是否有部署", error);
+    throw error;
+  }
+}

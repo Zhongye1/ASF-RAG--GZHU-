@@ -10,8 +10,8 @@
       <t-menu-item value="item2" @click="navigateTo('/chat')" :class="$route.path === '/chat'">
         Chat
       </t-menu-item>
-      <t-menu-item value="item3" @click="navigateTo('/search')" :class="$route.path === '/search'">
-        Search
+      <t-menu-item value="item3" @click="navigateTo('/service')" :class="$route.path === '/service'">
+        服务管理
       </t-menu-item>
       <t-menu-item value="item4" @click="navigateTo('/agent')" :class="$route.path === '/agent'">
         Agent
@@ -71,7 +71,7 @@ const currentMenuItem = computed(() => {
       return 'item1';
     case '/chat':
       return 'item2';
-    case '/search':
+    case '/service':
       return 'item3';
     case '/agent':
       return 'item4';

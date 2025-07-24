@@ -1,3 +1,7 @@
+---
+
+---
+
 <p style="display:flex; justify-content: center">
 
 ## This is @RAGF-01
@@ -34,7 +38,7 @@
           <br />
           <em>GitHub: <a href="https://github.com/Zhongye1">@Zhongye1</a></em>
           <br />
-          Contributions: Code 💻, Documentation 📖
+          Contributions: Code 💻 <br>Documentation 📖
         </a>
       </td>
        <td align="center">
@@ -49,7 +53,18 @@
         </a>
       </td>
       <td align="center">
-        <a https://github.com/ <ID>
+        <a https://github.com/ <ID>">
+          <img src="https://avatars.githubusercontent.com/u/222571036?s=400&u=254ac083b4d85e08dc7dee9d186624dfaa031614&v=4" alt="GITHUB" width="100" height="100" />
+          <br />
+          <strong>ZXT</strong>
+          <br />
+          <em>GitHub: <a href="https://github.com/haha-1205">ZXT</a></em>
+          <br />
+          Contributions: 贡献
+        </a>
+      </td>
+      <td align="center">
+        <a https://github.com/ <ID>">
           <img src="<Github头像url>" alt="GITHUB" width="100" height="100" />
           <br />
           <strong>GitHub-ID</strong>
@@ -61,6 +76,8 @@
       </td>
     </tr>
   </table>
+
+
 
 # RAGF-01 项目开发文档
 
@@ -148,8 +165,6 @@ ASF-RAG/                         # 项目根目录
 
 ## 目前页面及功能 src/views
 
-### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
-
 - ### 知识库（Knowledge Base）施工中 📋
 
   **目前实现了**
@@ -174,7 +189,7 @@ ASF-RAG/                         # 项目根目录
 
   1. **知识库列表页 (KnowledgeBase.vue)**
 
-     - 搜索功能用于过滤知识库
+     - ~~搜索功能用于过滤知识库~~
 
      - 创建新知识库的功能，这里应该设计一个新的表单页，显示创建新知识库的各个选项
 
@@ -235,13 +250,13 @@ ASF-RAG/                         # 项目根目录
 
 1. **消息展示功能**
    - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有 UI）
-2. **基本交互功能**
-   - 模型选择切换
-   - 模型选择下拉菜单触发模型选择
-   - "深度思考"开关触发模型深度思考
-3. **SSE 流式响应**
+2. ~~**基本交互功能**~~
+   - ~~模型选择切换~~
+   - ~~模型选择下拉菜单触发模型选择~~
+   - ~~"深度思考"开关触发模型深度思考~~
+3. ~~**SSE 流式响应**~~
 
-目前要考虑接模型后端 API 进行对话，目前模型的回复为硬编码的预设结果
+~~目前要考虑接模型后端 API 进行对话，目前模型的回复为硬编码的预设结果~~
 
 侧边栏对话历史管理，实现正确的新建对话功能
 
@@ -256,7 +271,7 @@ ASF-RAG/                         # 项目根目录
 
 ![img](https://pica.zhimg.com/80/v2-886faf9509f6db51b747f7accef5a8aa_720w.webp)
 
-### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
+
 
 ### 搜索页面 (Search.vue) 施工中 📋
 

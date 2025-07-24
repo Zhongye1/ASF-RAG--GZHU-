@@ -11,13 +11,18 @@
 </template>
 
 <script setup lang="ts">
-import AppNavbar from './components/AppNavbar.vue';
+//import AppNavbar from './components/AppNavbar.vue';
 import thea from './components/T-HeadBar.vue'
 </script>
 
 <style>
 .app-container {
   background-color: #f9fafb;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: -1;
+  overflow-x: hidden;
 }
 .navbar {
   height: 8vh; /* 设置导航栏高度 */

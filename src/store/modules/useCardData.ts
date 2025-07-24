@@ -10,17 +10,55 @@ interface CardDataType {
   cover: string
 }
 
+
+
 export const useCardDataStore = defineStore('CardData', {
   state: () => ({
     allCards: [
       {
         id: 'asf-m1',
-        title: 'ASF-M1',
+        title: 'AAJ2-M1',
         avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
         description: '简介1',
         createdTime: '1970-01-01 00.00.00',
         cover:
           'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
+      },
+      {
+        id: 'asf-m2',
+        title: 'ADWASF-M2',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+        description: '简介2',
+        createdTime: '1970-01-01 00.00.00',
+        cover:
+          'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b'
+      },
+      {
+        id: 'asf-m3',
+        title: 'BSF-MWWA3',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+        description: '简介3',
+        createdTime: '1970-01-01 00.00.00',
+        cover:
+          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
+      },
+      {
+        id: 'asf-m1',
+        title: 'XXAWASF-M1',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+        description: '简介1',
+        createdTime: '1970-01-01 00.00.00',
+        cover:
+          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
+      }, 
+      {
+        id: 'asf-m2',
+        title: 'ASF-M2122',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
+        description: '简介2',
+        createdTime: '1970-01-01 00.00.00',
+        cover:
+          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
       },
       {
         id: 'asf-m2',
@@ -33,7 +71,7 @@ export const useCardDataStore = defineStore('CardData', {
       },
       {
         id: 'asf-m3',
-        title: 'ASF-M3',
+        title: '编译原理',
         avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
         description: '简介3',
         createdTime: '1970-01-01 00.00.00',
@@ -41,8 +79,8 @@ export const useCardDataStore = defineStore('CardData', {
           'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
       },
       {
-        id: 'asf-m1',
-        title: 'ASF-M1',
+        id: 'DFA-1',
+        title: '支持向量机',
         avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
         description: '简介1',
         createdTime: '1970-01-01 00.00.00',
@@ -50,62 +88,8 @@ export const useCardDataStore = defineStore('CardData', {
           'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
       },
       {
-        id: 'asf-m2',
-        title: 'ASF-M2',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m3',
-        title: 'ASF-M3',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m1',
-        title: 'ASF-M1',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m2',
-        title: 'ASF-M2',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m3',
-        title: 'ASF-M3',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m1',
-        title: 'ASF-M1',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m2',
-        title: 'ASF-M2',
+        id: '213212',
+        title: '有限自动机',
         avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
         description: '简介2',
         createdTime: '1970-01-01 00.00.00',
@@ -130,6 +114,9 @@ export const useCardDataStore = defineStore('CardData', {
     filterCardData (keyword: string) {
       console.log(keyword)
       this.searchKeyword = keyword;
+    },
+    resetFilters() {
+      this.searchKeyword = '';
     }
   },
   getters: {

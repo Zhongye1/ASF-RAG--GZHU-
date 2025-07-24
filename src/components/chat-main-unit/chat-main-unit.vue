@@ -22,7 +22,11 @@
           </template>
           <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
         </t-chat-reasoning>
-        <t-chat-content v-if="item.content.length > 0" :content="item.content" />
+          <t-chat-content 
+            v-if="item.content.length > 0" 
+            :content="item.content"
+            class="custom-chat-dialog"
+          />
       </template>
       
       <template #actions="{ item, index }">
@@ -59,6 +63,7 @@
                   :options="selectOptions"
                   value-type="object"
                   @focus="allowToolTip = false"
+                  @change="handleModelChange"
                 ></t-select>
               </t-tooltip>
               <t-button class="check-box" :class="{ 'is-active': isChecked }" variant="text" @click="checkClick">
@@ -81,7 +86,7 @@
 
 <script setup lang="jsx">
 import { ref, reactive, toRefs, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { MockSSEResponse } from './sseRequest-reasoning';
+//import { MockSSEResponse } from './sseRequest-reasoning';
 import { ArrowDownIcon, CheckCircleIcon, SystemSumIcon } from 'tdesign-icons-vue-next';
 import {
   Chat as TChat,
@@ -92,6 +97,8 @@ import {
   ChatReasoning as TChatReasoning,
   ChatLoading as TChatLoading,
 } from '@tdesign-vue-next/chat';
+import { fetchOllamaStream } from './sseRequest-reasoning';
+import { MessagePlugin } from 'tdesign-vue-next';
 
 // 基础状态
 const fetchCancel = ref(null);
@@ -105,26 +112,26 @@ const allowToolTip = ref(false);
 
 // 模型选择相关
 const selectOptions = ref([
-  { label: 'GPT', value: 'default' },
+  { label: 'qwen3:0.6b', value: 'qwen3:0.6b' },
   { label: 'Deepseek', value: 'deepseek-r1' },
-  { label: '混元', value: 'hunyuan' },
 ]);
-const selectValue = ref({ label: '默认模型', value: 'default' });
+const selectValue = ref({ label: '默认模型', value: 'qwen3:0.6b' });
 const isChecked = ref(false);
 
+// 处理模型选择事件
+const handleModelChange = (value) => {
+  MessagePlugin.success(`已选择模型：${value.label}`);
+};
 // 深度思考开关
 const checkClick = () => {
   isChecked.value = !isChecked.value;
 };
 
 // 聊天数据
+//[Vue warn] toRefs() expects a reactive object but received a plain one.
+// 解决方法：这里要使用toRefs()将reactive对象转换为响应式对象
 const state = reactive({
   chatList: [
-    {
-      content: `模型由<span>hunyuan</span>变为<span>GPT4</span>`,
-      role: 'model-change',
-      reasoning: '',
-    },
     {
       avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
       name: 'TDesignAI',
@@ -286,59 +293,148 @@ const fetchSSE = async (fetchFn, options) => {
 };
 
 // 数据处理
+// src/components/chat-main-unit/chat-main-unit.vue
+
+// 修改数据处理函数
+// 修改数据处理函数
 const handleData = async (messageContent) => {
   console.log("开始处理数据:", messageContent);
   
   const lastItem = chatList.value[0];
-  const mockedData = {
-    reasoning: `嗯，用户问牛顿第一定律是不是适用于所有参考系。首先，我得先回忆一下牛顿第一定律的内容。牛顿第一定律，也就是惯性定律，说物体在没有外力作用时会保持静止或匀速直线运动。也就是说，保持原来的运动状态。
-
-那问题来了，这个定律是否适用于所有参考系呢？记得以前学过的参考系分惯性系和非惯性系。惯性系里，牛顿定律成立；非惯性系里，可能需要引入惯性力之类的修正。所以牛顿第一定律应该只在惯性参考系中成立，而在非惯性系中不适用，比如加速的电梯或者旋转的参考系，这时候物体会有看似无外力下的加速度，所以必须引入假想的力来解释。`,
-    content: `牛顿第一定律（惯性定律）**并不适用于所有参考系**，它只在**惯性参考系**中成立。
-
-这个目前是硬编码的测试输出，实际要接后端api输出正确回答
-
----`,
-  };
+  const selectedModel = selectValue.value.value;
   
-  const mockResponse = new MockSSEResponse(mockedData);
-  fetchCancel.value = mockResponse;
+  // 用于追踪思考过程状态
+  let isInThinking = false;
+  let thinkingStarted = false;
+  let accumulatedResponse = ''; // 累积所有响应内容
   
-  await fetchSSE(
-    () => mockResponse.getResponse(),
-    {
-      success(result) {
-        if (lastItem) {
-          lastItem.reasoning += result.delta.reasoning_content || '';
-          lastItem.content += result.delta.content || '';
-        }
-      },
-      complete(isOk, msg) {
-        if (!isOk && lastItem) {
-          lastItem.role = 'error';
-          lastItem.content = msg || '处理出错';
-          lastItem.reasoning = '';
-        }
+  try {
+    const { response, controller } = await fetchOllamaStream(messageContent, selectedModel);
+    fetchCancel.value = { controller };
+    
+    if (!response.ok) {
+      throw new Error(`Ollama API responded with status: ${response.status}`);
+    }
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    // 处理流式响应
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const chunk = decoder.decode(value, { stream: true });
+      try {
+        const lines = chunk.trim().split('\n');
         
-        if (lastItem) {
-          lastItem.duration = 20; // 显示用时
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          const data = JSON.parse(line);
+          
+          if (data.response) {
+            accumulatedResponse += data.response;
+            
+            // 检测 <think> 标签开始
+            if (!thinkingStarted && accumulatedResponse.includes('<think>')) {
+              isInThinking = true;
+              thinkingStarted = true;
+              console.log('开始思考过程');
+              
+              // 提取 <think> 之前的内容作为正式回答
+              const beforeThink = accumulatedResponse.split('<think>')[0];
+              if (beforeThink.trim()) {
+                lastItem.content = beforeThink;
+              }
+              
+              // 提取 <think> 之后的内容作为思考过程开始
+              const afterThink = accumulatedResponse.split('<think>')[1];
+              if (afterThink) {
+                lastItem.reasoning = afterThink;
+              }
+            }
+            // 检测 </think> 标签结束
+            else if (isInThinking && accumulatedResponse.includes('</think>')) {
+              isInThinking = false;
+              console.log('结束思考过程');
+              
+              // 分割思考内容和后续回答
+              const thinkContent = accumulatedResponse.split('<think>')[1].split('</think>')[0];
+              const afterThink = accumulatedResponse.split('</think>')[1];
+              
+              // 更新思考内容（去掉标签）
+              lastItem.reasoning = thinkContent;
+              
+              // 添加 </think> 后的内容到正式回答
+              if (afterThink) {
+                lastItem.content += afterThink;
+              }
+            }
+            // 在思考过程中
+            else if (isInThinking) {
+              // 更新思考内容（去掉 <think> 标签）
+              const currentThinking = accumulatedResponse.split('<think>')[1];
+              if (currentThinking && !currentThinking.includes('</think>')) {
+                lastItem.reasoning = currentThinking;
+              }
+            }
+            // 正常回答过程（不在思考中）
+            else if (!isInThinking) {
+              // 如果还没开始思考，或者思考已结束
+              if (!thinkingStarted) {
+                // 还没遇到 <think> 标签，正常添加到内容
+                lastItem.content += data.response;
+              } else {
+                // 思考已结束，继续添加到内容（排除 </think> 标签）
+                const cleanResponse = data.response.replace('</think>', '');
+                if (cleanResponse) {
+                  lastItem.content += cleanResponse;
+                }
+              }
+            }
+          }
+          
+          // 检查是否完成
+          if (data.done) {
+            // 最终清理：确保移除所有标签
+            lastItem.content = lastItem.content.replace(/<\/?think>/g, '');
+            lastItem.reasoning = lastItem.reasoning.replace(/<\/?think>/g, '');
+            
+            lastItem.duration = data.total_duration ? 
+              Math.round(data.total_duration / 1000000) : 
+              20;
+            
+            console.log('最终内容:', {
+              reasoning: lastItem.reasoning,
+              content: lastItem.content
+            });
+          }
         }
-        
-        // 完成时恢复状态
-        console.log('数据处理完成');
-        isStreamLoad.value = false;
-        loading.value = false;
-        fetchCancel.value = null;
-      },
-      fail() {
-        console.log('数据处理失败');
-        isStreamLoad.value = false;
-        loading.value = false;
-        fetchCancel.value = null;
+      } catch (error) {
+        console.error('解析数据出错:', error, chunk);
       }
     }
-  );
+    
+    // 完成处理
+    isStreamLoad.value = false;
+    loading.value = false;
+    fetchCancel.value = null;
+    
+  } catch (error) {
+    console.error('处理数据时出错:', error);
+    if (lastItem) {
+      lastItem.role = 'error';
+      lastItem.content = `连接Ollama服务失败: ${error.message}`;
+      lastItem.reasoning = '';
+    }
+    
+    isStreamLoad.value = false;
+    loading.value = false;
+    fetchCancel.value = null;
+  }
 };
+
 
 // 键盘事件处理
 const handleKeyDown = (event) => {
@@ -454,22 +550,13 @@ onBeforeUnmount(() => {
   width: 100%; /* 可根据需要调整宽度 */
 }
 
-.t-chat-input {
-  position: absolute;
-  bottom: 30px; /* 距离底部30px */
-  left: 0;
-  right: 0;
-  margin: auto; /* 水平居中 */
-  width: 100%; /* 可根据需要调整宽度 */
-  
-  .t-input__inner {
-    padding-right: 100px; /* 为发送按钮留出空间 */
-  }
-  
-  .t-button {
-    position: absolute;
-    right: 10px; /* 距离输入框右边10px */
-    top: 50%;
-  }
+
+.custom-chat-dialog {
+  /* 添加背景颜色 */
+  background-color: #dbeafe59;
+  /* 添加边框圆角 */
+  border-radius: 8px;
+      margin-top: 10px;
+      padding-right: 20px !important;
 }
 </style>
