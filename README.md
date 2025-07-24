@@ -50,7 +50,7 @@
       </td>
       <td align="center">
         <a https://github.com/ <ID>">
-          <img src="[<Github头像url>](https://avatars.githubusercontent.com/u/222571036?s=400&u=254ac083b4d85e08dc7dee9d186624dfaa031614&v=4)" alt="GITHUB" width="100" height="100" />
+          <img src="https://avatars.githubusercontent.com/u/222571036?s=400&u=254ac083b4d85e08dc7dee9d186624dfaa031614&v=4" alt="GITHUB" width="100" height="100" />
           <br />
           <strong>ZXT</strong>
           <br />
