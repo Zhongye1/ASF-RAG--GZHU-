@@ -51,7 +51,7 @@
     <!-- 主聊天区域 -->
     <div id="chat-container" class="flex height-full">
     <chatMainUnit></chatMainUnit>
-    
+    <!-- 为每个对话框发分配一个路由键要后端的功能 -->
     </div>
   </div>
 </template>
