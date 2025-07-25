@@ -20,9 +20,9 @@
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center">
           <div class="relative">
-            <select 
-              class="border bg-gray-50 text-gray-700 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              v-model="filterStatus"
+            <select
+                class="border bg-gray-50 text-gray-700 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                v-model="filterStatus"
             >
               <option>全部</option>
               <option>启用</option>
@@ -31,10 +31,10 @@
           </div>
           <div class="relative ml-3">
             <input
-              type="text"
-              placeholder="搜索文件"
-              class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              v-model="searchQuery"
+                type="text"
+                placeholder="搜索文件"
+                class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                v-model="searchQuery"
             />
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,9 +43,11 @@
             </div>
           </div>
         </div>
-        <button 
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center"
-          @click="showUploadModal = true"
+
+
+        ！！！！！<button
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center"
+            @click="showUploadModal = true"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -57,24 +59,38 @@
       <!-- 文档列表 -->
       <div class="border rounded-lg overflow-hidden">
         <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 font-medium text-gray-600 border-b">
-          <div class="col-span-1 flex justify-center">
+          <!--<div class="col-span-1 flex justify-center">
             <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" @change="toggleAllSelection">
-          </div>
+          </div> -->       <!--后续再做批量删除功能-->
+          <div class="col-span-1 text-center">添加到测试</div>
           <div class="col-span-4">名称</div>
           <div class="col-span-2">分块数</div>
           <div class="col-span-2">上传日期</div>
           <div class="col-span-2">切片方法</div>
           <div class="col-span-1">启用</div>
+
         </div>
-        
+
         <div v-if="displayedDocuments.length > 0">
-          <div 
-            v-for="(doc, index) in displayedDocuments" 
+          <div
+            v-for="(doc, index) in displayedDocuments"
             :key="doc.id"
             class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b"
           >
             <div class="col-span-1 flex justify-center">
-              <input type="checkbox" v-model="selectedDocuments" :value="doc.id" class="rounded text-blue-600 focus:ring-blue-500">
+              <button
+                  @click="addFileToTest(doc)"
+                  class="text-gray-500 hover:text-blue-600 relative group"
+                  :disabled="isFileInTest(doc.id)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {{ isFileInTest(doc.id) ? '已在测试中' : '添加到测试' }}
+                </span>
+              </button>
+<!--              <input type="checkbox" v-model="selectedDocuments" :value="doc.id" class="rounded text-blue-600 focus:ring-blue-500">-->   <!--后续再做批量删除功能-->
             </div>
             <div class="col-span-4 flex items-center">
               <div class="flex-shrink-0 mr-3">
@@ -103,7 +119,7 @@
             <div class="col-span-2 text-gray-600">{{ formatDate(doc.uploadDate) }}</div>
             <div class="col-span-2 text-gray-600">{{ doc.slicingMethod }}</div>
             <div class="col-span-1 flex justify-center">
-              <button 
+              <button
                 @click="toggleDocumentStatus(doc)"
                 :class="[
                   'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none',
@@ -112,7 +128,7 @@
                 role="switch"
                 aria-checked="false"
               >
-                <span 
+                <span
                   :class="[
                     'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200',
                     doc.enabled ? 'translate-x-5' : 'translate-x-0'
@@ -123,7 +139,7 @@
             </div>
           </div>
         </div>
-        
+
         <div v-else class="p-8 text-center text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -913,12 +929,6 @@ const deleteKnowledgeBase = () => {
   }, 1000);
 };
 
-// 添加文件到测试列表
-const addFileToTest = (file: Document) => {
-  if (!selectedFilesForTest.value.find(f => f.id === file.id)) {
-    selectedFilesForTest.value.push(file);
-  }
-};
 
 // 从测试列表中移除文件
 const removeFileFromTest = (id: number) => {
@@ -933,6 +943,29 @@ onMounted(() => {
   // 默认选择前3个文件用于测试
   selectedFilesForTest.value = [documents.value[0], documents.value[2], documents.value[5]];
 });
+
+const isFileInTest = (id: number) => {
+  return selectedFilesForTest.value.some(file => file.id === id);
+};
+
+// 添加单个文件到测试列表
+const addFileToTest = (file: Document) => {
+  if (!isFileInTest(file.id)) {
+    selectedFilesForTest.value.push(file);
+  }
+};
+
+// 批量添加选中的文件到测试
+const addSelectedToTest = () => {
+  const selectedFiles = documents.value.filter(doc =>
+      selectedDocuments.value.includes(doc.id) && !isFileInTest(doc.id)
+  );
+
+  selectedFilesForTest.value = [...selectedFilesForTest.value, ...selectedFiles];
+
+  // 清空选择
+  selectedDocuments.value = [];
+};
 </script>
 
 <style scoped>
