@@ -43,9 +43,18 @@
             </div>
           </div>
         </div>
-
-
-        ！！！！！<button
+        <div class="flex gap-3">
+        <button
+            v-if="!showBatchActions"
+            @click="startBatchDelete"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          批量删除
+        </button>
+        <button
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center"
             @click="showUploadModal = true"
         >
@@ -54,31 +63,70 @@
           </svg>
           上传文件
         </button>
+        </div>
+
       </div>
-      
-      <!-- 文档列表 -->
+      <!-- 批量操作按钮组 -->
+      <div class="flex justify-between mb-4">
+        <div class="flex space-x-3">
+          <button
+              v-if="showBatchActions"
+              @click="cancelBatchDelete"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            取消
+          </button>
+          <button
+              v-if="showBatchActions"
+              @click="confirmBatchDelete"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            删除选中的 {{ selectedDocuments.length }} 个文件
+          </button>
+        </div>
+      </div>
       <div class="border rounded-lg overflow-hidden">
         <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 font-medium text-gray-600 border-b">
-          <!--<div class="col-span-1 flex justify-center">
-            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" @change="toggleAllSelection">
-          </div> -->       <!--后续再做批量删除功能-->
-          <div class="col-span-1 text-center">添加到测试</div>
-          <div class="col-span-4">名称</div>
+          <div class="col-span-1 flex justify-center">
+            <input
+                v-if="showBatchActions"
+                type="checkbox"
+                class="rounded text-blue-600 focus:ring-blue-500"
+                @change="toggleAllSelection"
+                :checked="selectedDocuments.length === displayedDocuments.length"
+            >
+            <span v-else>操作</span>
+          </div>
+          <div class="col-span-3">名称</div>
           <div class="col-span-2">分块数</div>
           <div class="col-span-2">上传日期</div>
           <div class="col-span-2">切片方法</div>
           <div class="col-span-1">启用</div>
-
+          <div class="col-span-1 text-center">添加到测试</div>
         </div>
 
         <div v-if="displayedDocuments.length > 0">
           <div
-            v-for="(doc, index) in displayedDocuments"
-            :key="doc.id"
-            class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b"
+              v-for="(doc, index) in displayedDocuments"
+              :key="doc.id"
+              class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b"
           >
             <div class="col-span-1 flex justify-center">
+              <input
+                  v-if="showBatchActions"
+                  type="checkbox"
+                  v-model="selectedDocuments"
+                  :value="doc.id"
+                  class="rounded text-blue-600 focus:ring-blue-500"
+              >
               <button
+                  v-else
                   @click="addFileToTest(doc)"
                   class="text-gray-500 hover:text-blue-600 relative group"
                   :disabled="isFileInTest(doc.id)"
@@ -90,7 +138,6 @@
                   {{ isFileInTest(doc.id) ? '已在测试中' : '添加到测试' }}
                 </span>
               </button>
-<!--              <input type="checkbox" v-model="selectedDocuments" :value="doc.id" class="rounded text-blue-600 focus:ring-blue-500">-->   <!--后续再做批量删除功能-->
             </div>
             <div class="col-span-4 flex items-center">
               <div class="flex-shrink-0 mr-3">
@@ -566,34 +613,35 @@
     </div>
     
     <!-- 删除知识库确认模态框 -->
-    <div v-if="showDeleteConfirmation" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showBatchDeleteConfirmation" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div class="p-6">
           <div class="flex justify-between items-center pb-4 border-b">
-            <h3 class="text-xl font-semibold text-gray-800">删除知识库</h3>
-            <button @click="showDeleteConfirmation = false" class="text-gray-500 hover:text-gray-700">
+            <h3 class="text-xl font-semibold text-gray-800">确认删除</h3>
+            <button @click="showBatchDeleteConfirmation = false" class="text-gray-500 hover:text-gray-700">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          
+
           <div class="mt-4">
             <p class="text-gray-700 mb-6">
-              确定要删除知识库 <span class="font-semibold">{{ kbName }}</span> 吗？此操作将永久删除知识库中的所有文档数据，且不可恢复。
+              确定要删除选中的 <span class="font-semibold">{{ selectedDocuments.length }}</span> 个文件吗？此操作不可恢复。
             </p>
-            
+
             <div class="flex justify-end">
-              <button 
-                @click="showDeleteConfirmation = false" 
-                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium mr-3 hover:bg-gray-300"
+              <button
+                  @click="showBatchDeleteConfirmation = false"
+                  class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium mr-3 hover:bg-gray-300"
               >
                 取消
               </button>
-              <button 
-                @click="deleteKnowledgeBase" 
-                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
+              <button
+                  @click="executeBatchDelete"
+                  class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
               >
+
                 确认删除
               </button>
             </div>
@@ -846,15 +894,6 @@ const toggleDocumentStatus = (doc: Document) => {
   console.log('文档状态已更新', doc.enabled);
 };
 
-// 全选/取消全选
-const toggleAllSelection = (event: Event) => {
-  const checkbox = event.target as HTMLInputElement;
-  if (checkbox.checked) {
-    selectedDocuments.value = documents.value.map(doc => doc.id);
-  } else {
-    selectedDocuments.value = [];
-  }
-};
 
 // 运行搜索测试
 const runSearchTest = () => {
@@ -965,6 +1004,62 @@ const addSelectedToTest = () => {
 
   // 清空选择
   selectedDocuments.value = [];
+};
+
+const showBatchActions = ref(false);
+const showBatchDeleteConfirmation = ref(false);
+
+// 开始批量删除模式
+const startBatchDelete = () => {
+  showBatchActions.value = true;
+  selectedDocuments.value = [];
+};
+
+// 取消批量删除
+const cancelBatchDelete = () => {
+  showBatchActions.value = false;
+  selectedDocuments.value = [];
+};
+
+// 确认批量删除
+const confirmBatchDelete = () => {
+  if (selectedDocuments.value.length === 0) {
+    return;
+  }
+  showBatchDeleteConfirmation.value = true;
+};
+
+// 执行批量删除
+const executeBatchDelete = () => {
+  // 过滤掉选中的文档
+  documents.value = documents.value.filter(
+      doc => !selectedDocuments.value.includes(doc.id)
+  );
+
+  // 同时从测试列表中移除这些文件
+  selectedFilesForTest.value = selectedFilesForTest.value.filter(
+      file => !selectedDocuments.value.includes(file.id)
+  );
+
+  // 重置状态
+  showBatchDeleteConfirmation.value = false;
+  showBatchActions.value = false;
+  selectedDocuments.value = [];
+
+  // 如果删除后当前页没有数据且不是第一页，则返回上一页
+  if (displayedDocuments.value.length === 0 && currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
+// 全选/取消全选
+const toggleAllSelection = (event: Event) => {
+  const checkbox = event.target as HTMLInputElement;
+  if (checkbox.checked) {
+    selectedDocuments.value = displayedDocuments.value.map(doc => doc.id);
+  } else {
+    selectedDocuments.value = [];
+  }
 };
 </script>
 
