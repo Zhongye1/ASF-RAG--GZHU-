@@ -85,7 +85,7 @@ const clickHandler: DropdownProps['onClick'] = (data) => {
 }
 
 .knowledge-card-footer-buttonlists:hover {
-  background-color: #d4d4d47e;
+  background-color: #f3f3f37e;
   /* 悬停时的背景色 */
 }
 

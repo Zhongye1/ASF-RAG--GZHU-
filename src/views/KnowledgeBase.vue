@@ -33,7 +33,8 @@
       <!-- 这里的key不是唯一的数据渲染有问题 -->
       <!-- 更多卡片占位符 -->
       <div
-        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center min-h-[150px]"
+      id = "knowledge-cards-ends"
+        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center w-370 min-h-[150px]"
       >
         <p class="text-gray-500">That's all. Nothing more.</p>
       </div>
@@ -65,6 +66,8 @@ const { filteredCards } = storeToRefs(cardDataStore);
 </script>
 <style scoped>
 #knowledge-cards {
+  height: 380px;
+  width: 370px !important;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -74,8 +77,13 @@ const { filteredCards } = storeToRefs(cardDataStore);
   cursor: pointer;
 }
 
+#knowledge-cards-ends {
+  width: 370px !important;
+}
+
 .grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
 main {
