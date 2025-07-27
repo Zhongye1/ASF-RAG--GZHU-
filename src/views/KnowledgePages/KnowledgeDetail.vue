@@ -747,63 +747,24 @@ const removeUploadedFile = (index: number) => {
   uploadedFiles.value.splice(index, 1);
 };
 
+// 实验代码，大文件上传
+
+import { uploadFiles } from './file-upload';
 
 // 处理文件上传
 const processFileUpload = async () => {
-  if (uploadedFiles.value.length === 0) return;
-
-  isUploading.value = true;
-  uploadProgress.value = 0;
-
+  await uploadFiles(uploadedFiles, isUploading, uploadProgress);
+  // 上传完成后刷新文档列表
   try {
-    // 创建 FormData 对象
-    const formData = new FormData();
-    uploadedFiles.value.forEach(file => {
-      formData.append('files', file);
-    });
-
-    // 调用后端接口发送文件数据
-    const response = await axios.post('/api/api/upload-files', formData, {
+    const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/', {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-      onUploadProgress: (progressEvent) => {
-        uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        'accept': 'application/json'
       }
     });
-    console.log("上传文件大小",uploadedFiles.value[0].size);
-    console.log(response.data);
-
-    // 处理接口响应
-    if (response.status === 200 && response.data.success.length > 0) {
-      // 创建新的文档记录
-      response.data.success.forEach((fileData: any) => {
-        const newDoc: Document = {
-          id: documents.value.length + 1,
-          name: fileData.name,
-          fileType: fileData.fileType,
-          chunks: fileData.chunks,
-          uploadDate: fileData.uploadDate,
-          slicingMethod: fileData.slicingMethod,
-          enabled: true
-        };
-
-        documents.value.unshift(newDoc);
-      });
-
-      uploadedFiles.value = [];
-      isUploading.value = false;
-      showUploadModal.value = false;
-      uploadProgress.value = 0;
-    } else {
-      console.error('文件上传失败:', response.statusText);
-      // 处理错误，例如显示错误消息
-    }
+    documents.value = response.data;
+    uploadedFiles.value = []; // 清空待上传文件列表
   } catch (error) {
-    console.error('文件上传失败:', error);
-    // 处理错误，例如显示错误消息
-  } finally {
-    isUploading.value = false;
+    console.error('刷新文档列表失败:', error);
   }
 };
 

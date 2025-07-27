@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import KnowledgeBase from '../views/KnowledgeBase.vue';
+import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue';
 import NotFound from '../components/ERS-Pages/404.vue';
 
 
@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/knowledge/knowledgeDetail/:id',
     name: 'KnowledgeDetail',
-    component: () => import('../views/KnowledgeDetail.vue')
+    component: () => import('../views/KnowledgePages/KnowledgeDetail.vue')
   },
   {
     path: '/chat',
@@ -66,3 +66,4 @@ const router = createRouter({
 });
 
 export default router;
+
