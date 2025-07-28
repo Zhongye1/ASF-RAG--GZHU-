@@ -132,3 +132,30 @@ export async function fetchOllamaStream(prompt: string, model: string = "llama2"
     throw error;
   }
 }
+
+
+export interface MessageRecord {
+  /** 头像URL */
+  avatar: string;
+  /** 发送者名称 */
+  name: string;
+  /** 消息时间 */
+  datetime: string;
+  /** 消息内容 */
+  content: string;
+  /** 发送者角色 (user/assistant) */
+  role: 'user' | 'assistant';
+  /** 推理字段 */
+  reasoning: string;
+  /** 持续时间 (秒) */
+  duration: number;
+}
+
+export interface ChatUnitProps {
+  /** 聊天标题 */
+  title: string;
+  /** 最后一条消息摘要 */
+  lastMessage: string;
+  /** 聊天历史记录 */
+  history: MessageRecord[];
+}

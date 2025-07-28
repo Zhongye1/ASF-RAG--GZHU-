@@ -1,7 +1,7 @@
 // store/modules/user.ts
 import { defineStore } from 'pinia'
 
-interface CardDataType {
+export interface CardDataType {
   id: string
   title: string
   avatar: string
@@ -117,7 +117,16 @@ export const useCardDataStore = defineStore('CardData', {
     },
     resetFilters() {
       this.searchKeyword = '';
-    }
+    },
+    // 添加新卡片
+    addCard(card: CardDataType) {
+      this.allCards.push(card);
+    },
+    // 删除卡片
+    deleteCard(cardId: string) {
+      this.allCards = this.allCards.filter(card => card.id !== cardId);
+      //等待后端实现
+    },
   },
   getters: {
     filteredCards(state): CardDataType[] {

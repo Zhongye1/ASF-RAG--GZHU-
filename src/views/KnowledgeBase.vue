@@ -11,7 +11,7 @@
         <!-- 搜索框 -->
         <search @search="handleSearch" class="h-[40px]" />
         <!-- 创建知识库按钮 -->
-        <t-button theme="primary" class="h-[40px]">
+        <t-button theme="primary" class="h-[40px]" @click="handleCreateKnowledgeBase">
           <template #icon><add-icon /></template>
           新建知识库
         </t-button>
@@ -39,6 +39,67 @@
       </div>
     </div>
   </main>
+    <t-dialog
+      v-if="visible"
+      v-model:visible="visible"
+      header="创建新知识库"
+      :on-close="resetForm"
+      :close-on-overlay-click="false"
+      destroy-on-close
+    >
+      <!-- 表单区域 -->
+      <t-form :data="newCard" label-align="top" style="overflow-x: hidden;">
+        <t-form-item label="知识库名称" name="title" required>
+          <t-input v-model="newCard.title" placeholder="请输入知识库名称" clearable />
+        </t-form-item>
+
+        <t-form-item label="描述信息" name="description">
+          <t-textarea
+            v-model="newCard.description"
+            placeholder="请输入描述信息"
+            :autosize="{ minRows: 3, maxRows: 5 }"
+          />
+        </t-form-item>
+
+        <t-row :gutter="16">
+          <t-col :span="12">
+            <t-form-item label="头像URL" name="avatar">
+              <t-input v-model="newCard.avatar" placeholder="请输入头像URL" clearable>
+              </t-input>
+            </t-form-item>
+          </t-col>
+          <t-col :span="12">
+            <t-form-item label="封面URL" name="cover">
+              <t-input v-model="newCard.cover" placeholder="请输入封面URL" clearable>
+              </t-input>
+            </t-form-item>
+          </t-col>
+        </t-row>
+
+        <!-- 图片预览 -->
+        <t-row :gutter="16" v-if="newCard.avatar || newCard.cover">
+          <t-col :span="12" v-if="newCard.avatar">
+            <div class="preview-container">
+              <p class="preview-label">头像预览</p>
+              <img :src="newCard.avatar" class="preview-image" alt="头像预览" />
+            </div>
+          </t-col>
+          <t-col :span="12" v-if="newCard.cover">
+            <div class="preview-container">
+              <p class="preview-label">封面预览</p>
+              <img :src="newCard.cover" class="preview-image" alt="封面预览" />
+            </div>
+          </t-col>
+        </t-row>
+      </t-form>
+
+      <template #footer>
+        <t-button variant="outline" @click="visible = false">取消</t-button>
+        <t-button theme="primary" @click="createCard" :disabled="!newCard.title.trim()">
+          创建
+        </t-button>
+      </template>
+    </t-dialog>
 </template>
 
 <script setup lang="ts">
@@ -47,9 +108,18 @@ import { AddIcon } from "tdesign-icons-vue-next";
 import knowledgeCards from "../components/knowledge-unit/knowledge-cards.vue";
 import { ref } from "vue";
 import search from "../components/search-unit/search.vue";
-import { useCardDataStore } from "../store";
-import { storeToRefs } from 'pinia';
+import { useCardDataStore, CardDataType } from "../store";
+import { storeToRefs } from "pinia";
 
+const visible = ref(false);
+const newCard = ref({
+  id: '',
+  title: '',
+  description: '',
+  avatar: '',
+  cover: '',
+  createdTime: '',
+});
 const router = useRouter();
 const cardDataStore = useCardDataStore();
 const goToDetail = (id: string) => {
@@ -59,6 +129,30 @@ const goToDetail = (id: string) => {
 const handleSearch = (keyword: string) => {
   console.log("搜索关键词:", keyword);
   // 执行搜索逻辑，比如调用接口、过滤列表等
+};
+
+const handleCreateKnowledgeBase = () => {
+  console.log("创建知识库");
+  visible.value = true;
+};
+
+const createCard = () => {
+  newCard.value.id = Date.now().toString();
+  newCard.value.createdTime = new Date().toLocaleDateString();
+  cardDataStore.addCard(newCard.value);
+  visible.value = false;
+  resetForm();
+};
+
+const resetForm = () => {
+  newCard.value = {
+    id: '',
+    title: '',
+    description: '',
+    avatar: '',
+    cover: '',
+    createdTime: '',
+  };
 };
 
 const { filteredCards } = storeToRefs(cardDataStore);
