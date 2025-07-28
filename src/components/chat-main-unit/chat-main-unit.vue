@@ -14,21 +14,30 @@
       <template #content="{ item, index }">
         <t-chat-reasoning v-if="item.reasoning?.length > 0" expand-icon-placement="right">
           <template #header>
-            <t-chat-loading v-if="isStreamLoad && item.content.length === 0" text="思考中...按Ctrl+C停止" />
+            <t-chat-loading
+              v-if="isStreamLoad && item.content.length === 0"
+              text="思考中...按Ctrl+C停止"
+            />
             <div v-else style="display: flex; align-items: center">
-              <CheckCircleIcon style="color: var(--td-success-color-5); font-size: 20px; margin-right: 8px" />
+              <CheckCircleIcon
+                style="
+                  color: var(--td-success-color-5);
+                  font-size: 20px;
+                  margin-right: 8px;
+                "
+              />
               <span>已深度思考</span>
             </div>
           </template>
           <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
         </t-chat-reasoning>
-          <t-chat-content 
-            v-if="item.content.length > 0" 
-            :content="item.content"
-            class="custom-chat-dialog"
-          />
+        <t-chat-content
+          v-if="item.content.length > 0"
+          :content="item.content"
+          class="custom-chat-dialog"
+        />
       </template>
-      
+
       <template #actions="{ item, index }">
         <t-chat-action
           :content="item.content"
@@ -36,10 +45,10 @@
           @operation="handleOperation"
         />
       </template>
-      
+
       <template #footer>
         <t-chat-sender
-        id="chatSender"
+          id="chatSender"
           ref="chatSenderRef"
           v-model="inputValue"
           class="chat-sender"
@@ -52,12 +61,18 @@
           @stop="onStop"
         >
           <template #suffix="{ renderPresets }">
-            <component :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])" />
+            <component
+              :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])"
+            />
           </template>
-          
+
           <template #prefix>
             <div class="model-select">
-              <t-tooltip v-model:visible="allowToolTip" content="切换模型" trigger="hover">
+              <t-tooltip
+                v-model:visible="allowToolTip"
+                content="切换模型"
+                trigger="hover"
+              >
                 <t-select
                   v-model="selectValue"
                   :options="selectOptions"
@@ -66,7 +81,12 @@
                   @change="handleModelChange"
                 ></t-select>
               </t-tooltip>
-              <t-button class="check-box" :class="{ 'is-active': isChecked }" variant="text" @click="checkClick">
+              <t-button
+                class="check-box"
+                :class="{ 'is-active': isChecked }"
+                variant="text"
+                @click="checkClick"
+              >
                 <SystemSumIcon />
                 <span>深度思考</span>
               </t-button>
@@ -75,8 +95,13 @@
         </t-chat-sender>
       </template>
     </t-chat>
-    
-    <t-button v-show="isShowToBottom" variant="text" class="bottomBtn" @click="backBottom">
+
+    <t-button
+      v-show="isShowToBottom"
+      variant="text"
+      class="bottomBtn"
+      @click="backBottom"
+    >
       <div class="to-bottom">
         <ArrowDownIcon />
       </div>
@@ -85,9 +110,17 @@
 </template>
 
 <script setup lang="jsx">
-import { ref, reactive, toRefs, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import {
+  ref,
+  reactive,
+  toRefs,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  defineProps,
+} from "vue";
 //import { MockSSEResponse } from './sseRequest-reasoning';
-import { ArrowDownIcon, CheckCircleIcon, SystemSumIcon } from 'tdesign-icons-vue-next';
+import { ArrowDownIcon, CheckCircleIcon, SystemSumIcon } from "tdesign-icons-vue-next";
 import {
   Chat as TChat,
   ChatAction as TChatAction,
@@ -96,9 +129,9 @@ import {
   ChatItem as TChatItem,
   ChatReasoning as TChatReasoning,
   ChatLoading as TChatLoading,
-} from '@tdesign-vue-next/chat';
-import { fetchOllamaStream } from './sseRequest-reasoning';
-import { MessagePlugin } from 'tdesign-vue-next';
+} from "@tdesign-vue-next/chat";
+import { fetchOllamaStream } from "./sseRequest-reasoning";
+import { MessagePlugin } from "tdesign-vue-next";
 
 // 基础状态
 const fetchCancel = ref(null);
@@ -106,16 +139,44 @@ const loading = ref(false);
 const isStreamLoad = ref(false);
 const chatRef = ref(null);
 const chatSenderRef = ref(null);
-const inputValue = ref('');
+const inputValue = ref("");
 const isShowToBottom = ref(false);
 const allowToolTip = ref(false);
 
+//定义props
+// 定义 MessageRecord 类型
+const MessageRecord = {
+  avatar: String,
+  name: String,
+  datetime: String,
+  content: String,
+  role: String,
+  reasoning: String,
+  duration: Number,
+};
+
+// 定义 props
+const props = defineProps({
+  title: {
+    type: String,
+    default: "",
+  },
+  lastMessage: {
+    type: String,
+    default: "",
+  },
+  history: {
+    type: Array,
+    default: () => [],
+  },
+});
+
 // 模型选择相关
 const selectOptions = ref([
-  { label: 'qwen3:0.6b', value: 'qwen3:0.6b' },
-  { label: 'Deepseek', value: 'deepseek-r1' },
+  { label: "qwen3:0.6b", value: "qwen3:0.6b" },
+  { label: "Deepseek", value: "deepseek-r1" },
 ]);
-const selectValue = ref({ label: '默认模型', value: 'qwen3:0.6b' });
+const selectValue = ref({ label: "默认模型", value: "qwen3:0.6b" });
 const isChecked = ref(false);
 
 // 处理模型选择事件
@@ -131,25 +192,7 @@ const checkClick = () => {
 //[Vue warn] toRefs() expects a reactive object but received a plain one.
 // 解决方法：这里要使用toRefs()将reactive对象转换为响应式对象
 const state = reactive({
-  chatList: [
-    {
-      avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
-      name: 'TDesignAI',
-      datetime: '今天16:38',
-      reasoning: '',
-      content: '它叫 McMurdo Station ATM，是美国富国银行安装在南极洲最大科学中心麦克默多站的一台自动提款机。',
-      role: 'assistant',
-      duration: 10,
-    },
-    {
-      avatar: 'https://tdesign.gtimg.com/site/avatar.jpg',
-      name: '自己',
-      datetime: '今天16:38',
-      content: '南极的自动提款机叫什么名字？',
-      role: 'user',
-      reasoning: '',
-    },
-  ],
+  chatList: props.history
 });
 
 const { chatList } = toRefs(state);
@@ -157,7 +200,7 @@ const { chatList } = toRefs(state);
 // 滚动相关
 const backBottom = () => {
   chatRef.value.scrollToBottom({
-    behavior: 'smooth',
+    behavior: "smooth",
   });
 };
 
@@ -173,23 +216,23 @@ const clearConfirm = function () {
 
 // 操作处理
 const handleOperation = function (type, options) {
-  console.log('handleOperation', type, options);
+  console.log("handleOperation", type, options);
 };
 
 // 文件选择处理
 const fileSelect = function (files) {
-  console.log('选择的文件:', files);
+  console.log("选择的文件:", files);
 };
 
 // 停止按钮处理
 const onStop = function () {
-  console.log('onStop - 用户主动停止');
-  
+  console.log("onStop - 用户主动停止");
+
   if (fetchCancel.value) {
     fetchCancel.value.controller.close();
     fetchCancel.value = null;
   }
-  
+
   // 用户主动停止时立即恢复按钮状态
   isStreamLoad.value = false;
   loading.value = false;
@@ -199,29 +242,29 @@ const onStop = function () {
 const inputEnter = function (messageContent) {
   // 防止重复发送
   if (isStreamLoad.value) {
-    console.log('正在处理中，忽略重复发送');
+    console.log("正在处理中，忽略重复发送");
     return;
   }
 
-  console.log('发送的消息:', messageContent);
-  
+  console.log("发送的消息:", messageContent);
+
   // 添加用户消息
   const userMessage = {
-    avatar: 'https://tdesign.gtimg.com/site/avatar.jpg',
-    name: '自己',
+    avatar: "https://tdesign.gtimg.com/site/avatar.jpg",
+    name: "自己",
     datetime: new Date().toLocaleString(),
     content: messageContent,
-    role: 'user',
+    role: "user",
   };
-  
+
   // 添加AI占位消息
   const aiMessage = {
-    avatar: 'https://tdesign.gtimg.com/site/chat-avatar.png',
-    name: 'TDesignAI',
+    avatar: "https://tdesign.gtimg.com/site/chat-avatar.png",
+    name: "TDesignAI",
     datetime: new Date().toLocaleString(),
-    content: '',
-    reasoning: '',
-    role: 'assistant',
+    content: "",
+    reasoning: "",
+    role: "assistant",
   };
 
   chatList.value.unshift(userMessage);
@@ -230,14 +273,13 @@ const inputEnter = function (messageContent) {
   // 启动流式加载状态
   isStreamLoad.value = true;
   //loading.value = true;
-  
-  
+
   // 清空输入框 - 正确的方式
-  inputValue.value = '';
-  
+  inputValue.value = "";
+
   // 如果组件提供了清空方法，也调用一下
   nextTick(() => {
-    if (chatSenderRef.value && typeof chatSenderRef.value.clear === 'function') {
+    if (chatSenderRef.value && typeof chatSenderRef.value.clear === "function") {
       chatSenderRef.value.clear();
     }
   });
@@ -251,18 +293,18 @@ const fetchSSE = async (fetchFn, options) => {
   try {
     const response = await fetchFn();
     const { success, fail, complete } = options;
-    
+
     if (!response.ok) {
       complete?.(false, response.statusText);
       fail?.();
       return;
     }
-    
+
     const reader = response?.body?.getReader();
     const decoder = new TextDecoder();
-    
+
     if (!reader) {
-      complete?.(false, '无法获取数据流');
+      complete?.(false, "无法获取数据流");
       return;
     }
 
@@ -271,23 +313,22 @@ const fetchSSE = async (fetchFn, options) => {
         complete?.(true);
         return;
       }
-      
+
       try {
         const chunk = decoder.decode(value, { stream: true });
         const buffers = chunk.toString().split(/\r?\n/);
         const jsonData = JSON.parse(buffers);
         success(jsonData);
       } catch (error) {
-        console.error('解析数据出错:', error);
+        console.error("解析数据出错:", error);
       }
-      
+
       return reader.read().then(processText);
     };
 
     reader.read().then(processText);
-    
   } catch (error) {
-    console.error('fetchSSE 出错:', error);
+    console.error("fetchSSE 出错:", error);
     options.complete?.(false, error.message);
   }
 };
@@ -299,73 +340,78 @@ const fetchSSE = async (fetchFn, options) => {
 // 修改数据处理函数
 const handleData = async (messageContent) => {
   console.log("开始处理数据:", messageContent);
-  
+
   const lastItem = chatList.value[0];
   const selectedModel = selectValue.value.value;
-  
+
   // 用于追踪思考过程状态
   let isInThinking = false;
   let thinkingStarted = false;
-  let accumulatedResponse = ''; // 累积所有响应内容
-  
+  let accumulatedResponse = ""; // 累积所有响应内容
+
   try {
-    const { response, controller } = await fetchOllamaStream(messageContent, selectedModel);
+    const { response, controller } = await fetchOllamaStream(
+      messageContent,
+      selectedModel
+    );
     fetchCancel.value = { controller };
-    
+
     if (!response.ok) {
       throw new Error(`Ollama API responded with status: ${response.status}`);
     }
-    
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    
+
     // 处理流式响应
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      
+
       const chunk = decoder.decode(value, { stream: true });
       try {
-        const lines = chunk.trim().split('\n');
-        
+        const lines = chunk.trim().split("\n");
+
         for (const line of lines) {
           if (!line.trim()) continue;
-          
+
           const data = JSON.parse(line);
-          
+
           if (data.response) {
             accumulatedResponse += data.response;
-            
+
             // 检测 <think> 标签开始
-            if (!thinkingStarted && accumulatedResponse.includes('<think>')) {
+            if (!thinkingStarted && accumulatedResponse.includes("<think>")) {
               isInThinking = true;
               thinkingStarted = true;
-              console.log('开始思考过程');
-              
+              console.log("开始思考过程");
+
               // 提取 <think> 之前的内容作为正式回答
-              const beforeThink = accumulatedResponse.split('<think>')[0];
+              const beforeThink = accumulatedResponse.split("<think>")[0];
               if (beforeThink.trim()) {
                 lastItem.content = beforeThink;
               }
-              
+
               // 提取 <think> 之后的内容作为思考过程开始
-              const afterThink = accumulatedResponse.split('<think>')[1];
+              const afterThink = accumulatedResponse.split("<think>")[1];
               if (afterThink) {
                 lastItem.reasoning = afterThink;
               }
             }
             // 检测 </think> 标签结束
-            else if (isInThinking && accumulatedResponse.includes('</think>')) {
+            else if (isInThinking && accumulatedResponse.includes("</think>")) {
               isInThinking = false;
-              console.log('结束思考过程');
-              
+              console.log("结束思考过程");
+
               // 分割思考内容和后续回答
-              const thinkContent = accumulatedResponse.split('<think>')[1].split('</think>')[0];
-              const afterThink = accumulatedResponse.split('</think>')[1];
-              
+              const thinkContent = accumulatedResponse
+                .split("<think>")[1]
+                .split("</think>")[0];
+              const afterThink = accumulatedResponse.split("</think>")[1];
+
               // 更新思考内容（去掉标签）
               lastItem.reasoning = thinkContent;
-              
+
               // 添加 </think> 后的内容到正式回答
               if (afterThink) {
                 lastItem.content += afterThink;
@@ -374,8 +420,8 @@ const handleData = async (messageContent) => {
             // 在思考过程中
             else if (isInThinking) {
               // 更新思考内容（去掉 <think> 标签）
-              const currentThinking = accumulatedResponse.split('<think>')[1];
-              if (currentThinking && !currentThinking.includes('</think>')) {
+              const currentThinking = accumulatedResponse.split("<think>")[1];
+              if (currentThinking && !currentThinking.includes("</think>")) {
                 lastItem.reasoning = currentThinking;
               }
             }
@@ -387,58 +433,56 @@ const handleData = async (messageContent) => {
                 lastItem.content += data.response;
               } else {
                 // 思考已结束，继续添加到内容（排除 </think> 标签）
-                const cleanResponse = data.response.replace('</think>', '');
+                const cleanResponse = data.response.replace("</think>", "");
                 if (cleanResponse) {
                   lastItem.content += cleanResponse;
                 }
               }
             }
           }
-          
+
           // 检查是否完成
           if (data.done) {
             // 最终清理：确保移除所有标签
-            lastItem.content = lastItem.content.replace(/<\/?think>/g, '');
-            lastItem.reasoning = lastItem.reasoning.replace(/<\/?think>/g, '');
-            
-            lastItem.duration = data.total_duration ? 
-              Math.round(data.total_duration / 1000000) : 
-              20;
-            
-            console.log('最终内容:', {
+            lastItem.content = lastItem.content.replace(/<\/?think>/g, "");
+            lastItem.reasoning = lastItem.reasoning.replace(/<\/?think>/g, "");
+
+            lastItem.duration = data.total_duration
+              ? Math.round(data.total_duration / 1000000)
+              : 20;
+
+            console.log("最终内容:", {
               reasoning: lastItem.reasoning,
-              content: lastItem.content
+              content: lastItem.content,
             });
           }
         }
       } catch (error) {
-        console.error('解析数据出错:', error, chunk);
+        console.error("解析数据出错:", error, chunk);
       }
     }
-    
+
     // 完成处理
     isStreamLoad.value = false;
     loading.value = false;
     fetchCancel.value = null;
-    
   } catch (error) {
-    console.error('处理数据时出错:', error);
+    console.error("处理数据时出错:", error);
     if (lastItem) {
-      lastItem.role = 'error';
+      lastItem.role = "error";
       lastItem.content = `连接Ollama服务失败: ${error.message}`;
-      lastItem.reasoning = '';
+      lastItem.reasoning = "";
     }
-    
+
     isStreamLoad.value = false;
     loading.value = false;
     fetchCancel.value = null;
   }
 };
 
-
 // 键盘事件处理
 const handleKeyDown = (event) => {
-  if (event.ctrlKey && event.key === 'c') {
+  if (event.ctrlKey && event.key === "c") {
     event.preventDefault();
     onStop();
   }
@@ -446,17 +490,16 @@ const handleKeyDown = (event) => {
 
 // 生命周期
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener("keydown", handleKeyDown);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeyDown);
+  window.removeEventListener("keydown", handleKeyDown);
   if (fetchCancel.value) {
     fetchCancel.value.controller.close();
   }
 });
 </script>
-
 
 <style lang="less">
 /* 应用滚动条样式 */
@@ -482,8 +525,8 @@ onBeforeUnmount(() => {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.08), 0px 16px 24px 2px rgba(0, 0, 0, 0.04),
-      0px 6px 30px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.08),
+      0px 16px 24px 2px rgba(0, 0, 0, 0.04), 0px 6px 30px 5px rgba(0, 0, 0, 0.05);
   }
 
   .to-bottom {
@@ -550,13 +593,12 @@ onBeforeUnmount(() => {
   width: 100%; /* 可根据需要调整宽度 */
 }
 
-
 .custom-chat-dialog {
   /* 添加背景颜色 */
   background-color: #dbeafe59;
   /* 添加边框圆角 */
   border-radius: 8px;
-      margin-top: 10px;
-      padding-right: 20px !important;
+  margin-top: 10px;
+  padding-right: 20px !important;
 }
 </style>

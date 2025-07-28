@@ -141,6 +141,7 @@ const createCard = () => {
   newCard.value.createdTime = new Date().toLocaleDateString();
   cardDataStore.addCard(newCard.value);
   visible.value = false;
+  resetForm();
 };
 
 const resetForm = () => {
