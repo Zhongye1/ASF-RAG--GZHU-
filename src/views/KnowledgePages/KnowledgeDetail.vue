@@ -54,12 +54,11 @@
           <div class="col-span-1 flex justify-center">
 
           </div>
-          <div class="col-span-3">名称</div>
+          <div class="col-span-4">名称</div>
           <div class="col-span-2">分块数</div>
           <div class="col-span-2">上传日期</div>
           <div class="col-span-2">切片方法</div>
           <div class="col-span-1">启用</div>
-          <div class="col-span-1 text-center">添加到测试</div>
         </div>
 
 
@@ -636,21 +635,6 @@ const displayedDocuments = computed(() => {
 });
 
 
-onMounted(async () => {
-  try {
-    // 调用接口获取文档数据
-    const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/', {
-      headers: {
-        'accept': 'application/json'
-      }
-    });
-    // 将接口返回的数据赋值给 documents
-    documents.value = response.data;
-  } catch (error) {
-    console.error('获取文档数据失败:', error);
-    // 处理错误，例如显示错误消息
-  }
-});
 
 
 
@@ -757,11 +741,13 @@ const removeUploadedFile = (index: number) => {
 import { uploadFiles } from './file-upload';
 
 // 处理文件上传
+
+const KLB_id = route.params.id as string; // 获取URL的最后一项作为id
 const processFileUpload = async () => {
-  await uploadFiles(uploadedFiles, isUploading, uploadProgress);
+  await uploadFiles(uploadedFiles, isUploading, uploadProgress, KLB_id);
   // 上传完成后刷新文档列表
   try {
-    const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/', {
+    const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/' + KLB_id + '/', {
       headers: {
         'accept': 'application/json'
       }
@@ -899,7 +885,7 @@ onMounted(() => {
   const fetchDocuments = async () => {
     try {
       // 调用接口获取文档数据
-      const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/', {
+      const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/' + KLB_id + '/', {
         headers: {
           'accept': 'application/json'
         }

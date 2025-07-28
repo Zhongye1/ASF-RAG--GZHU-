@@ -1,6 +1,7 @@
 // store/modules/user.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 export interface CardDataType {
   id: string
@@ -59,6 +60,7 @@ export const useCardDataStore = defineStore('CardData', {
           this.allCards = response.data.data || []
           this.total = response.data.total || 0
           console.log(`成功获取 ${this.total} 条卡片数据`)
+          MessagePlugin.success(`成功获取 ${this.total} 个对象`)
         } else {
           this.error = response.data.message || '获取数据失败'
           console.error('API返回错误:', this.error)

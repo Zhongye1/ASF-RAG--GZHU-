@@ -16,7 +16,8 @@ const generateFileHash = async (file: File): Promise<string> => {
 export const uploadFiles = async (
     uploadedFiles: Ref<File[]>,
     isUploading: Ref<boolean>,
-    uploadProgress: Ref<number>
+    uploadProgress: Ref<number>,
+    KLB_id: string // 添加知识库ID参数
 ) => {
     if (uploadedFiles.value.length === 0) return;
 
@@ -52,12 +53,14 @@ export const uploadFiles = async (
                 formData.append('chunkIndex', i.toString());
                 formData.append('totalChunks', totalChunks.toString());
                 formData.append('fileName', file.name);
+                formData.append('KLB_id', KLB_id); // 添加知识库ID参数
 
                 // 调用后端接口发送分块数据
                 console.log(`正在上传文件 ${file.name} 的第 ${i + 1} 个分块`);
                 console.log(`分块大小: ${chunk.size} bytes`);
                 console.log(`分块索引: ${i}`);
                 console.log(formData);
+                console.log(KLB_id);
 
                 await axios.post('/api/upload-chunk', formData, {
                     headers: {
@@ -84,7 +87,8 @@ export const uploadFiles = async (
                 fileName: fileInfo.fileName,
                 fileHash: fileInfo.fileHash,
                 // 传递总块数
-                totalChunks: fileInfo.totalChunks 
+                totalChunks: fileInfo.totalChunks || 1,
+                KLB_id: KLB_id // 添加知识库ID参数
             });
         }
 
