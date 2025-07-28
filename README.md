@@ -1,10 +1,10 @@
----
-
----
+注：更新于2025-7-29
 
 <p style="display:flex; justify-content: center">
 
-## This is @RAGF-01
+[![My Skills](https://skillicons.dev/icons?i=html,css,js,ts,nodejs,vue,tailwindcss,electron,docker,git,npm,github,githubactions,figma)](https://skillicons.dev)
+
+## This is @RAGF-01-frontend
 
 ---
 
@@ -14,79 +14,72 @@
 
 ---
 
-**栈：**（待补充）
-
-[![My Skills](https://skillicons.dev/icons?i=python,nodejs,vue,tailwindcss,html,css,js,ts,fastapi,electron,mysql,docker,git,npm,eslint,anaconda,github,githubactions,figma,windows,ubuntu)](https://skillicons.dev)
-
-### 目前实现的是前端功能，后端还在架构
-
-有更好的建议可以找我
+### 目前实现的是前端功能，~~后端还在架构~~ 后端见backend仓库
 
 ### Contributors 📋
 
-这里补充代码仓库贡献者：
+*Thanks goes to these wonderful people:*
 
-贴上自己信息
-
-  <table>
+<table border="1" cellpadding="10" cellspacing="0" width="100%" align="center">
     <tr>
-      <td align="center">
-        <a https://github.com/Zhongye1">
-          <img src="https://avatars.githubusercontent.com/u/145737758?v=4" alt="Vaibhav" width="100" height="100" />
-          <br />
-          <strong>Gotoh Hitori</strong>
-          <br />
-          <em>GitHub: <a href="https://github.com/Zhongye1">@Zhongye1</a></em>
-          <br />
-          Contributions: Code 💻 <br>Documentation 📖
-        </a>
-      </td>
-       <td align="center">
-        <a https://github.com/ <ID>">
-          <img src="https://avatars.githubusercontent.com/u/173872687?v=4" alt="GITHUB" width="100" height="100" />
-          <br />
-          <strong>褚喧</strong>
-          <br />
-          <em>GitHub: <a href="https://github.com/ourcx">褚喧</a></em>
-          <br />
-          Contributions: 正在贡献
-        </a>
-      </td>
-      <td align="center">
-        <a https://github.com/ <ID>">
-          <img src="https://avatars.githubusercontent.com/u/222571036?s=400&u=254ac083b4d85e08dc7dee9d186624dfaa031614&v=4" alt="GITHUB" width="100" height="100" />
-          <br />
-          <strong>ZXT</strong>
-          <br />
-          <em>GitHub: <a href="https://github.com/haha-1205">ZXT</a></em>
-          <br />
-          Contributions: 贡献
-        </a>
-      </td>
-      <td align="center">
-        <a https://github.com/ <ID>">
-          <img src="<Github头像url>" alt="GITHUB" width="100" height="100" />
-          <br />
-          <strong>GitHub-ID</strong>
-          <br />
-          <em>GitHub: <a href="https://github.com/<GITHUB-ID>">@GitHub-ID</a></em>
-          <br />
-          Contributions: 贡献
-        </a>
-      </td>
-      <td align="center">
-        <a https://github.com/ <ID>">
-          <img src="https://avatars.githubusercontent.com/u/222624613?s=400&u=3778bd14e4e096302f3677074fe9c07545b18467&v=4" alt="GITHUB" width="100" height="100" />
-          <br />
-          <strong>A1r</strong>
-          <br />
-          <em>GitHub: <a href="https://github.com/z1pperexplorer">@z1pperexplorer</a></em>
-          <br />
-          Contributions: Contributing
-        </a>
-      </td>
+        <td align="center" valign="top">
+            <a href="https://github.com/Zhongye1">
+                <img src="https://avatars.githubusercontent.com/u/145737758?v=4" alt="Vaibhav" width="100" height="100" border="0" />
+                <br />
+                <strong>Gotoh Hitori</strong>
+                <br />
+                <em>GitHub: <a href="https://github.com/Zhongye1">@Zhongye1</a></em>
+                <br />
+                Contributions: Code 💻 <br>Documentation 📖
+            </a>
+        </td>
+        <td align="center" valign="top">
+            <a href="https://github.com/ourcx">
+                <img src="https://avatars.githubusercontent.com/u/173872687?v=4" alt="褚喧" width="100" height="100" border="0" />
+                <br />
+                <strong>褚喧</strong>
+                <br />
+                <em>GitHub: <a href="https://github.com/ourcx">@ourcx</a></em>
+                <br />
+                Contributions: 正在贡献
+            </a>
+        </td>
+        <td align="center" valign="top">
+            <a href="https://github.com/haha-1205">
+                <img src="https://avatars.githubusercontent.com/u/222571036?s=400&u=254ac083b4d85e08dc7dee9d186624dfaa031614&v=4" alt="ZXT" width="100" height="100" border="0" />
+                <br />
+                <strong>ZXT</strong>
+                <br />
+                <em>GitHub: <a href="https://github.com/haha-1205">@haha-1205</a></em>
+                <br />
+                Contributions: 贡献
+            </a>
+        </td>
+        <td align="center" valign="top">
+            <a href="https://github.com/HJX">
+                <img src="https://pica.zhimg.com/80/v2-3293674e35c7d8cf2040db9121bc559c_720w.webp" alt="HJX" width="100" height="100" border="0" />
+                <br />
+                <strong>HJX</strong>
+                <br />
+                <em>GitHub: <a href="https://github.com/HJX">@HJX</a></em>
+                <br />
+                Contributions: 友情客串
+            </a>
+        </td>
+        <td align="center" valign="top">
+            <a href="https://github.com/z1pperexplorer">
+                <img src="https://avatars.githubusercontent.com/u/222624613?s=400&u=3778bd14e4e096302f3677074fe9c07545b18467&v=4" alt="A1r" width="100" height="100" border="0" />
+                <br />
+                <strong>A1r</strong>
+                <br />
+                <em>GitHub: <a href="https://github.com/z1pperexplorer">@z1pperexplorer</a></em>
+                <br />
+                Contributions: Contributing
+            </a>
+        </td>
     </tr>
-  </table>
+</table>
+
 
 
 
@@ -98,12 +91,11 @@
 
 RAGF-01 是一个基于 Vue 3 和 TDesign 组件库开发的 RAG（检索增强生成）前端框架，主要提供知识库管理、文档检索和 AI 对话等功能。
 
-- **前端框架**：Vue 3
+- **前端框架**：Vue 3 + TypeScript
 - **UI 组件库**：TDesign Vue Next
 - **路由管理**：Vue Router
 - **构建工具**：Vite
 - **CSS 框架**：Tailwind CSS
-- **TypeScript**
 
 ### 进行开发（前端）
 
@@ -126,53 +118,75 @@ npm run build
 4. 推送分支: `git push origin feature/amazing-feature`
 5. 创建 Pull Request
 
-### 就目前已有的页面而言，每个人在群里接龙领自己要做的模块，每天至少提交两次
+### 就目前已有的模块中，有完善功能的想法和合并提交的代码前建议先在群里声明
+
+---
+
+
 
 ## 项目结构
 
 ```
-ASF-RAG/                         # 项目根目录
-├── package.json                 # 项目依赖配置文件
-├── postcss.config.js            # PostCSS 配置文件，用于CSS处理
-├── public/                      # 静态资源目录
-├── README.md                    # 项目说明文档
-├── src/                         # 源代码目录
-│   ├── App.vue                  # 应用程序主组件
-│   ├── assets/                  # 静态资源目录
-│   │   ├── styles/              # 样式文件目录
-│   │   └── svg/                 # SVG 图标目录
-│   ├── components/              # 组件目录
-│   │   ├── chat-main-unit/      # 聊天主组件
-│   │   │   ├── chat-main-unit.vue  # 聊天界面组件
-│   │   │   └── sseRequest-reasoning.ts  # SSE请求与推理
-│   │   ├── ERS-Pages/           # 错误页面组件
-│   │   │   └── 404.vue          # 404错误页面
-│   │   ├── knowledge-unit/      # 知识库组件
-│   │   │   └── knowledge-cards.vue  # 知识卡片组件
-│   │   ├── search-unit/         # 搜索组件
-│   │   │   └── search.vue       # 搜索功能组件
-│   │   └── T-HeadBar.vue        # 页面顶部导航栏组件
-│   ├── main.ts                  # 应用程序入口文件
-│   ├── router/                  # 路由配置目录
-│   │   └── index.ts             # 路由配置文件
-│   ├── views/                   # 视图页面目录
-│   │   ├── Agent.vue            # 代理页面
-│   │   ├── Chat.vue             # 聊天页面
-│   │   ├── DOC.vue              # 文档页面，用于展示Markdown文档
-│   │   ├── FileManagement.vue   # 文件管理页面
-│   │   ├── KnowledgeBase.vue    # 知识库页面
-│   │   ├── KnowledgeDetail.vue  # 知识库详情页面
-│   │   └── Search.vue           # 搜索页面
-│   ├── store/                   # 状态管理目录
-│   │   ├── modules/             # 状态模块目录
-│   │   └── index.ts             # 状态管理文件
-│   └── vite-env.d.ts            # Vite环境类型声明文件
-├── tailwind.config.js           # Tailwind CSS配置文件
-├── tsconfig.json                # TypeScript配置文件
-├── tsconfig.node.json           # Node环境下的TypeScript配置
-└── vite.config.ts               # Vite构建工具配置文件
+ASF-RAG/
+├── metadata/              # 元数据目录
+├── package.json          # 项目依赖和脚本配置
+├── postcss.config.js     # PostCSS 配置
+├── public/               # 静态资源目录
+├── README.md             # 项目文档
+├── src/                  # 源代码目录
+├── uploads/              # 文件上传目录
+│   └── chunks/          # 分片文件存储
+├── tailwind.config.js    # Tailwind CSS 配置
+├── tsconfig.json         # TypeScript 配置
+├── tsconfig.node.json    # Node.js TypeScript 配置
+└── vite.config.ts       # Vite 构建工具配置
+```
+
+
+
+## src目录结构
 
 ```
+src/
+├── App.vue              # 根组件
+├── assets/              # 静态资源
+│   ├── styles/          # 样式文件
+│   └── svg/            # SVG 图标
+├── components/          # 公共组件
+│   ├── chat-main-unit/  # 聊天主组件
+│   │   ├── chat-main-unit.vue
+│   │   └── sseRequest-reasoning.ts
+│   ├── ERS-Pages/      # 错误页面
+│   │   └── 404.vue
+│   ├── knowledge-unit/ # 知识库组件
+│   │   └── knowledge-cards.vue
+│   ├── search-unit/    # 搜索组件
+│   │   └── search.vue
+│   └── T-HeadBar.vue    # 顶部导航栏
+├── router/             # 路由配置
+│   └── index.ts
+├── store/              # 状态管理
+│   ├── index.ts
+│   └── modules/
+│       └── useCardData.ts
+├── views/              # 页面组件
+│   ├── Agent.vue       # 智能代理页面
+│   ├── Chat.vue        # 聊天页面
+│   ├── DOC.vue         # 文档页面
+│   ├── FileManagement.vue # 文件管理页面
+│   ├── KnowledgePages/ # 知识库相关页面
+│   │   ├── file-upload.ts
+│   │   ├── knowledgebase-create.ts
+│   │   ├── KnowledgeBase.vue
+│   │   └── KnowledgeDetail.vue
+│   └── OllamaMangement.vue # Ollama模型管理页面
+└── vite-env.d.ts       # Vite 环境类型声明
+
+```
+
+
+
+
 
 ## 目前页面及功能 src/views
 
@@ -198,17 +212,17 @@ ASF-RAG/                         # 项目根目录
 
   **未实现功能**
 
-  1. **知识库列表页 (KnowledgeBase.vue)**
+  1. ~~**知识库列表页 (KnowledgeBase.vue)**~~
 
      - ~~搜索功能用于过滤知识库~~
 
-     - 创建新知识库的功能，这里应该设计一个新的表单页，显示创建新知识库的各个选项
+     - ~~创建新知识库的功能，这里应该设计一个新的表单页，显示创建新知识库的各个选项~~
 
        ![img](https://picx.zhimg.com/80/v2-33ffc0b45685f29acdee4b0462597c51_720w.png)
 
   2. **知识库详情页 (KnowledgeDetail.vue)**
 
-     - 数据集管理
+     - ~~数据集管理~~
        - ~~文件列表显示（名称、分块数、上传日期等信息）~~
        - ~~文件操作（选择、启用/禁用、删除）~~
        - ~~文件搜索和批量操作~~
@@ -216,15 +230,15 @@ ASF-RAG/                         # 项目根目录
        - ~~分页功能~~
      - 检索测试
        - 跨语言搜索（支持多种语言）
-       - 测试查询输入框
+       - ~~测试查询输入框~~
        - ~~文件选择器（用于选择要测试的特定文件）~~
        - 测试结果显示（包括相似度分数和匹配内容）
      - 知识库设置
-       - 知识库名称和描述的编辑
+       - 知识库名称，封面和描述等各种信息的编辑
        - 删除知识库的功能
        - 保存设置的功能
 
-  **这些功能目前只做了 UI，后端逻辑和数据交互尚未实现**
+  
 
   ![img](https://picx.zhimg.com/80/v2-62e0c8025ff9d60e506fae3c59db615f_720w.png?source=d16d100b)
 
@@ -261,6 +275,7 @@ ASF-RAG/                         # 项目根目录
 
 1. **消息展示功能**
    - 消息操作按钮（点赞、点踩、重新生成、复制）（这个具体逻辑还没做，只有 UI）
+   - 目前而言可以就已有后端进行实现
 2. ~~**基本交互功能**~~
    - ~~模型选择切换~~
    - ~~模型选择下拉菜单触发模型选择~~
@@ -284,7 +299,7 @@ ASF-RAG/                         # 项目根目录
 
 
 
-### 搜索页面 (Search.vue) 施工中 📋
+### 模型服务管理页面(OllamaMangement.vue)施工中 📋
 
 提供全局搜索功能，允许用户搜索整个知识库集合。
 
@@ -296,10 +311,7 @@ ASF-RAG/                         # 项目根目录
 
 提供智能代理功能，可能用于自动执行特定任务。
 
-## 特色功能
 
-1. **流式对话响应**：使用 SSE（Server-Sent Events）模拟实现流式响应，在 chat-main-unit 中提供实时的对话反馈。
-2. **推理过程展示**：通过"深度思考"开关，可以查看 AI 的推理过程，增强透明度和可解释性。
 
 ## # 后续开发
 
@@ -309,6 +321,6 @@ ASF-RAG/                         # 项目根目录
 4. 知识库管理：完整的知识库 CRUD 操作，支持文件上传、管理和检索测试。
 5. 搜索功能：支持多语言环境下的文档检索，包括自动语言检测。
 6. 分页和批量操作：针对大量文档提供高效的管理界面。
-7. 群友们在这里写别的需求
-8. 实现文档协作功能
-9. 打包并支持 docker 部署或者封装为 electron 应用什么的
+7. 实现文档协作功能
+8. 打包并支持 docker 部署或者封装为 electron 应用什么的
+9. 其余需求补充
