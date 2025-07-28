@@ -1,8 +1,9 @@
 // 定义文件上传函数
 import { Ref } from 'vue';
 import axios from 'axios';
+import { MessagePlugin } from 'tdesign-vue-next';
 
-// 生成文件 hash，这里使用简单的示例，实际可使用更复杂的算法
+// 生成文件 hash，这里使用SHA256
 const generateFileHash = async (file: File): Promise<string> => {
     const buffer = await file.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
@@ -27,7 +28,7 @@ export const uploadFiles = async (
 
     try {
         for (const file of uploadedFiles.value) {
-            const chunkSize = 10 * 1024; // 每个分块大小
+            const chunkSize = 0.1 * 1024 * 1024; // 每个分块大小 512KB
             const totalChunks = Math.ceil(file.size / chunkSize);
             console.log(`文件 ${file.name} 分成了 ${totalChunks} 个分块`);
             let uploadedChunks = 0;
@@ -76,6 +77,7 @@ export const uploadFiles = async (
         }
 
         console.log('文件上传完成');
+        MessagePlugin.success('文件上传完成：' + fileInfoList[0].fileName);
         // 遍历文件信息列表，逐个调用上传完成接口
         for (const fileInfo of fileInfoList) {
             await axios.post('/api/upload-complete', {
@@ -90,6 +92,7 @@ export const uploadFiles = async (
         // 上传完成后可添加刷新文档列表等操作
     } catch (error) {
         console.error('文件上传失败:', error);
+        MessagePlugin.error('文件上传失败:' + error);
         isUploading.value = false;
     }
 };

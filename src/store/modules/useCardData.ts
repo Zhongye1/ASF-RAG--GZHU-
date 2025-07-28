@@ -1,5 +1,6 @@
 // store/modules/user.ts
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
 interface CardDataType {
   id: string
@@ -10,124 +11,115 @@ interface CardDataType {
   cover: string
 }
 
+interface ApiResponse {
+  code: number
+  message: string
+  data: CardDataType[]
+  total: number
+}
 
+// API 调用函数
+export const fetchCardData = async (): Promise<CardDataType[]> => {
+  try {
+    const response = await axios.get<ApiResponse>('/api/get-knowledge-item/')
+    console.log('API Response:', response.data)
+    
+    // 检查响应状态
+    if (response.data.code === 200) {
+      return response.data.data || []
+    } else {
+      console.error('API返回错误:', response.data.message)
+      return []
+    }
+  } catch (error) {
+    console.error('Error fetching card data:', error)
+    return []
+  }
+}
 
 export const useCardDataStore = defineStore('CardData', {
   state: () => ({
-    allCards: [
-      {
-        id: 'asf-m1',
-        title: 'AAJ2-M1',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m2',
-        title: 'ADWASF-M2',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m3',
-        title: 'BSF-MWWA3',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m1',
-        title: 'XXAWASF-M1',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      }, 
-      {
-        id: 'asf-m2',
-        title: 'ASF-M2122',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m2',
-        title: 'ASF-M2',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-169845f4c08de8134b312c3986eace33_720w.webp?source=d16d100b'
-      },
-      {
-        id: 'asf-m3',
-        title: '编译原理',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'DFA-1',
-        title: '支持向量机',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介1',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://picx.zhimg.com/80/v2-381cc3f4ba85f62cdc483136e5fa4f47_720w.webp?source=d16d100b'
-      },
-      {
-        id: '213212',
-        title: '有限自动机',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介2',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      },
-      {
-        id: 'asf-m3',
-        title: 'ASF-M3',
-        avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-        description: '简介3',
-        createdTime: '1970-01-01 00.00.00',
-        cover:
-          'https://pic2.zhimg.com/80/v2-fe88022d1ddd727c237dec5cc1706e47_720w.webp'
-      }
-      // 其他卡片数据
-    ],
-    searchKeyword: ''
+    allCards: [] as CardDataType[],
+    searchKeyword: '',
+    loading: false,
+    error: null as string | null,
+    total: 0
   }),
+  
   actions: {
-    //根据关键字筛选数组的内容
-    filterCardData (keyword: string) {
-      console.log(keyword)
-      this.searchKeyword = keyword;
+    async fetchCards() {
+      this.loading = true
+      this.error = null
+      
+      try {
+        // 直接调用 API 并处理响应
+        const response = await axios.get<ApiResponse>('/api/get-knowledge-item/')
+        
+        if (response.data.code === 200) {
+          this.allCards = response.data.data || []
+          this.total = response.data.total || 0
+          console.log(`成功获取 ${this.total} 条卡片数据`)
+        } else {
+          this.error = response.data.message || '获取数据失败'
+          console.error('API返回错误:', this.error)
+        }
+      } catch (error: any) {
+        this.error = error.message || '网络请求失败'
+        console.error('获取卡片数据失败:', error)
+        this.allCards = []
+        this.total = 0
+      } finally {
+        this.loading = false
+      }
     },
+    
+    filterCardData(keyword: string) {
+      this.searchKeyword = keyword.trim()
+    },
+    
     resetFilters() {
-      this.searchKeyword = '';
+      this.searchKeyword = ''
+    },
+    
+    // 根据ID获取单个卡片
+    getCardById(id: string): CardDataType | undefined {
+      return this.allCards.find(card => card.id === id)
+    },
+    
+    // 清空数据
+    clearCards() {
+      this.allCards = []
+      this.total = 0
+      this.error = null
     }
   },
+  
   getters: {
     filteredCards(state): CardDataType[] {
-      if (!state.searchKeyword.trim()) {
-        return state.allCards;
+      if (!state.searchKeyword) {
+        return state.allCards
       }
-      const keyword = state.searchKeyword.toLowerCase();
-      return state.allCards.filter(card =>
-        card.title.toLowerCase().includes(keyword)
-      );
+      
+      const keyword = state.searchKeyword.toLowerCase()
+      return state.allCards.filter((card: CardDataType) =>
+        card.title.toLowerCase().includes(keyword) ||
+        card.description.toLowerCase().includes(keyword)
+      )
+    },
+    
+    // 获取过滤后的卡片数量
+    filteredCount(): number {
+      return this.filteredCards.length
+    },
+    
+    // 检查是否有数据
+    hasCards(): boolean {
+      return this.allCards.length > 0
+    },
+    
+    // 检查是否正在搜索
+    isSearching(state): boolean {
+      return state.searchKeyword.trim() !== ''
     }
   }
 })

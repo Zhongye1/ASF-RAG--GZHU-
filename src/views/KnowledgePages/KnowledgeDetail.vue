@@ -442,7 +442,7 @@
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p class="mt-4 text-lg font-medium text-gray-700">将文件拖到此处或点击上传</p>
-              <p class="mt-1 text-sm text-gray-500">支持 PDF、DOCX、TXT 文件 (最大 10MB)</p>
+              <p class="mt-1 text-sm text-gray-500">支持 PDF、DOCX、TXT 文件 (最大 50MB)</p>
               <input type="file" ref="fileInput" @change="handleFileUpload" class="hidden" multiple
                 accept=".pdf,.docx,.txt">
               <button class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md font-medium">
@@ -915,8 +915,8 @@ onMounted(() => {
 
   fetchDocuments();
 
-  // 每 5 秒调用一次接口
-  intervalId = window.setInterval(fetchDocuments, 5000);
+  // 每 20 秒调用一次接口
+  //intervalId = window.setInterval(fetchDocuments, 20000);
 });
 
 // 组件卸载时清除定时器
