@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/Chat.vue')
   },
   {
+    path: '/chat/:id',
+    name: 'chatID',
+    component: () => import('../views/Chat.vue')
+  },
+  {
     path: '/service',
     name: 'Search',
     component: () => import('../views/OllamaMangement.vue')

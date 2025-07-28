@@ -54,12 +54,14 @@
           <div class="col-span-1 flex justify-center">
 
           </div>
-          <div class="col-span-4">名称</div>
+          <div class="col-span-3">名称</div>
           <div class="col-span-2">分块数</div>
           <div class="col-span-2">上传日期</div>
           <div class="col-span-2">切片方法</div>
           <div class="col-span-1">启用</div>
+          <div class="col-span-1 text-center">添加到测试</div>
         </div>
+
 
         <div v-if="displayedDocuments.length > 0">
           <div v-for="(doc, index) in displayedDocuments" :key="doc.id"
@@ -118,6 +120,7 @@
             </div>
           </div>
         </div>
+
 
         <div v-else class="p-8 text-center text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none"
@@ -533,10 +536,12 @@
             </button>
           </div>
 
+
           <div class="mt-4">
             <p class="text-gray-700 mb-6">
-              确定要删除知识库 <span class="font-semibold">{{ kbName }}</span> 吗？此操作将永久删除知识库中的所有文档数据，且不可恢复。
+              确定要删除选中的 <span class="font-semibold">{{ selectedDocuments.length }}</span> 个文件吗？此操作不可恢复。
             </p>
+
 
             <div class="flex justify-end">
               <button @click="showDeleteConfirmation = false"
@@ -880,12 +885,6 @@ const deleteKnowledgeBase = () => {
   }, 1000);
 };
 
-// 添加文件到测试列表
-const addFileToTest = (file: Document) => {
-  if (!selectedFilesForTest.value.find(f => f.id === file.id)) {
-    selectedFilesForTest.value.push(file);
-  }
-};
 
 // 从测试列表中移除文件
 const removeFileFromTest = (id: number) => {

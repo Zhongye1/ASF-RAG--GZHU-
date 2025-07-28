@@ -1,5 +1,10 @@
 <template>
-  <t-card :title="props.card.title" :description="props.card.description" :style="{ width: '400px' }" @click="handleClick">
+  <t-card
+    :title="props.card.title"
+    :description="props.card.description"
+    :style="{ width: '400px' }"
+    @click="handleClick"
+  >
     <!-- 使用 cover 插槽来自定义封面 -->
     <template #cover>
       <img :src="props.card.cover" class="knowledge-card-image" />
@@ -20,8 +25,13 @@
     </template>
 
     <template #footer>
-      <div class="knowledge-card-footer-buttonlists" @click.stop>
-        <t-button variant="text" shape="square" :style="{ 'margin-right': '8px' }">
+      <div class="knowledge-card-footer-buttonlists">
+        <t-button
+          variant="text"
+          shape="square"
+          :style="{ 'margin-right': '8px', backgroundColor: HertIconColor }"
+          @click.stop="handleClickHeartIcon"
+        >
           <heart-icon />
         </t-button>
         <t-button variant="text" shape="square" :style="{ 'margin-right': '8px' }">
@@ -31,30 +41,33 @@
           <share-icon />
         </t-button>
       </div>
-      <div class="created-time">
-        Created at: {{ props.card.createdTime }}
-      </div>
+      <div class="created-time">Created at: {{ props.card.createdTime }}</div>
     </template>
   </t-card>
 </template>
 
 <script lang="tsx" setup>
-import { MessagePlugin, CardProps, DropdownProps } from 'tdesign-vue-next';
-import { HeartIcon, ChatIcon, ShareIcon, MoreIcon } from 'tdesign-icons-vue-next';
+import { MessagePlugin, CardProps, DropdownProps } from "tdesign-vue-next";
+import { HeartIcon, ChatIcon, ShareIcon, MoreIcon } from "tdesign-icons-vue-next";
+import { ref } from "vue";
+import { useCardDataStore } from "@/store";
 
-const options: DropdownProps['options'] = [
+
+const cardDataStore = useCardDataStore();
+const options: DropdownProps["options"] = [
   {
-    content: '操作一',
+    content: "删除",
     value: 1,
   },
   {
-    content: '操作二',
+    content: "选项",
     value: 2,
   },
 ];
 
 const props = defineProps<{
   card: {
+    id: string;
     title: string;
     avatar: string;
     description: string;
@@ -66,13 +79,32 @@ const props = defineProps<{
   goToDetail: Function;
 }>();
 
-
 const handleClick = () => {
   // 调用父组件传递的 goToDetail 方法
-  MessagePlugin.success('点击了卡片');
+  MessagePlugin.success("点击了卡片");
 };
-const clickHandler: DropdownProps['onClick'] = (data) => {
-  MessagePlugin.success(`选中【${data.content}】，这里到时候要实现的功能是增加或删除卡片`);
+const clickHandler: DropdownProps["onClick"] = (data) => {
+  // 处理下拉菜单点击事件
+  MessagePlugin.success(
+    `选中【${data.content}】，这里到时候要实现的功能是增加或删除卡片`
+  );
+  if (data.value === 1) {
+    // 删除操作
+    cardDataStore.deleteCard(props.card.id);
+  } else if (data.value === 2) {
+    // 其他操作
+    MessagePlugin.info("其他操作未实现");
+  }
+};
+
+const HertIconColor = ref<string>(""); // 心形图标颜色
+// 点击卡片图标时触发
+const handleClickHeartIcon = (e: any) => {
+  HertIconColor.value === ""
+    ? (HertIconColor.value = "#d90026")
+    : (HertIconColor.value = "");
+  // 这里可以添加其他逻辑，比如发送请求到后端保存状态等
+  //这个颜色要修改到适合的，最好不要写死在这里
 };
 </script>
 <style scoped>

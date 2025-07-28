@@ -74,6 +74,17 @@
           Contributions: 贡献
         </a>
       </td>
+      <td align="center">
+        <a https://github.com/ <ID>">
+          <img src="https://avatars.githubusercontent.com/u/222624613?s=400&u=3778bd14e4e096302f3677074fe9c07545b18467&v=4" alt="GITHUB" width="100" height="100" />
+          <br />
+          <strong>A1r</strong>
+          <br />
+          <em>GitHub: <a href="https://github.com/z1pperexplorer">@z1pperexplorer</a></em>
+          <br />
+          Contributions: Contributing
+        </a>
+      </td>
     </tr>
   </table>
 
@@ -198,15 +209,15 @@ ASF-RAG/                         # 项目根目录
   2. **知识库详情页 (KnowledgeDetail.vue)**
 
      - 数据集管理
-       - 文件列表显示（名称、分块数、上传日期等信息）
-       - 文件操作（选择、启用/禁用、删除）
-       - 文件搜索和批量操作
-       - 文件上传功能（支持 PDF、DOCX 和 TXT 格式）
-       - 分页功能
+       - ~~文件列表显示（名称、分块数、上传日期等信息）~~
+       - ~~文件操作（选择、启用/禁用、删除）~~
+       - ~~文件搜索和批量操作~~
+       - ~~文件上传功能（支持 PDF、DOCX 和 TXT 格式）~~
+       - ~~分页功能~~
      - 检索测试
        - 跨语言搜索（支持多种语言）
        - 测试查询输入框
-       - 文件选择器（用于选择要测试的特定文件）
+       - ~~文件选择器（用于选择要测试的特定文件）~~
        - 测试结果显示（包括相似度分数和匹配内容）
      - 知识库设置
        - 知识库名称和描述的编辑

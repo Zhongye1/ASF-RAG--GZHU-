@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-interface CardDataType {
+export interface CardDataType {
   id: string
   title: string
   avatar: string
