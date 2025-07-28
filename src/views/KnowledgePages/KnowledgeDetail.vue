@@ -66,7 +66,7 @@
           <div v-for="(doc, index) in displayedDocuments" :key="doc.id"
             class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b">
             <div class="col-span-1 flex justify-center">
-              <button @click="deleteSelectedDocuments" class="text-gray-400 hover:text-red-500">
+              <button @click="deleteSelectedDocuments(doc.id)" class="text-gray-400 hover:text-red-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -673,17 +673,31 @@ const filteredDocuments = computed(() => {
 });
 
 //删除文档的逻辑
-const deleteSelectedDocuments = async () => {
+
+
+const deleteSelectedDocuments = async (documentId: number) => {
   try {
-    // 调用后端接口发送要删除的文档ID
-    await axios.post('/api/delete-documents', { documentIds: selectedDocuments.value });
-    // 过滤掉选中的文档
-    documents.value = documents.value.filter(doc => !selectedDocuments.value.includes(doc.id));
-    // 清空选中状态
-    selectedDocuments.value = [];
+    console.log('要删除的文档ID:', documentId);
+    console.log('知识库ID:', KLB_id);
+    
+    // 发送请求到后端，同时传入知识库ID和文档ID
+    await axios.post(`/api/delete-documents/`, { 
+      documentIds: [documentId]
+    }, {
+      params: {
+        KLB_id: KLB_id
+      }
+    });
+    
+    // 从本地列表中移除已删除的文档
+    const index = documents.value.findIndex(doc => doc.id === documentId);
+    if (index > -1) {
+      documents.value.splice(index, 1);
+    }
   } catch (error) {
     console.error('删除文档失败:', error);
-    // 处理错误，例如显示错误消息
+    // 可以在这里添加错误提示，例如：
+    // MessagePlugin.error('删除文档失败，请重试');
   }
 };
 

@@ -25,7 +25,7 @@
     </template>
 
     <template #footer>
-      <div class="knowledge-card-footer-buttonlists">
+      <div class="knowledge-card-footer-buttonlists" @click.stop >
         <t-button
           variant="text"
           shape="square"
