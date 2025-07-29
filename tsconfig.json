@@ -28,7 +28,7 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
-  ],
+, "src/views/KnowledgePages/KnowledgeDetail copy.vue"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

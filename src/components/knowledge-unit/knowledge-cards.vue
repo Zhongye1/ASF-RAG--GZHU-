@@ -25,7 +25,7 @@
     </template>
 
     <template #footer>
-      <div class="knowledge-card-footer-buttonlists">
+      <div class="knowledge-card-footer-buttonlists" @click.stop >
         <t-button
           variant="text"
           shape="square"
@@ -51,6 +51,7 @@ import { MessagePlugin, CardProps, DropdownProps } from "tdesign-vue-next";
 import { HeartIcon, ChatIcon, ShareIcon, MoreIcon } from "tdesign-icons-vue-next";
 import { ref } from "vue";
 import { useCardDataStore } from "@/store";
+import axios from "axios";
 
 
 const cardDataStore = useCardDataStore();
@@ -83,19 +84,33 @@ const handleClick = () => {
   // 调用父组件传递的 goToDetail 方法
   MessagePlugin.success("点击了卡片");
 };
-const clickHandler: DropdownProps["onClick"] = (data) => {
-  // 处理下拉菜单点击事件
-  MessagePlugin.success(
-    `选中【${data.content}】，这里到时候要实现的功能是增加或删除卡片`
-  );
+
+const clickHandler: DropdownProps["onClick"] = async (data) => {
+  // 处理下拉菜单删除点击事件
   if (data.value === 1) {
     // 删除操作
-    cardDataStore.deleteCard(props.card.id);
+    try {
+      const klbId = props.card.id;
+      const response = await axios.delete(`/api/delete-knowledgebase/${klbId}`);
+      
+      // 请求成功后才显示成功消息
+      if (response.status === 200) {
+        MessagePlugin.success(`知识库【${props.card.title}】删除成功`);
+        // 删除成功后，更新本地存储
+        //cardDataStore.deleteCard(klbId);
+        await cardDataStore.fetchCards();
+      }
+    } catch (error) {
+      // 处理错误
+      MessagePlugin.error(`删除知识库失败: ${error}`);
+      console.error("删除知识库失败:", error);
+    }
   } else if (data.value === 2) {
     // 其他操作
     MessagePlugin.info("其他操作未实现");
   }
 };
+
 
 const HertIconColor = ref<string>(""); // 心形图标颜色
 // 点击卡片图标时触发
@@ -117,7 +132,7 @@ const handleClickHeartIcon = (e: any) => {
 }
 
 .knowledge-card-footer-buttonlists:hover {
-  background-color: #d4d4d47e;
+  background-color: #f3f3f37e;
   /* 悬停时的背景色 */
 }
 
