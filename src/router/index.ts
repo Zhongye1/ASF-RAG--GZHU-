@@ -21,12 +21,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import('../views/Chat.vue')
+    component: () => import('../views/Chat.vue'),
+    meta: { menuHighlight: 'chat' }
   },
   {
     path: '/chat/:id',
     name: 'chatID',
-    component: () => import('../views/Chat.vue')
+    component: () => import('../views/Chat.vue'),
+    meta: { menuHighlight: 'chat' }
   },
   {
     path: '/service',
@@ -57,7 +59,7 @@ const routes: Array<RouteRecordRaw> = [
       title: '页面未找到'
     }
   },
-  
+
   // 捕获所有未匹配的路由并重定向到404
   {
   path: '/:pathMatch(.*)*',
@@ -76,7 +78,7 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
+})
 
 export default router;
 
