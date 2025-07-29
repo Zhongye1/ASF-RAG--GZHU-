@@ -390,35 +390,13 @@
       </div>
     </div>
 
-    <!-- 知识库设置部分 -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-medium mb-4">知识库设置</h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">知识库名称</label>
-          <input type="text" v-model="kbName"
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">知识库描述</label>
-          <input type="text" v-model="kbDescription"
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end">
-        <button @click="showDeleteConfirmation = true"
-          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium mr-3">
-          删除知识库
-        </button>
-        <button @click="saveKnowledgeBaseSettings"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
-          保存设置
-        </button>
-      </div>
-    </div>
+     <!-- 知识库设置部分 -->
+  <knowledge-settings
+    :kb-name="kbName"
+    :kb-description="kbDescription"
+    @save="saveKnowledgeBaseSettings"
+    @delete="showDeleteConfirmation = true"
+  />
 
     <!-- 上传文件模态框 -->
     <div v-if="showUploadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -538,7 +516,7 @@
 
           <div class="mt-4">
             <p class="text-gray-700 mb-6">
-              确定要删除选中的 <span class="font-semibold">{{ selectedDocuments.length }}</span> 个文件吗？此操作不可恢复。
+              确定要删除这个知识库吗？此操作不可恢复。
             </p>
 
 
@@ -564,6 +542,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios'; // 假设你使用 axios 作为 HTTP 客户端
 
+import knowledgeSettings from '@/components/knowledge-unit/knowledge-setting-card.vue';
 const route = useRoute();
 const router = useRouter();
 const id = ref(route.params.id || 'ASF');
@@ -864,25 +843,54 @@ const runSearchTest = () => {
 };
 */
 
+
+
 // 保存知识库设置
-const saveKnowledgeBaseSettings = () => {
-  // 在实际应用中，这里会调用API保存设置
-  console.log('知识库设置已保存', {
-    name: kbName.value,
-    description: kbDescription.value
+const saveKnowledgeBaseSettings = (settings: { name: string; description: string }) => {
+  // 更新本地状态
+  kbName.value = settings.name;
+  kbDescription.value = settings.description;
+  
+  // 调用API保存设置到后端
+  axios.post(`/api/update-knowledgebase-config/${id.value}`, {
+    name: settings.name,
+    description: settings.description
+  })
+  .then(response => {
+    console.log('知识库设置已保存成功', response.data);
+    // 可以添加成功提示
+  })
+  .catch(error => {
+    console.error('保存知识库设置失败:', error);
+    // 可以添加错误提示
   });
 };
 
-// 删除知识库
-const deleteKnowledgeBase = () => {
-  // 在实际应用中，这里会调用API删除知识库
-  console.log('知识库已被删除', id.value);
 
-  // 删除后导航回知识库列表
-  setTimeout(() => {
-    showDeleteConfirmation.value = false;
-    router.push('/knowledge-bases');
-  }, 1000);
+// 删除知识库
+const deleteKnowledgeBase = async () => {
+  try {
+
+          // 跳转到知识库列表页
+      router.push('/knowledge');
+    // 调用API删除知识库
+    const response = await axios.delete(`/api/delete-knowledgebase/${id.value}`);
+    
+    if (response.status === 200) {
+      console.log('知识库已成功删除', id.value);
+      
+      // 隐藏确认框
+      showDeleteConfirmation.value = false;
+      
+
+    } else {
+      console.error('删除知识库失败:', response.data);
+      // 可以在这里添加错误提示
+    }
+  } catch (error) {
+    console.error('删除知识库请求失败:', error);
+    // 可以在这里添加错误提示
+  }
 };
 
 
