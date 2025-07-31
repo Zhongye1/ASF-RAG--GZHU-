@@ -21,14 +21,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import('../views/Chat.vue'),
-    meta: { menuHighlight: 'chat' }
+    component: () => import('../views/Chat.vue')
   },
   {
     path: '/chat/:id',
     name: 'chatID',
-    component: () => import('../views/Chat.vue'),
-    meta: { menuHighlight: 'chat' }
+    component: () => import('../views/Chat.vue')
   },
   {
     path: '/service',
@@ -54,31 +52,23 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/404',
     name: 'NotFound',
-    component: () => import('@/components/ERS-Pages/404.vue'),
+    component: NotFound,
     meta: {
       title: '页面未找到'
     }
   },
-
+  
   // 捕获所有未匹配的路由并重定向到404
   {
-  path: '/:pathMatch(.*)*',
-  redirect: (to) => {
-    // 检查是否为静态资源路径
-    if (to.path.startsWith('/static/') || 
-        to.path.match(/\.(jpg|jpeg|png|gif|svg|css|js)$/)) {
-      return to.path; // 对静态资源不做重定向
-    }
-    return '/404'; // 其他未匹配路径重定向到404
+    path: '/:pathMatch(.*)*',
+    redirect: '/404'
   }
-}
-
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
 export default router;
 
