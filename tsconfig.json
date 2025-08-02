@@ -21,7 +21,7 @@
         "src/*"
       ]
     },
-    "types": ["@vue-macros/volar"]
+    "types": []
   },
   "include": [
     "src/**/*.ts",
