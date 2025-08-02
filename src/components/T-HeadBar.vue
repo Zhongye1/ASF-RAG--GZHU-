@@ -2,8 +2,7 @@
   <t-header>
     <t-head-menu theme="light" :value="currentMenuItem" height="80px">
       <template #logo>
-        <!-- <p class="text-xl font-bold text-blue-600">RAGF-01</p> -->
-        <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
+         <p class="text-2xl font-bold text-blue-600">RAGF-01</p> 
       </template>
       <t-menu-item value="item1" @click="navigateTo('/knowledge')" :class="$route.path === '/knowledge'">
         Knowledge Base

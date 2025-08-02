@@ -76,6 +76,7 @@
           >
             下载模型
           </t-button>
+          <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
         </div>
         
         <!-- 下载进度 -->
@@ -122,6 +123,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
+import CanvasPoint from '@/components/canvas-point-unit/CanvasPoint.vue'
 
 // 响应式数据
 const activeTab = ref('models')
