@@ -1,10 +1,6 @@
 <template>
-  <t-card
-    :title="props.card.title"
-    :description="props.card.description"
-    :style="{ width: '400px' }"
-    @click="handleClick"
-  >
+  <t-card :title="props.card.title" :description="props.card.description" 
+    @click="handleClick">
     <!-- 使用 cover 插槽来自定义封面 -->
     <template #cover>
       <img :src="props.card.cover" class="knowledge-card-image" />
@@ -25,13 +21,9 @@
     </template>
 
     <template #footer>
-      <div class="knowledge-card-footer-buttonlists" @click.stop >
-        <t-button
-          variant="text"
-          shape="square"
-          :style="{ 'margin-right': '8px', backgroundColor: HertIconColor }"
-          @click.stop="handleClickHeartIcon"
-        >
+      <div class="knowledge-card-footer-buttonlists" @click.stop>
+        <t-button variant="text" shape="square" :style="{ 'margin-right': '8px', backgroundColor: HertIconColor }"
+          @click.stop="handleClickHeartIcon">
           <heart-icon />
         </t-button>
         <t-button variant="text" shape="square" :style="{ 'margin-right': '8px' }">
@@ -92,7 +84,7 @@ const clickHandler: DropdownProps["onClick"] = async (data) => {
     try {
       const klbId = props.card.id;
       const response = await axios.delete(`/api/delete-knowledgebase/${klbId}`);
-      
+
       // 请求成功后才显示成功消息
       if (response.status === 200) {
         MessagePlugin.success(`知识库【${props.card.title}】删除成功`);
