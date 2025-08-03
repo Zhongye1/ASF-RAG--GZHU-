@@ -31,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/service',
     name: 'Search',
-    component: () => import('../views/OllamaMangement.vue')
+    component: () => import('../views/Ollama_Pages/ollama_basic_pages.vue')
   },
   {
     path: '/agent',
@@ -57,7 +57,7 @@ const routes: Array<RouteRecordRaw> = [
       title: '页面未找到'
     }
   },
-  
+
   // 捕获所有未匹配的路由并重定向到404
   {
     path: '/:pathMatch(.*)*',

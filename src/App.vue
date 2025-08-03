@@ -4,8 +4,8 @@
       <!-- 应用导航栏 -->
       <thea></thea>
       <!-- <app-navbar class="navbar"/> -->
-       <!-- 路由视图 -->
-      <router-view class="router-view"/>
+      <!-- 路由视图 -->
+      <router-view class="router-view" />
     </div>
   </t-config-provider>
 </template>
@@ -22,12 +22,16 @@ import thea from './components/T-HeadBar.vue'
   width: 100vw;
   position: fixed;
   z-index: -1;
-  overflow-x: hidden;
+  overflow: hidden;
 }
+
 .navbar {
-  height: 8vh; /* 设置导航栏高度 */
+  height: 8vh;
+  /* 设置导航栏高度 */
 }
+
 .router-view {
-  height: 92vh; /* 设置路由视图高度 */
+  height: 92vh;
+  /* 设置路由视图高度 */
 }
 </style>
