@@ -2,19 +2,22 @@
     <div class="flex-1 p-6 overflow-auto">
         <!-- 操作按钮 -->
         <div class="flex gap-4 mb-6 items-center">
-            <t-button variant="outline" @click="refreshModels" :loading="loading">
+            <t-button class="transition-all table-container duration-300" variant="outline" @click="refreshModels"
+                :loading="loading">
                 刷新模型列表
             </t-button>
-            <t-button variant="outline" @click="deleteSelected" :disabled="selectedModels.length === 0">
+            <t-button class=" table-container transition-all duration-300" variant="outline" @click="deleteSelected"
+                :disabled="selectedModels.length === 0">
                 删除模型 ({{ selectedModels.length }})
             </t-button>
-            <t-checkbox v-model="isAllSelected" :indeterminate="isIndeterminate" @change="handleSelectAll">
+            <t-checkbox class="table-container transition-all duration-300" v-model="isAllSelected"
+                :indeterminate="isIndeterminate" @change="handleSelectAll">
                 全选
             </t-checkbox>
         </div>
 
         <!-- 模型表格 -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow table-container">
             <t-table :data="models" :columns="columns" :loading="loading" row-key="name"
                 :selected-row-keys="selectedModels" @select-change="onSelectChange" :pagination="{ disabled: true }"
                 size="medium" hover>
@@ -151,8 +154,10 @@ const deleteSelected = async () => {
                 selectedModels.value = []
                 isAllSelected.value = false
                 await refreshModels()
+                dialog.destroy()  // 删除成功后关闭弹窗
             } catch (error) {
                 MessagePlugin.error('删除失败')
+                dialog.destroy() // 删除失败后也关闭弹窗
             } finally {
                 loading.value = false
             }
@@ -222,4 +227,88 @@ onMounted(() => {
 })
 
 </script>
-<style scoped></style>
+<style scoped>
+/* 容器淡入动画 */
+.fade-in-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* 操作按钮区域动画 */
+.controls-container {
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+/* 表格容器动画 */
+.table-container {
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* 表格行逐行浮入 */
+.table-row-enter {
+    animation: fadeInRow 0.4s ease-out both;
+}
+
+/* 主要动画定义 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 加载状态动画 */
+.loading-container {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 按钮悬停效果增强 */
+.t-button {
+    transition: all 0.3s ease;
+}
+
+.t-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>

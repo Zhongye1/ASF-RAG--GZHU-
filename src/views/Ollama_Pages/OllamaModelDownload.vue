@@ -6,8 +6,8 @@
 
 
             <!-- 下载进度提示 -->
-            <div v-if="downloading" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <t-dialog v-model:visible="downloading" header="模型下载进度" theme="info" :close-btn="false"
+            <div v-if="downloading" class="mb-6 p-4 translate-x-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <t-dialog v-model:visible="downloading" header="模型下载中" theme="info" :close-btn="false"
                     :close-on-overlay-click="false" :close-on-esc-keydown="false" width="500px" attach="body">
 
                     <div class="download-progress-content">
@@ -182,7 +182,7 @@ const downloadStatus = ref('')
 const currentDownloadModel = ref('')
 
 // 搜索和筛选
-const searchQuery = ref('')
+//const searchQuery = ref('')
 const sizeFilter = ref('')
 const sortBy = ref('popular')
 
