@@ -38,9 +38,10 @@
 
                     <template #footer>
                         <div class="flex justify-center">
-                            <t-button variant="outline" @click="cancelDownload">
-                                关闭窗口
-                            </t-button>
+                            <div class="flex justify-center">
+                                <vue-typewriter-effect :strings="typewriterStrings" :loop="true">
+                                </vue-typewriter-effect>
+                            </div>
                         </div>
                     </template>
                 </t-dialog>
@@ -167,9 +168,11 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, watch } from 'vue'
+import { ref, inject, onMounted, watch, computed } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import axios from 'axios'
+import VueTypewriterEffect from 'vue-typewriter-effect'
+
 
 // 注入共享的 API 服务
 const ollamaApi = inject('ollamaApi')
@@ -240,28 +243,12 @@ const getModelFullName = (name, size) => {
 // 添加下载速度状态
 const downloadSpeed = ref('')
 
-// 取消下载功能
-const cancelDownload = async () => {
-    try {
-        // 调用取消下载的API（如果支持）
-        if (ollamaApi.cancelDownload) {
-            await ollamaApi.cancelDownload(currentDownloadModel.value)
-        }
-
-        MessagePlugin.warning('下载已取消')
-    } catch (error) {
-        console.error('取消下载失败:', error)
-        MessagePlugin.error('取消下载失败')
-    } finally {
-        // 重置下载状态
-        downloading.value = false
-        downloadProgress.value = 0
-        downloadStatus.value = ''
-        currentDownloadModel.value = ''
-        downloadSpeed.value = ''
-    }
-}
-
+// 创建计算属性来生成动态字符串
+const typewriterStrings = computed(() => [
+    `正在下载模型 ${currentDownloadModel.value}`,
+    `Pulling ${currentDownloadModel.value} from ollama server`,
+    `等待任务完成中...`,
+])
 // 优化下载进度处理
 const downloadModelAction = async (modelName, size) => {
     const fullModelName = getModelFullName(modelName, size)

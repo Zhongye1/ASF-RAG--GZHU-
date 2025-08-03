@@ -38,7 +38,8 @@
                 </template>
                 <template #operation="{ row }">
                     <t-space>
-                        <t-button class="z-10" variant="text" size="small" @click="deleteModel(row.name)">删除</t-button>
+                        <t-button class="z-10 bg-red-600 text-white :hover:bg-red-700 text-white" variant="text"
+                            size="small" @click="deleteModel(row.name)">删除</t-button>
                     </t-space>
                 </template>
             </t-table>

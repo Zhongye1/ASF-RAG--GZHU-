@@ -248,6 +248,7 @@
 </template>
 
 <script setup lang="ts">
+import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, watch, computed, defineProps, defineEmits } from 'vue';
 
 interface KnowledgeBaseSettings {
@@ -550,6 +551,7 @@ const onSaveClick = async () => {
         await emit('save', settingsData);
     } catch (error) {
         console.error('保存失败:', error);
+
     } finally {
         isLoading.value = false;
     }
@@ -561,10 +563,13 @@ const onDeleteClick = async () => {
 
     try {
         await emit('delete');
+
     } catch (error) {
+        
         console.error('删除失败:', error);
     } finally {
         isLoading.value = false;
+        
     }
 
 };

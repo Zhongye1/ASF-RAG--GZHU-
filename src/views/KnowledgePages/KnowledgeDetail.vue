@@ -1,12 +1,14 @@
 <template>
-  <div class="max-w-7xl mx-auto px-6 py-8">
+  <div class="max-w-7xl mx-auto max-h-screen overflow-auto p-[7vw] x-6 py-8">
     <div class="flex items-center mb-6">
       <button @click="$router.back()" class="mr-3 text-gray-600 hover:text-blue-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </button>
-      <h1 class="text-2xl font-semibold text-gray-800">知识库: {{ id }}</h1>
+      <h1 class="text-2xl font-semibold text-gray-800">
+        知识库: {{ kbName || '加载中...' }}
+      </h1>
     </div>
 
     <!-- 数据集管理部分 -->
@@ -492,7 +494,7 @@
       </div>
     </div>
 
-    <knowledgeSettingCard :kb-name="kbName" :kb-id="id" :kb-description="kbDescription"
+    <knowledgeSettingCard :kb-name="kbName || ''" :kb-id="id || ''" :kb-description="kbDescription || ''"
       @save="saveKnowledgeBaseSettings" @delete="showDeleteConfirmation = true" />
     <!-- 删除知识库确认模态框 -->
     <div v-if="showDeleteConfirmation"
@@ -612,7 +614,6 @@ const displayedDocuments = computed(() => {
 
 
 
-
 // 检索结果结构
 interface SearchResult {
   source: string;
@@ -728,6 +729,7 @@ const removeUploadedFile = (index: number) => {
 // 实验代码，大文件上传
 
 import { uploadFiles } from './file-upload';
+import { MessagePlugin } from 'tdesign-vue-next';
 
 // 处理文件上传
 
@@ -853,6 +855,7 @@ const saveKnowledgeBaseSettings = (settings: { name: string; description: string
   })
     .then(response => {
       console.log('知识库设置已保存成功', response.data);
+      MessagePlugin.success('知识库设置已保存');
       // 可以添加成功提示
     })
     .catch(error => {
@@ -873,6 +876,7 @@ const deleteKnowledgeBase = async () => {
 
     if (response.status === 200) {
       console.log('知识库已成功删除', id.value);
+      MessagePlugin.success('知识库删除成功');
 
       // 隐藏确认框
       showDeleteConfirmation.value = false;
@@ -880,6 +884,7 @@ const deleteKnowledgeBase = async () => {
 
     } else {
       console.error('删除知识库失败:', response.data);
+      MessagePlugin.error('知识库删除失败');
       // 可以在这里添加错误提示
     }
   } catch (error) {
@@ -897,7 +902,69 @@ const removeFileFromTest = (id: number) => {
   }
 };
 
+//==================================================================
+//知识库设置界面的info-ORIGIN 
+
+
+// 更新接口类型定义
+interface ApiResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+}
+
+interface KnowledgeBaseInfo {
+  id: string;
+  title: string;
+  avatar: string;
+  description: string;
+  createdTime: string;
+  cover: string;
+}
+
+// 获取知识库信息的函数
+const fetchKnowledgeBaseInfo = async () => {
+  try {
+    const response = await axios.get<ApiResponse<KnowledgeBaseInfo>>(
+      `http://localhost:8000/api/get-knowledge-item/${KLB_id}/`,
+      {
+        headers: {
+          'accept': 'application/json'
+        }
+      }
+    );
+
+    // 检查响应状态码
+    if (response.data.code === 200) {
+      // 更新响应式数据 - 注意这里是 response.data.data
+      kbName.value = response.data.data.title;
+      kbDescription.value = response.data.data.description;
+
+      console.log('知识库ID:', KLB_id);
+      console.log('知识库名称:', response.data.data.title);
+      console.log('知识库描述:', response.data.data.description);
+      console.log('知识库信息获取成功:', response.data.data);
+    } else {
+      console.error('API返回错误:', response.data.message);
+      // 设置错误状态
+      kbName.value = '获取失败';
+      kbDescription.value = response.data.message || '无法获取知识库描述';
+    }
+  } catch (error) {
+    console.error('获取知识库信息失败:', error);
+    // 设置默认值或错误状态
+    kbName.value = '未知知识库';
+    kbDescription.value = '无法获取知识库描述';
+  }
+};
+
+
+
+
+
 onMounted(() => {
+  // 获取知识库基本信息
+  fetchKnowledgeBaseInfo();
   // 立即调用一次接口获取数据
   const fetchDocuments = async () => {
     try {

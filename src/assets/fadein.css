@@ -8,7 +8,7 @@
 }
 
 /* 排除不需要动画的元素（按需调整） */
-* :not(html):not(body):not(script):not(style):not(link):not(meta):not(title) {
+* :not(html):not(body):not(script):not(style):not(link):not(meta):not(title):not(t-dialog) {
   /* 保留其他元素的默认行为，仅对可见内容应用动画 */
 }
 

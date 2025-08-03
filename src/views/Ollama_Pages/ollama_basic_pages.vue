@@ -3,8 +3,8 @@
         <!-- 侧边导航 -->
         <t-aside width="232px" class="bg-white border-r border-gray-300">
             <div class="flex items-center gap-2 font-medium p-4 border-b border-gray-300">
-                <span class="w-5 h-5 bg-blue-600 text-white rounded text-xs flex items-center justify-center">📊</span>
-                <span class="text-gray-800">Ollama模型在线管理</span>
+
+                <span class="text-gray-800">Ollama模型管理页面</span>
             </div>
 
             <t-menu theme="light" :value="activeTab" @change="activeTab = $event">
@@ -56,7 +56,7 @@ const componentMap = {
 // 计算当前组件
 const currentComponent = computed(() => componentMap[activeTab.value])
 
-
+/** 
 const loading = ref(false)
 const downloading = ref(false)
 const downloadProgress = ref(0)
@@ -70,7 +70,7 @@ const isAllSelected = ref(false)
 const isIndeterminate = computed(() => {
     return selectedModels.value.length > 0 && selectedModels.value.length < models.value.length
 })
-
+*/
 
 // 事件处理
 const handleModelDownloaded = () => {
