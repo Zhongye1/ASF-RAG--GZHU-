@@ -501,7 +501,7 @@ onMounted(() => {
 }
 
 .download-section {
-  max-width: 800px;
+  width: 100%;
 }
 
 .download-form {

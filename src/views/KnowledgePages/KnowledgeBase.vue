@@ -118,7 +118,7 @@ const createKnowledgeBase = async () => {
 
     // 重新获取卡片数据，更新界面
     await cardDataStore.fetchCards();
-  } catch (error) {
+  } catch (error:any) {
     if (error.response) {
       // 处理后端返回的错误
       if (error.response.status === 400) {

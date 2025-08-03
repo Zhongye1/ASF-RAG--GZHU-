@@ -1,7 +1,6 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue';
-import NotFound from '../components/ERS-Pages/404.vue';
-
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue'
+import NotFound from '../components/ERS-Pages/404.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -48,6 +47,16 @@ const routes: Array<RouteRecordRaw> = [
     name: '开发文档',
     component: () => import('../views/DOC.vue')
   },
+  {
+    path: '/LogonOrRegister',
+    name: '登录',
+    component: () => import('../views/LogonOrRegister/LogonOrRegister.vue')
+  },
+  {
+    path: '/user',
+    name: '用户界面',
+    component: () => import('../views/TabHeader/User.vue')
+  },
   // 添加专门的404页面路由
   {
     path: '/404',
@@ -57,18 +66,20 @@ const routes: Array<RouteRecordRaw> = [
       title: '页面未找到'
     }
   },
-  
+
   // 捕获所有未匹配的路由并重定向到404
   {
     path: '/:pathMatch(.*)*',
     redirect: '/404'
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
+})
+//登录系统的前置路由守卫
+// router.beforeEach((to, from, next) => {})
 
-export default router;
 
+export default router

@@ -2,7 +2,8 @@
   <t-header>
     <t-head-menu theme="light" :value="currentMenuItem" height="80px">
       <template #logo>
-        <p class="text-xl font-bold text-blue-600">RAGF-01</p>
+        <!-- <p class="text-xl font-bold text-blue-600">RAGF-01</p> -->
+        <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
       </template>
       <t-menu-item value="item1" @click="navigateTo('/knowledge')" :class="$route.path === '/knowledge'">
         Knowledge Base
@@ -44,21 +45,17 @@
           </t-button>
         </t-tooltip>
         <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="navToHelper">
+          <t-button theme="default" shape="square" variant="text" @click="navToUser">
             <t-icon name="user" />
           </t-button>
         </t-tooltip>
       </template>
-
-
-
-
     </t-head-menu>
   </t-header>
 </template>
 
 <script setup lang="ts">
-
+import CanvasPoint from './canvas-point-unit/CanvasPoint.vue';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { SettingIcon } from 'tdesign-icons-vue-next';
@@ -66,11 +63,16 @@ const route = useRoute();
 const router = useRouter();
 
 const currentMenuItem = computed(() => {
-  switch (route.path) {
+  const path = route.path;
+  
+  if (path.startsWith('/chat')) {
+    return 'item2';
+  }
+  //匹配特殊路由，因为类型问题把它拿出来了
+  
+  switch (path) {
     case '/knowledge':
       return 'item1';
-    case '/chat':
-      return 'item2';
     case '/service':
       return 'item3';
     case '/agent':
@@ -80,7 +82,7 @@ const currentMenuItem = computed(() => {
     case '/DOC':
       return 'item6';
     default:
-      return 'item1';
+      return '';
   }
 });
 
@@ -100,6 +102,10 @@ const navToHelper = () => {
   window.open('https://tdesign.tencent.com/vue-next/overview');
   // 你的帮助页面链接
 };
+const navToUser = () =>{
+  router.push('/user')
+}
+
 
 // 新增 toggleSettingPanel 方法
 const toggleSettingPanel = () => {
