@@ -327,22 +327,6 @@ main {
   /* 在前6个卡片之后显示 */
 }
 
-/* 可选：为占位符添加特殊的动画效果 */
-.knowledge-card-final {
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    animation: ripple 2s infinite ease-out;
-    animation-delay: 1.4s;
-  }
-}
 
 @keyframes ripple {
   0% {

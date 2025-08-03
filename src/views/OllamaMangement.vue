@@ -1,29 +1,27 @@
 <template>
-  <div class="ollama-manager">
+  <div class="h-screen bg-white flex flex-col">
     <!-- 标题栏 -->
-    <div class="title-bar">
-      <div class="title">
-        <span class="icon">📊</span>
-        <span class="text">Ollama模型在线管理</span>
+    <div class="flex justify-between items-center p-2 bg-gray-100 border-b border-gray-300">
+      <div class="flex items-center gap-2 font-medium">
+        <span class="w-5 h-5 bg-blue-600 text-white rounded text-xs flex items-center justify-center">📊</span>
+        <span class="text-gray-800">Ollama模型在线管理</span>
       </div>
     </div>
 
     <!-- 导航标签 -->
-    <div class="nav-tabs">
-      <div 
-        v-for="tab in tabs" 
-        :key="tab.key"
-        :class="['tab', { active: activeTab === tab.key }]"
-        @click="activeTab = tab.key"
-      >
+    <div class="flex bg-white border-b border-gray-300">
+      <div v-for="tab in tabs" :key="tab.key" :class="[
+        'px-8 py-4 cursor-pointer border-b-2 border-transparent text-gray-600 hover:bg-gray-50',
+        { 'text-blue-600 border-blue-600': activeTab === tab.key }
+      ]" @click="activeTab = tab.key">
         {{ tab.label }}
       </div>
     </div>
 
     <!-- 模型列表页面 -->
-    <div v-if="activeTab === 'models'" class="content">
+    <div v-if="activeTab === 'models'" class="flex-1 p-6 overflow-auto">
       <!-- 操作按钮 -->
-      <div class="action-buttons">
+      <div class="flex gap-4 mb-6">
         <t-button variant="outline" @click="refreshModels" :loading="loading">
           刷新模型列表
         </t-button>
@@ -36,17 +34,9 @@
       </div>
 
       <!-- 模型表格 -->
-      <div class="model-table">
-        <t-table
-          :data="models"
-          :columns="columns"
-          :loading="loading"
-          row-key="name"
-          :selected-row-keys="selectedModels"
-          @select-change="onSelectChange"
-          :pagination="false"
-          size="medium"
-        >
+      <div class="bg-white rounded-lg shadow">
+        <t-table :data="models" :columns="columns" :loading="loading" row-key="name" :selected-row-keys="selectedModels"
+          @select-change="onSelectChange" :pagination="false" size="medium">
           <template #size="{ row }">
             {{ formatSize(row.size) }}
           </template>
@@ -54,50 +44,42 @@
             {{ formatTime(row.modified_at) }}
           </template>
           <template #digest="{ row }">
-            <span class="digest">{{ row.digest?.slice(0, 8) }}</span>
+            <span class="font-mono text-gray-600">{{ row.digest?.slice(0, 8) }}</span>
+          </template>
+          <template #operation="{ row }">
+            <t-button variant="text" size="small" @click="deleteModel(row.name)">删除</t-button>
           </template>
         </t-table>
       </div>
     </div>
 
     <!-- 下载模型页面 -->
-    <div v-if="activeTab === 'download'" class="content">
-      <div class="download-section">
-        <div class="download-form">
-          <t-input
-            v-model="downloadModel"
-            placeholder="请输入模型名称，如: llama2:7b"
-            class="model-input"
-          />
-          <t-button 
-            @click="downloadModelAction" 
-            :loading="downloading"
-            :disabled="!downloadModel.trim()"
-          >
+    <div v-if="activeTab === 'download'" class="flex-1 p-6 overflow-auto">
+      <div class="max-w-4xl">
+        <div class="flex gap-4 mb-6">
+          <t-input v-model="downloadModel" placeholder="请输入模型名称，如: llama2:7b" class="flex-1" />
+          <t-button @click="downloadModelAction" :loading="downloading" :disabled="!downloadModel.trim()">
             下载模型
           </t-button>
-          <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
+          <CanvasPoint text="RAGF-01" :width="400" :height="100"></CanvasPoint>
         </div>
-        
+
         <!-- 下载进度 -->
-        <div v-if="downloading" class="download-progress">
+        <div v-if="downloading" class="mb-8 p-5 bg-white rounded-lg shadow">
           <t-progress :percentage="downloadProgress" />
-          <div class="progress-text">{{ downloadStatus }}</div>
+          <div class="mt-2 text-gray-600 text-center">{{ downloadStatus }}</div>
         </div>
 
         <!-- 推荐模型 -->
         <div class="recommended-models">
-          <h3>推荐模型</h3>
-          <div class="model-grid">
-            <div 
-              v-for="model in recommendedModels" 
-              :key="model.name"
-              class="model-card"
-              @click="downloadModel = model.name"
-            >
-              <div class="model-name">{{ model.name }}</div>
-              <div class="model-desc">{{ model.description }}</div>
-              <div class="model-size">{{ model.size }}</div>
+          <h3 class="mb-4 text-gray-800">推荐模型</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="model in recommendedModels" :key="model.name"
+              class="p-5 bg-white rounded-lg shadow cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              @click="downloadModel = model.name">
+              <div class="font-semibold text-blue-600 mb-2">{{ model.name }}</div>
+              <div class="text-gray-600 text-sm mb-2">{{ model.description }}</div>
+              <div class="text-gray-400 text-xs">{{ model.size }}</div>
             </div>
           </div>
         </div>
@@ -105,17 +87,8 @@
     </div>
 
     <!-- 重命名对话框 -->
-    <t-dialog
-      v-model:visible="showRenameDialog"
-      title="模型改名"
-      width="400px"
-      @confirm="renameModel"
-    >
-      <t-input
-        v-model="newModelName"
-        placeholder="请输入新的模型名称"
-        @keyup.enter="renameModel"
-      />
+    <t-dialog v-model:visible="showRenameDialog" title="模型改名" width="400px" @confirm="renameModel">
+      <t-input v-model="newModelName" placeholder="请输入新的模型名称" @keyup.enter="renameModel" />
     </t-dialog>
   </div>
 </template>
@@ -141,8 +114,7 @@ const newModelName = ref('')
 const tabs = [
   { key: 'models', label: '模型列表' },
   { key: 'download', label: '下载模型' },
-  { key: 'chat', label: '对话' },
-  { key: 'settings', label: '软件设置' }
+  { key: 'settings', label: '设置' }
 ]
 
 // 表格列配置
@@ -171,6 +143,11 @@ const columns = [
     title: '下载时间',
     colKey: 'modified_at',
     width: 150
+  },
+  {
+    title: '操作',
+    colKey: 'operation',
+    width: 120
   }
 ]
 
@@ -246,7 +223,7 @@ const ollamaApi = {
 
         const chunk = decoder.decode(value)
         const lines = chunk.split('\n').filter(line => line.trim())
-        
+
         for (const line of lines) {
           try {
             const data = JSON.parse(line)
@@ -305,6 +282,26 @@ const deleteSelected = async () => {
     }
     MessagePlugin.success('删除成功')
     selectedModels.value = []
+    await refreshModels()
+  } catch (error) {
+    MessagePlugin.error('删除失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const deleteModel = async (modelName) => {
+  const confirmed = await MessagePlugin.confirm(`确定要删除模型 ${modelName} 吗？`)
+  if (!confirmed) return
+
+  loading.value = true
+  try {
+    await ollamaApi.deleteModel(modelName)
+    MessagePlugin.success('删除成功')
+    // 如果当前模型在选中列表中，则从选中列表中移除
+    if (selectedModels.value.includes(modelName)) {
+      selectedModels.value = selectedModels.value.filter(name => name !== modelName)
+    }
     await refreshModels()
   } catch (error) {
     MessagePlugin.error('删除失败')
@@ -380,10 +377,10 @@ const formatTime = (timestamp) => {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now - date
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   const months = Math.floor(days / 30)
-  
+
   if (months > 0) return `${months} 个月前`
   if (days > 0) return `${days} 天前`
   return '今天'
@@ -394,181 +391,3 @@ onMounted(() => {
   refreshModels()
 })
 </script>
-
-<style scoped>
-.ollama-manager {
-  height: 100vh;
-  background: #f5f5f5;
-  display: flex;
-  flex-direction: column;
-}
-
-.title-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  background: white;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.title .icon {
-  width: 20px;
-  height: 20px;
-  background: #1976d2;
-  color: white;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.window-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.control-btn {
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.control-btn:hover {
-  background: #f0f0f0;
-}
-
-.close:hover {
-  background: #e81123;
-  color: white;
-}
-
-.nav-tabs {
-  display: flex;
-  background: white;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.tab {
-  padding: 16px 32px;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  color: #666;
-}
-
-.tab.active {
-  color: #1976d2;
-  border-bottom-color: #1976d2;
-}
-
-.tab:hover {
-  background: #f8f9fa;
-}
-
-.content {
-  flex: 1;
-  padding: 24px;
-  overflow: auto;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.model-table {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.digest {
-  font-family: monospace;
-  color: #666;
-}
-
-.download-section {
-  max-width: 800px;
-}
-
-.download-form {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.model-input {
-  flex: 1;
-}
-
-.download-progress {
-  margin-bottom: 32px;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.progress-text {
-  margin-top: 8px;
-  color: #666;
-  text-align: center;
-}
-
-.recommended-models h3 {
-  margin-bottom: 16px;
-  color: #333;
-}
-
-.model-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.model-card {
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.model-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.model-name {
-  font-weight: 600;
-  color: #1976d2;
-  margin-bottom: 8px;
-}
-
-.model-desc {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.model-size {
-  color: #999;
-  font-size: 12px;
-}
-</style>
