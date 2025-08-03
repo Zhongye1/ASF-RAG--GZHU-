@@ -54,7 +54,7 @@
             <!-- 模型网格 -->
 
             <div v-else-if="models.length > 0"
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-h-[80vh] bg-slate-50  overflow-auto gap-4 mb-8">
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 h-[80vh] bg-slate-50  overflow-auto gap-4 mb-8">
                 <div v-for="model in models" :key="model.name"
                     class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200 hover:-translate-y-1 cursor-pointer group flex flex-col h-full">
 

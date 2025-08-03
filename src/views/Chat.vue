@@ -1,49 +1,26 @@
 <template>
   <div class="height-full flex">
     <!-- 侧边栏：对话历史记录 -->
-    <div
-      class="w-64 border-r border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 flex flex-col"
-    >
-      <div
-        class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
-      >
+    <div class="w-64 border-r border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <h2 class="font-medium text-gray-900 dark:text-white">对话历史</h2>
-        <button
-          class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            @click="createNewSession"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
+        <button class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            @click="createNewSession">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </button>
       </div>
 
       <div class="flex-1 overflow-y-auto p-3 space-y-2">
-        <div
-          v-for="(chat, idx) in chatSessions"
-          :key="idx"
-          @click="selectSession(idx)"
-          :class="[
-            'px-3 py-2 rounded-md cursor-pointer flex items-center',
-            currentSessionIndex === idx
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-              : 'hover:bg-gray-100 text-gray-800 dark:hover:bg-gray-700 dark:text-gray-200',
-          ]"
-        >
+        <div v-for="(chat, idx) in chatSessions" :key="idx" @click="selectSession(idx)" :class="[
+          'px-3 py-2 rounded-md cursor-pointer flex items-center',
+          currentSessionIndex === idx
+            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+            : 'hover:bg-gray-100 text-gray-800 dark:hover:bg-gray-700 dark:text-gray-200',
+        ]">
           <div
-            class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mr-3 flex-shrink-0"
-          >
+            class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mr-3 flex-shrink-0">
             <span class="text-xs font-medium">{{ idx + 1 }}</span>
           </div>
           <div class="flex-1 min-w-0">
@@ -56,23 +33,11 @@
       </div>
 
       <div class="p-3 border-t border-gray-200 dark:border-gray-700">
-        <button
-          @click="createNewSession"
-          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
+        <button @click="createNewSession"
+          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           新对话
         </button>
@@ -81,18 +46,14 @@
 
     <!-- 主聊天区域 -->
     <div id="chat-container" class="flex height-full">
-      <chatMainUnit
-        :history="currentSession.history"
-        :title="currentSession.title"
-        :lastMessage="currentSession.lastMessage"
-        :key="currentSession.id"
-      ></chatMainUnit>
+      <chatMainUnit :history="currentSession.history" :title="currentSession.title"
+        :lastMessage="currentSession.lastMessage" :key="currentSession.id"></chatMainUnit>
       <!-- 为每个对话框发分配一个路由键要后端的功能 -->
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed,nextTick } from "vue";
+import { ref, computed, nextTick } from "vue";
 import chatSender from "../components/chat-main-unit/chat-sender.vue";
 import chatMainUnit from "../components/chat-main-unit/chat-main-unit.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -109,7 +70,7 @@ const currentSession = computed(() => {
 // 定义聊天会话列表
 const chatSessions = ref([
   {
-    id:"0",
+    id: "0",
     title: "南极的ATM",
     lastMessage: "南极的自动提款机",
     history: [
@@ -154,7 +115,7 @@ const createNewSession = () => {
     },
     ...chatSessions.value
   ]
-  
+
   // 确保在下一次 DOM 更新后重置索引
   nextTick(() => {
     currentSessionIndex.value = 0
@@ -290,4 +251,21 @@ function generateNumericUUID(length = 16) {
     color: white !important;
   }
 }
+
+/* src/index.css */
+/* 全局淡入动画：所有元素加载时淡入 */
+* {
+  @apply animate-fade-in;
+  /* 应用自定义的淡入动画 */
+  /* 可选：初始透明度设为 0（若元素默认可见，需配合动画覆盖） */
+  /* opacity: 0; */
+}
+
+/* 排除不需要动画的元素（按需调整） */
+* :not(html):not(body):not(script):not(style):not(link):not(meta):not(title) {
+  /* 保留其他元素的默认行为，仅对可见内容应用动画 */
+}
+
+/* 特殊场景：动态添加的元素（如 AJAX 加载的内容）需要重新触发动画 */
+/* 可通过 JavaScript 添加 `animate-fade-in` 类，或使用 MutationObserver */
 </style>

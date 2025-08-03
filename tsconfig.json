@@ -10,16 +10,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "types": []
   },
@@ -27,8 +22,9 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
-, "src/views/KnowledgePages/KnowledgeDetail copy.vue"  ],
+    "src/**/*.vue",
+    "src/views/KnowledgePages/KnowledgeDetail copy.vue"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
