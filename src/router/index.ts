@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue'
 import NotFound from '../components/ERS-Pages/404.vue'
+import { get, post } from '@/utils/ASFaxios'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/service',
     name: 'Search',
-    component: () => import('../views/OllamaMangement.vue')
+    component: () => import('../views/Ollama_Pages/ollama_basic_pages.vue')
   },
   {
     path: '/agent',
@@ -78,8 +79,41 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
-//登录系统的前置路由守卫
-// router.beforeEach((to, from, next) => {})
 
+const publicRoutes = ['/LogonOrRegister'];
+
+router.beforeEach((to, from, next) => {
+  // 如果是公开路由，直接放行
+  if (publicRoutes.includes(to.path)) {
+    return next();
+  }
+  next();
+  // const jwt = localStorage.getItem('jwt');
+  // console.log(jwt);
+  // // 没有JWT时重定向到登录页
+  // if (!jwt) {
+  //   return next(`/LogonOrRegister`);
+  // }
+
+  // // 验证JWT有效性
+  // const formData = new FormData();
+  // formData.append('token', jwt);
+  
+  // post('/api/verify-token', formData)
+  //   .then((res: any) => {
+  //     console.log(res);
+  //     if (res.status === "success") {
+  //       next(); 
+  //     } else {
+  //       // token无效时清理并重定向
+  //       localStorage.removeItem('jwt');
+  //       next(`/LogonOrRegiste`);
+  //     }
+  //   })
+  //   .catch(() => {
+  //     localStorage.removeItem('jwt');
+  //     next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
+  //   });
+});
 
 export default router

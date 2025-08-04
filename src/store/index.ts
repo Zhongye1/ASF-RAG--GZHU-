@@ -6,3 +6,4 @@ const pinia = createPinia();
 
 export default pinia;
 export * from './modules/useCardData';
+export * from './modules/useDataUser';

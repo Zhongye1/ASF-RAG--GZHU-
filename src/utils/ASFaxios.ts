@@ -1,11 +1,14 @@
 // file: apiClient.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+
+const token = localStorage.getItem('jwt');
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'https://your-api.com/v1', // 你的 API 基础地址
+  // baseURL: 'https://your-api.com/v1',
   timeout: 10000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json', // 默认请求头
     'Accept': 'application/json',
+    'Authorization': `Bearer ${token}`
   }
 });
 

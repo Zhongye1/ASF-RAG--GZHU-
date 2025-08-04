@@ -6,19 +6,19 @@
         <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
       </template>
       <t-menu-item value="item1" @click="navigateTo('/knowledge')" :class="$route.path === '/knowledge'">
-        Knowledge Base
+        知识库
       </t-menu-item>
       <t-menu-item value="item2" @click="navigateTo('/chat')" :class="$route.path === '/chat'">
-        Chat
+        对话
       </t-menu-item>
       <t-menu-item value="item3" @click="navigateTo('/service')" :class="$route.path === '/service'">
-        服务管理
+        模型管理
       </t-menu-item>
       <t-menu-item value="item4" @click="navigateTo('/agent')" :class="$route.path === '/agent'">
         Agent
       </t-menu-item>
       <t-menu-item value="item5" @click="navigateTo('/files')" :class="$route.path === '/files'">
-        Files Manager
+        文件管理
       </t-menu-item>
       <t-menu-item value="item6" @click="navigateTo('/DOC')" :class="$route.path === '/DOC'">
         开发文档
