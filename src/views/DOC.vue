@@ -1,11 +1,13 @@
 <template>
-  <div class="doc-container max-w-7xl mx-auto px-6 py-8">
-    <div class="bg-white shadow-sm rounded-lg p-8">
-      <!-- 标题区域 -->
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">RAGF-01 项目文档</h1>
-      
-      <!-- Markdown 渲染区域 -->
-      <div class="markdown-body" v-html="renderedContent"></div>
+  <div :class="{ 'animate-fade-in': !isAnimationDisabled }">
+    <div class="doc-container max-w-7xl mx-auto  px-6 py-8 ">
+      <div class="bg-white shadow-sm rounded-lg p-12 max-h-[85vh] overflow-auto">
+        <!-- 标题区域 -->
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">RAGF-01 项目文档</h1>
+
+        <!-- Markdown 渲染区域 -->
+        <div class="markdown-body" v-html="renderedContent"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -17,6 +19,7 @@ import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
+const isAnimationDisabled = ref(false) // 设置为 true 来禁用动画
 // 配置 marked
 marked.setOptions({
   highlight: (code, lang) => {
@@ -36,7 +39,7 @@ onMounted(async () => {
     // 加载 Markdown 文件内容
     const response = await fetch('README.md');
     documentContent.value = await response.text();
-    
+
     // 渲染 Markdown 并净化 HTML
     renderedContent.value = DOMPurify.sanitize(marked(documentContent.value));
   } catch (error) {
@@ -58,11 +61,11 @@ onMounted(async () => {
   line-height: 1.6;
 }
 
-.markdown-body h1, 
-.markdown-body h2, 
-.markdown-body h3, 
-.markdown-body h4, 
-.markdown-body h5, 
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
 .markdown-body h6 {
   margin-top: 24px;
   margin-bottom: 16px;
@@ -179,9 +182,14 @@ onMounted(async () => {
   left: 0;
   top: 0.3em;
 }
+
 .doc-container {
-    min-height: calc(100vh - 80px);
-    height: max-content;
+  min-height: calc(100vh - 80px);
+  height: max-content;
 }
 
+::-webkit-scrollbar {
+  display: none;
+  /* Chrome Safari */
+}
 </style>
