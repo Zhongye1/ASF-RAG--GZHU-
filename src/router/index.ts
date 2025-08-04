@@ -1,7 +1,7 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue';
-import NotFound from '../components/ERS-Pages/404.vue';
-
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue'
+import NotFound from '../components/ERS-Pages/404.vue'
+import { get, post } from '@/utils/ASFaxios'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -48,6 +48,16 @@ const routes: Array<RouteRecordRaw> = [
     name: '开发文档',
     component: () => import('../views/DOC.vue')
   },
+  {
+    path: '/LogonOrRegister',
+    name: '登录',
+    component: () => import('../views/LogonOrRegister/LogonOrRegister.vue')
+  },
+  {
+    path: '/user',
+    name: '用户界面',
+    component: () => import('../views/TabHeader/User.vue')
+  },
   // 添加专门的404页面路由
   {
     path: '/404',
@@ -63,12 +73,47 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*',
     redirect: '/404'
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+const publicRoutes = ['/LogonOrRegister'];
+
+router.beforeEach((to, from, next) => {
+  // 如果是公开路由，直接放行
+  if (publicRoutes.includes(to.path)) {
+    return next();
+  }
+  next();
+  // const jwt = localStorage.getItem('jwt');
+  // console.log(jwt);
+  // // 没有JWT时重定向到登录页
+  // if (!jwt) {
+  //   return next(`/LogonOrRegister`);
+  // }
+
+  // // 验证JWT有效性
+  // const formData = new FormData();
+  // formData.append('token', jwt);
+  
+  // post('/api/verify-token', formData)
+  //   .then((res: any) => {
+  //     console.log(res);
+  //     if (res.status === "success") {
+  //       next(); 
+  //     } else {
+  //       // token无效时清理并重定向
+  //       localStorage.removeItem('jwt');
+  //       next(`/LogonOrRegiste`);
+  //     }
+  //   })
+  //   .catch(() => {
+  //     localStorage.removeItem('jwt');
+  //     next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
+  //   });
 });
 
-export default router;
-
+export default router
