@@ -3,7 +3,7 @@
     <t-head-menu theme="light" :value="currentMenuItem" height="80px">
       <template #logo>
         <!-- <p class="text-xl font-bold text-blue-600">RAGF-01</p> -->
-        <CanvasPoint text="RAGF-01" :width="400" :height="100" ></CanvasPoint>
+        <h2 class="logo-title font-bold text-blue-500 text-xl">{{ 'RAGF-01' }}</h2>
       </template>
       <t-menu-item value="item1" @click="navigateTo('/knowledge')" :class="$route.path === '/knowledge'">
         知识库
@@ -34,11 +34,7 @@
             <t-icon name="help-circle" />
           </t-button>
         </t-tooltip>
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
-            <setting-icon />
-          </t-button>
-        </t-tooltip>
+
         <t-tooltip placement="bottom">
           <t-button theme="default" shape="square" variant="text" @click="navigateTo('/knowledge')">
             <t-icon name="home" />
@@ -49,27 +45,38 @@
             <t-icon name="user" />
           </t-button>
         </t-tooltip>
+        <t-tooltip placement="bottom">
+          <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
+            <setting-icon />
+          </t-button>
+        </t-tooltip>
       </template>
     </t-head-menu>
   </t-header>
+  <t-drawer v-model:visible="drawerVisible" :header="'设置面板'" :footer="null" size="400px">
+    <!-- 在这里挂载你的子组件 -->
+    <your-child-component />
+    <p>示例文本</p>
+  </t-drawer>
 </template>
 
 <script setup lang="ts">
-import CanvasPoint from './canvas-point-unit/CanvasPoint.vue';
-import { computed } from 'vue';
+//import CanvasPoint from './canvas-point-unit/CanvasPoint.vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { SettingIcon } from 'tdesign-icons-vue-next';
+import { Drawer } from 'tdesign-vue-next';
 const route = useRoute();
 const router = useRouter();
 
 const currentMenuItem = computed(() => {
   const path = route.path;
-  
+
   if (path.startsWith('/chat')) {
     return 'item2';
   }
   //匹配特殊路由，因为类型问题把它拿出来了
-  
+
   switch (path) {
     case '/knowledge':
       return 'item1';
@@ -108,9 +115,9 @@ const navToUser = () =>{
 
 
 // 新增 toggleSettingPanel 方法
+const drawerVisible = ref(false);
 const toggleSettingPanel = () => {
-  console.log('Toggle setting panel');
-  // 在这里添加你的设置面板切换逻辑
+  drawerVisible.value = !drawerVisible.value;
 };
 
 </script>
