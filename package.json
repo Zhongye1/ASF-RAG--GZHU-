@@ -19,6 +19,7 @@
     "highlight.js": "^11.11.1",
     "marked": "^16.1.1",
     "pinia": "^3.0.3",
+    "quasar": "^2.18.2",
     "tdesign-icons-vue-next": "latest",
     "tdesign-vue-next": "latest",
     "tvision-color": "^1.6.0",
