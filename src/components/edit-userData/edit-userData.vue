@@ -37,6 +37,8 @@ const props = defineProps({
   userData: Object,
 });
 
+
+
 const emit = defineEmits(["update:visible", "update:userData"]);
 // 表单数据
 const formData = reactive({
@@ -54,7 +56,7 @@ watch(
     if (visible && props.userData) {
       formData.name = props.userData.name || "";
       formData.signatur = props.userData.signatur || "";
-      formData.avatar = "";
+      formData.avatar = props.userData.avatar||""
       previewUrl.value = props.userData.avatarUrl || "";
     }
   }

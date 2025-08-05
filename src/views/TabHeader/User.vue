@@ -35,13 +35,13 @@
         </div>
 
         <t-space>
-          <t-button theme="primary" @click="visible=!visible">编辑资料</t-button>
+          <t-button theme="primary" @click="visible = !visible">编辑资料</t-button>
           <t-button variant="outline">操作账户</t-button>
         </t-space>
       </t-space>
     </t-card>
   </div>
-  <editUserData  :visible="visible" :userData="currentUser"/>
+  <editUserData v-model:visible="visible" :userData="currentUser" />
 </template>
 
 <script setup lang="ts">
@@ -58,12 +58,11 @@ const GetUsersData = get("/api/GetUserAllData").then((req: any) => {
   data.value = req.data;
 });
 const visible = ref(false);
-const currentUser = ref({ 
-  name: DataUserStore.userData.name, 
+const currentUser = ref({
+  name: DataUserStore.userData.name,
   signatur: DataUserStore.userData.signatur,
-  avatar: DataUserStore.userData.avatar
+  avatar: DataUserStore.userData.avatar,
 });
-
 
 onMounted(() => {
   GetUsersData;
