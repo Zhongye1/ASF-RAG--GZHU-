@@ -81,12 +81,12 @@ const setActive = (path:string) => {
 // 导航配置
 const mainNav = ref([
   { label: "基本设置", icon: "user" ,path:'/user/userInfo'},
-  { label: "外观(待定)", icon: "palette" , path:'/user/appearance' },
-  { label: "第三方账号绑定(上线后)", icon: "link", path:'/user/link' },
-  { label: "实验性功能(上线后)", icon: "sitemap" , path:"/user/experimental" },
-  { label: "反馈与建议", icon: "chat", path:'/user/feedback' },
-  { label: "隐私政策", icon: "certificate", path:'/user/privacy' },
-  { label: "关于本项目(设为跳转文档页)", icon: "info-circle" ,path:"/user/about"  },
+  { label: "外观(待定)", icon: "palette" , path:'#1' },
+  { label: "第三方账号绑定(上线后)", icon: "link", path:'#2' },
+  { label: "实验性功能(上线后)", icon: "sitemap" , path:"#3" },
+  { label: "反馈与建议", icon: "chat", path:'#4' },
+  { label: "隐私政策", icon: "certificate", path:'#5' },
+  { label: "关于本项目(设为跳转文档页)", icon: "info-circle" ,path:"#6"  },
 ]);
 </script>
 
