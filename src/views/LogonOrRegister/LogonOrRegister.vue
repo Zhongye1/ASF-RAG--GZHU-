@@ -1,195 +1,166 @@
 <template>
-  <div class="auth-container">
-    <t-card class="auth-card" :title="cardTitle" :bordered="false" hover-shadow>
-      <t-form
-        ref="formRef"
-        :data="formData"
-        :rules="formRules"
-        colon
-        label-width="0"
-        @submit="handleSubmit"
-      >
-        <t-form-item name="email">
-          <t-input
-            v-model="formData.email"
-            clearable
-            size="large"
-            placeholder="请输入您的邮箱"
-          >
-            <template #prefix-icon>
-              <t-icon name="mail" />
-            </template>
-          </t-input>
-        </t-form-item>
-
-        <t-form-item name="password">
-          <t-input
-            v-model="formData.password"
-            type="password"
-            clearable
-            size="large"
-            placeholder="请输入密码"
-          >
-            <template #prefix-icon>
-              <t-icon name="lock-on" />
-            </template>
-          </t-input>
-        </t-form-item>
-
-        <t-form-item v-if="formMode === 'register'" name="confirmPassword">
-          <t-input
-            v-model="formData.confirmPassword"
-            type="password"
-            clearable
-            size="large"
-            placeholder="请再次输入密码"
-          >
-            <template #prefix-icon>
-              <t-icon name="lock-on" />
-            </template>
-          </t-input>
-        </t-form-item>
-
-        <t-form-item>
-          <t-button theme="primary" type="submit" block size="large">
-            {{ submitButtonText }}
-          </t-button>
-        </t-form-item>
-      </t-form>
-
-      <div class="switch-mode">
-        <t-link theme="primary" @click="toggleFormMode">{{ switchLinkText }}</t-link>
+  <div
+    class="min-h-screen relative font-sans bg-cover bg-[url('https://pic3.zhimg.com/v2-59e4679ba11c333dde41264d44dc72e6_r.jpg')] ">
+    <!-- 顶部标题区域 -->
+    <div class="text-center py-10 relative z-10">
+      <div class="text-5xl font-thin text-white mb-4 tracking-wider drop-shadow-lg">RAG-F01智能知识库系统</div>
+      <div class="flex justify-center">
+        <vue-typewriter-effect :strings="typewriterStrings" class="text-2xl text-white font-light" :loop="true">
+        </vue-typewriter-effect>
       </div>
-    </t-card>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="grid grid-cols-[1fr_1fr] gap-16 max-w-6xl mx-auto px-8 pb-16 relative z-10">
+
+
+      <!-- 右侧Logo区域 -->
+      <div class="relative flex flex-col h-full items-center gap-8">
+        <div
+          class="bg-black/20 backdrop-blur-xl h-[600px] border border-white/10 rounded-2xl p-8 sticky top-8 min-h-[400px] flex items-center justify-center">
+          <div v-if="currentDisplayImage.src" class="relative w-full h-full">
+            <transition class="mt-[100px]" name="image-fade" mode="out-in">
+              <DynamicLogo :key="currentDisplayImage.src" :logo-src="currentDisplayImage.src"
+                class="w-full  object-cover rounded-xl" />
+            </transition>
+
+            <!-- 图片标题覆盖层 -->
+            <div class="absolute bottom-4 left-4 right-4 bg-black/50 backdrop-blur-sm rounded-lg p-3">
+              <transition name="text-fade" mode="out-in">
+                <p :key="currentDisplayImage.alt" class="text-white text-sm font-light text-center">
+                  {{ currentDisplayImage.alt }}
+                </p>
+              </transition>
+            </div>
+          </div>
+          <div v-else class="text-white text-sm font-light">欢迎使用无痕加密系统</div>
+        </div>
+
+        <!-- 装饰性元素 -->
+        <div class="absolute -top-8 -right-8 w-[100px] h-[100px] pointer-events-none">
+          <div class="absolute w-[60px] h-[60px] border-2 border-cyan-400/30 rounded-full animate-spin-slow"></div>
+          <div
+            class="absolute top-1/2 left-1/2 w-[80px] h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent transform -translate-x-1/2 -translate-y-1/2 animate-pulse">
+          </div>
+        </div>
+      </div>
+
+      <!-- 左侧登录注册区域 -->
+      <div class="grid grid-rows-[auto_1fr] gap-12">
+        <!-- 登录注册表单 -->
+        <div class="bg-black/20 backdrop-blur-xl border  border-white/10 rounded-xl p-8 min-h-[450px]">
+          <LoginRegisterForm @image-change="handleImageChange" @form-submit="handleFormSubmit" />
+        </div>
+      </div>
+    </div>
   </div>
-
-
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
-import { MessagePlugin, FormInstanceFunctions, FormRule } from "tdesign-vue-next";
-import { Icon as TIcon } from "tdesign-icons-vue-next";
-import { get, post } from "@/utils/ASFaxios";
-import router from "@/router";
+import { ref, reactive, computed } from 'vue'
+import DynamicLogo from '@/components/canvas-point-unit/DynamicLogo.vue'
+import LoginRegisterForm from './LoginRegisterForm.vue'
 
-const formMode = ref<"login" | "register">("login");
-const formRef = ref<FormInstanceFunctions | null>(null);
+const currentImageKey = ref<string>('welcome')
 
-const formData = reactive({
-  email: "",
-  password: "",
-  confirmPassword: "",
-});
-
-const cardTitle = computed(() =>
-  formMode.value === "login" ? "欢迎回来" : "创建新账户"
-);
-const submitButtonText = computed(() => (formMode.value === "login" ? "登 录" : "注 册"));
-const switchLinkText = computed(() =>
-  formMode.value === "login" ? "还没有账户？立即注册" : "已有账户？前往登录"
-);
-
-const formRules = computed<Record<string, FormRule[]>>(() => ({
-  email: [
-    { required: true, message: "邮箱不能为空", type: "error" },
-    { email: true, message: "请输入正确的邮箱格式", type: "warning" },
-  ],
-  password: [
-    { required: true, message: "密码不能为空", type: "error" },
-    { min: 6, message: "密码长度不能少于6位", type: "warning" },
-  ],
-  confirmPassword: [
-    { required: true, message: "请再次输入密码", type: "error" },
-    {
-      validator: (val) => val === formData.password,
-      message: "两次输入的密码不一致",
-      type: "error",
-    },
-  ],
-}));
-
-const toggleFormMode = () => {
-  formMode.value = formMode.value === "login" ? "register" : "login";
-  formRef.value?.reset();
-  Object.assign(formData, { email: "", password: "", confirmPassword: "" });
-};
-
-const handleSubmit = ({
-  validateResult,
-  firstError,
-}: {
-  validateResult: boolean;
-  firstError?: string;
-}) => {
-  if (!validateResult) {
-    MessagePlugin.warning(firstError || "校验失败");
-    return;
+// 图片映射
+const imageMap: Record<string, { src: string; alt: string }> = {
+  welcome: {
+    src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400',
+    alt: '欢迎使用RAG-F01'
+  },
+  login: {
+    src: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400',
+    alt: '安全登录'
+  },
+  register: {
+    src: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400',
+    alt: '注册账户'
+  },
+  forgot: {
+    src: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400',
+    alt: '找回密码'
+  },
+  success: {
+    src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    alt: '操作成功'
   }
-  const Data = new FormData();
-  Data.append("email", formData.email);
-  Data.append("password", formData.password);
+}
 
-  if (formMode.value === "login") {
-    // 执行登录逻辑
-    console.log("Login attempt with:", formData);
+// 计算当前应该显示的图片
+const currentDisplayImage = computed(() => {
+  return imageMap[currentImageKey.value] || imageMap.welcome
+})
 
-    // 在这里可以调用登录API
+// 处理图片变化
+const handleImageChange = (imageKey: string) => {
+  currentImageKey.value = imageKey
+}
 
-    post("/api/login", Data)
-      .then((res: any) => {
-        MessagePlugin.success("登录成功");
-        console.log(res.token);
-        localStorage.setItem("jwt", res.token);
-        localStorage.setItem("email", formData.email);
-        router.push("/");
-      })
-      .catch((err) => {
-        MessagePlugin.error(`登录失败，发生${err.message}错误`);
-      });
-  } else {
-    // 执行注册逻辑
-    console.log("Registering with:", formData);
-    console.log("Login attempt with:", {
-      email: formData.email,
-      password: formData.password,
-    });
-    // 在这里可以调用注册API
-    post("/api/logon", Data)
-      .then((res) => {
-        MessagePlugin.success("注册成功");
-      })
-      .catch((err) => {
-        MessagePlugin.error(`注册失败，发生${err.message}错误`);
-      });
-  }
-};
+// 处理表单提交
+const handleFormSubmit = (data: any) => {
+  console.log('Form submitted:', data)
+  // 这里可以添加API调用逻辑
+  currentImageKey.value = 'success'
+
+  // 模拟成功后的操作
+  setTimeout(() => {
+    alert(`${data.type === 'login' ? '登录' : '注册'}成功！见src/views/LogonOrRegister/LogonOrRegister.vue 107行，没写逻辑`)
+  }, 1000)
+}
+
+
+import VueTypewriterEffect from 'vue-typewriter-effect'
+
+const typewriterStrings = computed(() => [
+  `RAG-F01智能知识库系统`,
+  `安全、便捷、智能的知识管理解决方案`,
+])
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-  background-image: linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%);
-  min-height: 100vh;
-  box-sizing: border-box;
+/* 保持原有样式 */
+.image-fade-enter-active,
+.image-fade-leave-active {
+  transition: all 0.4s ease-in-out;
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 400px;
-  padding: 24px;
-  border-radius: 12px;
+.image-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.95) translateY(10px);
 }
 
-:deep(.t-form__label) {
-  width: 0;
+.image-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.05) translateY(-10px);
 }
 
-.switch-mode {
-  margin-top: 16px;
-  text-align: center;
+.text-fade-enter-active,
+.text-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.text-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.text-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
 }
 </style>

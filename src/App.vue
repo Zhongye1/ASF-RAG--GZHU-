@@ -14,6 +14,7 @@
 //import AppNavbar from './components/AppNavbar.vue';
 import thea from './components/T-HeadBar.vue'
 //import '@/assets/fadeIn.css';
+import "@/assets/scroll.css"
 </script>
 
 <style>
