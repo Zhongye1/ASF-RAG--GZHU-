@@ -56,7 +56,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/user',
     name: '用户界面',
-    component: () => import('../views/TabHeader/User.vue')
+    component: () => import('../views/TabHeader/User.vue'),
+    children: [
+      {
+        path: '/user/userInfo',
+        name: '用户信息',
+        component: () => import('../components/user-primary/user-primary.vue')
+      }
+    ]
   },
   // 添加专门的404页面路由
   {
