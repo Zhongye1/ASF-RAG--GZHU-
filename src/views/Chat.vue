@@ -41,6 +41,13 @@
           </svg>
           新对话
         </button>
+        <button @click="downloadChat"
+                class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          下载对话
+        </button>
       </div>
     </div>
 
@@ -192,6 +199,56 @@ const inputEnter = function (inputValue: string) {
 
     isStreamLoad.value = false;
   }, 2000);
+};
+
+// 新增下载函数
+const downloadChat = async () => {
+  try {
+    // 准备下载数据
+    const downloadData = {
+      chat_sessions: {
+        [currentSession.value.id]: {
+          ...currentSession.value,
+          downloadTime: new Date().toISOString()
+        }
+      }
+    };
+
+    // 发送下载请求
+    const response = await fetch('/api/download-chat-json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(downloadData)
+    });
+
+    if (!response.ok) {
+      throw new Error('下载失败');
+    }
+
+    // 获取文件名
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const filename = contentDisposition
+      ? contentDisposition.split('filename=')[1]
+      : `chat_session_${new Date().getTime()}.json`;
+
+    // 创建下载链接
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    console.log('对话下载成功');
+  } catch (error) {
+    console.error('下载对话失败:', error);
+    alert('下载对话失败，请重试');
+  }
 };
 
 function generateNumericUUID(length = 16) {
