@@ -1,92 +1,46 @@
 <template>
   <div class="chat-box">
-    <t-chat
-      ref="chatRef"
-      :clear-history="chatList.length > 0 && !isStreamLoad"
-      :data="chatList"
-      :text-loading="loading"
-      :is-stream-load="isStreamLoad"
-      style="height: 100%"
-      @scroll="handleChatScroll"
-      @clear="clearConfirm"
-    >
+    <t-chat ref="chatRef" :clear-history="chatList.length > 0 && !isStreamLoad" :data="chatList" :text-loading="loading"
+      :is-stream-load="isStreamLoad" style="height: 100%" @scroll="handleChatScroll" @clear="clearConfirm">
       <!-- eslint-disable vue/no-unused-vars -->
       <template #content="{ item, index }">
         <t-chat-reasoning v-if="item.reasoning?.length > 0" expand-icon-placement="right">
           <template #header>
-            <t-chat-loading
-              v-if="isStreamLoad && item.content.length === 0"
-              text="思考中...按Ctrl+C停止"
-            />
+            <t-chat-loading v-if="isStreamLoad && item.content.length === 0" text="思考中...按Ctrl+C停止" />
             <div v-else style="display: flex; align-items: center">
-              <CheckCircleIcon
-                style="
+              <CheckCircleIcon style="
                   color: var(--td-success-color-5);
                   font-size: 20px;
                   margin-right: 8px;
-                "
-              />
+                " />
               <span>已深度思考</span>
             </div>
           </template>
           <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
         </t-chat-reasoning>
-        <t-chat-content
-          v-if="item.content.length > 0"
-          :content="item.content"
-          class="custom-chat-dialog"
-        />
+        <t-chat-content v-if="item.content.length > 0" :content="item.content" class="custom-chat-dialog" />
       </template>
 
       <template #actions="{ item, index }">
-        <t-chat-action
-          :content="item.content"
-          :operation-btn="['good', 'bad', 'replay', 'copy']"
-          @operation="handleOperation"
-        />
+        <t-chat-action :content="item.content" :operation-btn="['good', 'bad', 'replay', 'copy']"
+          @operation="handleOperation" />
       </template>
 
       <template #footer>
-        <t-chat-sender
-          id="chatSender"
-          ref="chatSenderRef"
-          v-model="inputValue"
-          class="chat-sender"
-          :textarea-props="{
-            placeholder: '请输入消息...',
-          }"
-          :loading="isStreamLoad"
-          @send="inputEnter"
-          @file-select="fileSelect"
-          @stop="onStop"
-        >
+        <t-chat-sender id="chatSender" ref="chatSenderRef" v-model="inputValue" class="chat-sender" :textarea-props="{
+          placeholder: '请输入消息...',
+        }" :loading="isStreamLoad" @send="inputEnter" @file-select="fileSelect" @stop="onStop">
           <template #suffix="{ renderPresets }">
-            <component
-              :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])"
-            />
+            <component :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])" />
           </template>
 
           <template #prefix>
             <div class="model-select">
-              <t-tooltip
-                v-model:visible="allowToolTip"
-                content="切换模型"
-                trigger="hover"
-              >
-                <t-select
-                  v-model="selectValue"
-                  :options="selectOptions"
-                  value-type="object"
-                  @focus="allowToolTip = false"
-                  @change="handleModelChange"
-                ></t-select>
+              <t-tooltip v-model:visible="allowToolTip" content="切换模型" trigger="hover">
+                <t-select v-model="selectValue" :options="selectOptions" value-type="object"
+                  @focus="allowToolTip = false" @change="handleModelChange"></t-select>
               </t-tooltip>
-              <t-button
-                class="check-box"
-                :class="{ 'is-active': isChecked }"
-                variant="text"
-                @click="checkClick"
-              >
+              <t-button class="check-box" :class="{ 'is-active': isChecked }" variant="text" @click="checkClick">
                 <SystemSumIcon />
                 <span>深度思考</span>
               </t-button>
@@ -96,12 +50,7 @@
       </template>
     </t-chat>
 
-    <t-button
-      v-show="isShowToBottom"
-      variant="text"
-      class="bottomBtn"
-      @click="backBottom"
-    >
+    <t-button v-show="isShowToBottom" variant="text" class="bottomBtn" @click="backBottom">
       <div class="to-bottom">
         <ArrowDownIcon />
       </div>
@@ -224,19 +173,28 @@ const fileSelect = function (files) {
   console.log("选择的文件:", files);
 };
 
-// 停止按钮处理
-const onStop = function () {
-  console.log("onStop - 用户主动停止");
+// 添加中断状态标识
+const isUserAborted = ref(false);
 
-  if (fetchCancel.value) {
-    fetchCancel.value.controller.close();
+const onStop = () => {
+  if (fetchCancel.value?.controller) {
+    // 标记为用户主动中断
+    isUserAborted.value = true;
+
+    // 使用 abort() 中断请求
+    fetchCancel.value.controller.abort();
+
+    // 清理状态
     fetchCancel.value = null;
-  }
+    loading.value = false;
+    isStreamLoad.value = false;
 
-  // 用户主动停止时立即恢复按钮状态
-  isStreamLoad.value = false;
-  loading.value = false;
+    console.log('用户主动停止流式响应');
+    MessagePlugin.info('已停止生成');
+  }
 };
+
+
 
 // 消息发送处理 - 修复后的版本
 const inputEnter = function (messageContent) {
@@ -337,12 +295,17 @@ const fetchSSE = async (fetchFn, options) => {
 // src/components/chat-main-unit/chat-main-unit.vue
 
 // 修改数据处理函数
+const emit = defineEmits(['chat-updated']);
+
 // 修改数据处理函数
 const handleData = async (messageContent) => {
   console.log("开始处理数据:", messageContent);
 
+
+  isUserAborted.value = false;
   const lastItem = chatList.value[0];
   const selectedModel = selectValue.value.value;
+
 
   // 用于追踪思考过程状态
   let isInThinking = false;
@@ -455,6 +418,14 @@ const handleData = async (messageContent) => {
               reasoning: lastItem.reasoning,
               content: lastItem.content,
             });
+
+            // 完成处理
+            isStreamLoad.value = false;
+            loading.value = false;
+            fetchCancel.value = null;
+
+            // **发送保存信号给父组件**
+            emit('chat-updated');
           }
         }
       } catch (error) {
@@ -467,18 +438,33 @@ const handleData = async (messageContent) => {
     loading.value = false;
     fetchCancel.value = null;
   } catch (error) {
-    console.error("处理数据时出错:", error);
-    if (lastItem) {
-      lastItem.role = "error";
-      lastItem.content = `连接Ollama服务失败: ${error.message}`;
-      lastItem.reasoning = "";
+    console.log("用户主动中断:", error);
+
+    // 区分用户主动中断和真正的连接错误
+    if (isUserAborted.value || error.name === 'AbortError') {
+      // 用户主动中断，不显示错误消息
+      console.log('流式响应被用户中断');
+      if (lastItem) {
+        // 保持当前内容，不覆盖为错误消息
+        lastItem.content = lastItem.content || '响应已停止';
+      }
+    } else {
+      // 真正的连接或其他错误
+      console.error("Ollama连接错误:", error);
+      if (lastItem) {
+        lastItem.role = "error";
+        lastItem.content = `连接Ollama服务失败: ${error.message}`;
+        lastItem.reasoning = "";
+      }
     }
 
+    // 清理状态
     isStreamLoad.value = false;
     loading.value = false;
     fetchCancel.value = null;
   }
 };
+
 
 // 键盘事件处理
 const handleKeyDown = (event) => {
@@ -506,15 +492,19 @@ onBeforeUnmount(() => {
 ::-webkit-scrollbar-thumb {
   background-color: var(--td-scrollbar-color);
 }
+
 ::-webkit-scrollbar-thumb:horizontal:hover {
   background-color: var(--td-scrollbar-hover-color);
 }
+
 ::-webkit-scrollbar-track {
   background-color: var(--td-scroll-track-color);
 }
+
 .chat-box {
   position: relative;
   height: 100%;
+
   .bottomBtn {
     position: absolute;
     left: 50%;
@@ -541,6 +531,7 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+
     .t-icon {
       font-size: 24px;
     }
@@ -550,15 +541,18 @@ onBeforeUnmount(() => {
 .model-select {
   display: flex;
   align-items: center;
+
   .t-select {
     width: 112px;
     height: 32px;
     margin-right: 8px;
+
     .t-input {
       border-radius: 32px;
       padding: 0 15px;
     }
   }
+
   .check-box {
     width: 112px;
     height: 32px;
@@ -568,15 +562,18 @@ onBeforeUnmount(() => {
     color: rgba(0, 0, 0, 0.9);
     box-sizing: border-box;
     flex: 0 0 auto;
+
     .t-button__text {
       display: flex;
       align-items: center;
       justify-content: center;
+
       span {
         margin-left: 4px;
       }
     }
   }
+
   .check-box.is-active {
     border: 1px solid #d9e1ff;
     background: #f2f3ff;
@@ -586,11 +583,14 @@ onBeforeUnmount(() => {
 
 .t-chat-input.position-absolute {
   position: absolute;
-  bottom: 10px; /* 距离底部20px */
+  bottom: 10px;
+  /* 距离底部20px */
   left: 0;
   right: 0;
-  margin: auto; /* 水平居中 */
-  width: 100%; /* 可根据需要调整宽度 */
+  margin: auto;
+  /* 水平居中 */
+  width: 100%;
+  /* 可根据需要调整宽度 */
 }
 
 .custom-chat-dialog {
@@ -600,5 +600,33 @@ onBeforeUnmount(() => {
   border-radius: 8px;
   margin-top: 10px;
   padding-right: 20px !important;
+}
+
+.chat-sender {
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-top: 1px solid var(--td-border-level-1-color);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* 确保聊天内容区域有足够的底部间距，避免被输入框遮挡 */
+.chat-box .t-chat {
+  padding-bottom: 50px;
+  /* 根据输入框高度调整 */
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .chat-sender {
+    padding: 12px;
+  }
+
+  .chat-box .t-chat {
+    padding-bottom: 100px;
+  }
 }
 </style>
