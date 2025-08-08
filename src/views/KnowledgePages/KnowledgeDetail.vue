@@ -256,7 +256,7 @@
             </option>
           </select>
         </div>
-
+        <!---
         <div>
           <div class="flex items-center">
             <label class="block text-sm font-medium text-gray-700 mb-2 mr-4">使用知识图谱</label>
@@ -270,7 +270,7 @@
               ]" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </div>-->
       </div>
 
       <!-- 跨语言搜索 -->
@@ -538,14 +538,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios'; // 假设你使用 axios 作为 HTTP 客户端
+import axios from 'axios';
 import knowledgeSettingCard from './knowledge-setting-card.vue';
 
 const route = useRoute();
 const router = useRouter();
 const id = ref(route.params.id || 'ASF');
-const kbName = ref('ASF Technical Documentation');
-const kbDescription = ref('Apache Software Foundation 技术文档库');
+const kbName = ref('加载中...');
+const kbDescription = ref('加载中...');
 
 // 数据集管理功能
 const searchQuery = ref('');
@@ -556,40 +556,83 @@ const dragover = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(5);
 const showDeleteConfirmation = ref(false);
-const selectedDocuments = ref<number[]>([]); // 选中的文档ID
-
+const selectedDocuments = ref<number[]>([]);
 
 // 检索测试功能
 const filterStatus = ref('全部');
 
+// 将检索配置初始值设为默认值，等待后端数据更新
 const isHelpVisible = ref(true);
-const similarityThreshold = ref(0.75);
-const keywordWeight = ref(50);
+const similarityThreshold = ref(0.7); // 设置为合理的默认值
+const keywordWeight = ref(50); // 设置为合理的默认值
+const selectedRerankModel = ref('bge-large'); // 设置默认模型
+const useKnowledgeGraph = ref(false);
+const selectedLanguage = ref('auto'); // 设置默认语言
+
+// 可用模型列表
 const rerankModels = ref([
   { label: 'bge-reranker-base', value: 'bge-base' },
   { label: 'bge-reranker-large', value: 'bge-large' },
   { label: '没有 Rerank 模型', value: 'none' }
 ]);
-const selectedRerankModel = ref('bge-large');
-const useKnowledgeGraph = ref(false);
-const selectedLanguage = ref('auto');
+
+// 加载状态
+const configLoading = ref(true);
+
 const testQuery = ref('');
 const isTesting = ref(false);
 const selectedFilesForTest = ref<Document[]>([]);
 const searchResults = ref<SearchResult[]>([]);
-
-// 文件上传进度
 const uploadProgress = ref(0);
 
+// 更新接口类型定义以匹配实际响应
+interface KnowledgeBaseConfig {
+  // 基本信息
+  id: string;
+  title: string;
+  avatar: string;
+  description: string;
+  createdTime: string;
+  cover: string;
 
-// 文件类型映射
-const fileTypeIcons = {
-  pdf: 'text-red-500',
-  docx: 'text-blue-500',
-  txt: 'text-gray-500'
-};
+  // 嵌入和分块设置
+  embedding_model: string;
+  chunk_size: number;
+  chunk_overlap: number;
+  vector_dimension: number;
 
-// 文档数据结构
+  // 解析器设置
+  pdfParser: string;
+  docxParser: string;
+  excelParser: string;
+  csvParser: string;
+  txtParser: string;
+  segmentMethod: string;
+
+  // 检索设置
+  similarity_threshold: number;
+  convert_table_to_html: boolean;
+  preserve_layout: boolean;
+  remove_headers: boolean;
+
+  // 知识图谱设置
+  extract_knowledge_graph: boolean;
+  kg_method: string;
+  selected_entity_types: string[];
+  entity_normalization: boolean;
+  community_report: boolean;
+  relation_extraction: boolean;
+
+  // 其他设置
+  name: string;
+}
+
+interface ApiResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+}
+
 interface Document {
   id: number;
   name: string;
@@ -602,19 +645,6 @@ interface Document {
   file_hash: string;
 }
 
-const documents = ref<Document[]>([]);
-let intervalId: number | null = null; // 用于存储定时器 ID
-
-const displayedDocuments = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredDocuments.value.slice(start, end);
-});
-
-
-
-
-// 检索结果结构
 interface SearchResult {
   source: string;
   content: string;
@@ -623,13 +653,138 @@ interface SearchResult {
   score: number;
 }
 
+const documents = ref<Document[]>([]);
+let intervalId: number | null = null;
 
+const KLB_id = route.params.id as string;
+
+// 获取知识库配置的函数
+const fetchKnowledgeBaseConfig = async () => {
+  try {
+    configLoading.value = true;
+
+    const response = await axios.get<ApiResponse<KnowledgeBaseConfig>>(
+      `http://localhost:8000/api/get-knowledge-item/${KLB_id}/`,
+      {
+        headers: {
+          'accept': 'application/json'
+        }
+      }
+    );
+
+    if (response.data.code === 200) {
+      const config = response.data.data;
+
+      // 更新基本信息
+      kbName.value = config.title || config.name || 'Unknown Knowledge Base';
+      kbDescription.value = config.description || '暂无描述';
+
+      // 更新检索测试相关配置
+      similarityThreshold.value = config.similarity_threshold || 0.7;
+
+      // 从知识图谱设置推断其他配置
+      useKnowledgeGraph.value = config.extract_knowledge_graph || false;
+
+      // 注意：接口没有返回以下字段，保持默认值或从其他地方获取
+      // keywordWeight.value = config.keyword_weight || 50;
+      // selectedRerankModel.value = config.rerank_model || 'bge-large';
+      // selectedLanguage.value = config.cross_language || 'auto';
+
+      console.log('知识库配置获取成功:', config);
+    } else {
+      console.error('获取配置失败:', response.data.message);
+      setDefaultConfig();
+    }
+  } catch (error) {
+    console.error('获取知识库配置失败:', error);
+    setDefaultConfig();
+  } finally {
+    configLoading.value = false;
+  }
+};
+
+// 设置默认配置值的函数
+const setDefaultConfig = () => {
+  kbName.value = '获取失败';
+  kbDescription.value = '无法获取知识库信息';
+  similarityThreshold.value = 0.7;
+  keywordWeight.value = 50;
+  selectedRerankModel.value = 'bge-large';
+  useKnowledgeGraph.value = false;
+  selectedLanguage.value = 'auto';
+};
+
+// 保存检索配置到后端
+const saveRetrievalConfig = async () => {
+  try {
+    const configData = {
+      similarity_threshold: similarityThreshold.value,
+      keyword_weight: keywordWeight.value,
+      rerank_model: selectedRerankModel.value,
+      use_knowledge_graph: useKnowledgeGraph.value,
+      cross_language: selectedLanguage.value
+    };
+
+    const response = await axios.post(
+      `/api/update-knowledgebase-config/${KLB_id}`,
+      configData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.data.success) {
+      console.log('检索配置保存成功');
+    }
+  } catch (error) {
+    console.error('保存检索配置失败:', error);
+  }
+};
+
+// 运行搜索测试 - 调用后端接口
+const runSearchTest = async () => {
+  if (testQuery.value.trim() === '') return;
+
+  isTesting.value = true;
+  searchResults.value = [];
+
+  try {
+    const response = await axios.post('/api/search-test', {
+      knowledge_base_id: KLB_id,
+      query: testQuery.value,
+      similarity_threshold: similarityThreshold.value,
+      keyword_weight: keywordWeight.value / 100,
+      rerank_model: selectedRerankModel.value,
+      use_knowledge_graph: useKnowledgeGraph.value,
+      language: selectedLanguage.value,
+      selected_files: selectedFilesForTest.value.map(f => f.id)
+    });
+
+    if (response.data.success) {
+      searchResults.value = response.data.data.results || [];
+    } else {
+      console.error('搜索测试失败:', response.data.message);
+    }
+  } catch (error) {
+    console.error('搜索测试请求失败:', error);
+  } finally {
+    isTesting.value = false;
+  }
+};
+
+// 其余的函数保持不变...
+const displayedDocuments = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredDocuments.value.slice(start, end);
+});
 
 const filteredDocuments = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
   let filteredDocs = documents.value;
 
-  // 根据搜索关键词过滤
   if (query) {
     filteredDocs = filteredDocs.filter(doc =>
       doc.name.toLowerCase().includes(query) ||
@@ -638,7 +793,6 @@ const filteredDocuments = computed(() => {
     );
   }
 
-  // 根据启用状态过滤
   if (filterStatus.value === '启用') {
     filteredDocs = filteredDocs.filter(doc => doc.enabled);
   } else if (filterStatus.value === '禁用') {
@@ -648,15 +802,11 @@ const filteredDocuments = computed(() => {
   return filteredDocs;
 });
 
-//删除文档的逻辑
-
-
 const deleteSelectedDocuments = async (documentId: number) => {
   try {
     console.log('要删除的文档ID:', documentId);
     console.log('知识库ID:', KLB_id);
 
-    // 发送请求到后端，同时传入知识库ID和文档ID
     await axios.post(`/api/delete-documents/`, {
       documentIds: [documentId]
     }, {
@@ -665,20 +815,15 @@ const deleteSelectedDocuments = async (documentId: number) => {
       }
     });
 
-    // 从本地列表中移除已删除的文档
     const index = documents.value.findIndex(doc => doc.id === documentId);
     if (index > -1) {
       documents.value.splice(index, 1);
     }
   } catch (error) {
     console.error('删除文档失败:', error);
-    // 可以在这里添加错误提示，例如：
-    // MessagePlugin.error('删除文档失败，请重试');
   }
 };
 
-
-// 分页计算
 const totalPages = computed(() =>
   Math.ceil(filteredDocuments.value.length / itemsPerPage.value)
 );
@@ -695,12 +840,10 @@ const visiblePages = computed(() => {
   return pages;
 });
 
-// 格式日期
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('zh-CN');
 };
 
-// 处理文件上传
 const handleFileUpload = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files) {
@@ -711,7 +854,6 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
-// 处理拖放上传
 const handleFileDrop = (event: DragEvent) => {
   dragover.value = false;
   if (event.dataTransfer?.files) {
@@ -721,22 +863,16 @@ const handleFileDrop = (event: DragEvent) => {
   }
 };
 
-// 删除已上传文件
 const removeUploadedFile = (index: number) => {
   uploadedFiles.value.splice(index, 1);
 };
 
-// 实验代码，大文件上传
-
 import { uploadFiles } from './file-upload';
 import { MessagePlugin } from 'tdesign-vue-next';
 
-// 处理文件上传
-
-const KLB_id = route.params.id as string; // 获取URL的最后一项作为id
 const processFileUpload = async () => {
   await uploadFiles(uploadedFiles, isUploading, uploadProgress, KLB_id);
-  // 上传完成后刷新文档列表
+
   try {
     const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/' + KLB_id + '/', {
       headers: {
@@ -744,157 +880,65 @@ const processFileUpload = async () => {
       }
     });
     documents.value = response.data;
-    uploadedFiles.value = []; // 清空待上传文件列表
+    uploadedFiles.value = [];
   } catch (error) {
     console.error('刷新文档列表失败:', error);
   }
 };
 
-
-
-
-// 切换文档启用状态
 const toggleDocumentStatus = async (doc: Document) => {
   try {
-    // 调用后端接口发送文档启用状态
     const response = await axios.post('/api/update-document-status', {
       documentId: doc.id,
       enabled: !doc.enabled
     });
 
-    // 处理接口响应
     if (response.status === 200) {
       doc.enabled = !doc.enabled;
       console.log('文档状态已更新', doc.enabled);
     } else {
       console.error('更新文档状态失败:', response.statusText);
-      // 处理错误，例如显示错误消息
     }
   } catch (error) {
     console.error('更新文档状态失败:', error);
-    // 处理错误，例如显示错误消息
   }
 };
 
-/**
-// 全选/取消全选
-const toggleAllSelection = (event: Event) => {
-  const checkbox = event.target as HTMLInputElement;
-  if (checkbox.checked) {
-    selectedDocuments.value = documents.value.map(doc => doc.id);
-  } else {
-    selectedDocuments.value = [];
-  }
-};
-*/
-
-/**  运行搜索测试
-const runSearchTest = () => {
-  if (testQuery.value.trim() === '') return;
-
-  isTesting.value = true;
-  searchResults.value = [];
-
-  // 模拟搜索延迟
-  setTimeout(() => {
-    // 生成模拟结果
-    searchResults.value = [
-      {
-        source: "ASF技术文档.pdf",
-        content: "Apache Software Foundation (ASF) 是一个非营利组织，通过提供开源软件产品支持多个开源软件项目。",
-        file: "ASF技术文档.pdf",
-        chunk: 5,
-        score: 0.92
-      },
-      {
-        source: "开发指南.txt",
-        content: "在进行开发工作时，请遵循ASF的编码规范和技术标准，确保代码质量和一致性。",
-        file: "开发指南.txt",
-        chunk: 15,
-        score: 0.84
-      },
-      {
-        source: "API参考.pdf",
-        content: "ASF REST API 提供了一组端点，允许开发者管理和监控项目资源。",
-        file: "API参考.pdf",
-        chunk: 12,
-        score: 0.78
-      },
-      {
-        source: "安全规范.pdf",
-        content: "在部署任何ASF项目时，务必遵守安全最佳实践，包括输入验证和权限控制。",
-        file: "安全规范.pdf",
-        chunk: 8,
-        score: 0.73
-      },
-      {
-        source: "部署手册.docx",
-        content: "部署ASF应用的标准流程包括环境准备、配置管理和部署后测试。",
-        file: "部署手册.docx",
-        chunk: 3,
-        score: 0.65
-      }
-    ];
-
-    isTesting.value = false;
-  }, 1500);
-};
-*/
-
-
-// 保存知识库设置
 const saveKnowledgeBaseSettings = (settings: { name: string; description: string }) => {
-  // 更新本地状态
   kbName.value = settings.name;
   kbDescription.value = settings.description;
 
-  // 调用API保存设置到后端
   axios.post(`/api/update-knowledgebase-config/${id.value}`, {
     name: settings.name,
     description: settings.description
   })
     .then(response => {
       console.log('知识库设置已保存成功', response.data);
-      MessagePlugin.success('知识库设置已保存');
-      // 可以添加成功提示
     })
     .catch(error => {
       console.error('保存知识库设置失败:', error);
-      // 可以添加错误提示
     });
 };
 
-
-// 删除知识库
 const deleteKnowledgeBase = async () => {
   try {
-
-    // 跳转到知识库列表页
     router.push('/knowledge');
-    // 调用API删除知识库
+
     const response = await axios.delete(`/api/delete-knowledgebase/${id.value}`);
 
     if (response.status === 200) {
       console.log('知识库已成功删除', id.value);
       MessagePlugin.success('知识库删除成功');
-
-      // 隐藏确认框
       showDeleteConfirmation.value = false;
-
-
     } else {
       console.error('删除知识库失败:', response.data);
       MessagePlugin.error('知识库删除失败');
-      // 可以在这里添加错误提示
     }
   } catch (error) {
     console.error('删除知识库请求失败:', error);
-    // 可以在这里添加错误提示
   }
 };
 
-
-// 从测试列表中移除文件
 const removeFileFromTest = (id: number) => {
   const index = selectedFilesForTest.value.findIndex(file => file.id === id);
   if (index !== -1) {
@@ -902,99 +946,38 @@ const removeFileFromTest = (id: number) => {
   }
 };
 
-//==================================================================
-//知识库设置界面的info-ORIGIN 
+// 页面挂载时获取数据
+onMounted(async () => {
+  // 获取知识库配置（包含基本信息）
+  await fetchKnowledgeBaseConfig();
 
-
-// 更新接口类型定义
-interface ApiResponse<T> {
-  code: number;
-  message: string;
-  data: T;
-}
-
-interface KnowledgeBaseInfo {
-  id: string;
-  title: string;
-  avatar: string;
-  description: string;
-  createdTime: string;
-  cover: string;
-}
-
-// 获取知识库信息的函数
-const fetchKnowledgeBaseInfo = async () => {
-  try {
-    const response = await axios.get<ApiResponse<KnowledgeBaseInfo>>(
-      `http://localhost:8000/api/get-knowledge-item/${KLB_id}/`,
-      {
-        headers: {
-          'accept': 'application/json'
-        }
-      }
-    );
-
-    // 检查响应状态码
-    if (response.data.code === 200) {
-      // 更新响应式数据 - 注意这里是 response.data.data
-      kbName.value = response.data.data.title;
-      kbDescription.value = response.data.data.description;
-
-      console.log('知识库ID:', KLB_id);
-      console.log('知识库名称:', response.data.data.title);
-      console.log('知识库描述:', response.data.data.description);
-      console.log('知识库信息获取成功:', response.data.data);
-    } else {
-      console.error('API返回错误:', response.data.message);
-      // 设置错误状态
-      kbName.value = '获取失败';
-      kbDescription.value = response.data.message || '无法获取知识库描述';
-    }
-  } catch (error) {
-    console.error('获取知识库信息失败:', error);
-    // 设置默认值或错误状态
-    kbName.value = '未知知识库';
-    kbDescription.value = '无法获取知识库描述';
-  }
-};
-
-
-
-
-
-onMounted(() => {
-  // 获取知识库基本信息
-  fetchKnowledgeBaseInfo();
-  // 立即调用一次接口获取数据
+  // 获取文档列表
   const fetchDocuments = async () => {
     try {
-      // 调用接口获取文档数据
-      const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/' + KLB_id + '/', {
-        headers: {
-          'accept': 'application/json'
+      const response = await axios.get<Document[]>(
+        `http://localhost:8000/api/documents-list/${KLB_id}/`,
+        {
+          headers: {
+            'accept': 'application/json'
+          }
         }
-      });
-      // 将接口返回的数据赋值给 documents
+      );
       documents.value = response.data;
     } catch (error) {
       console.error('获取文档数据失败:', error);
-      // 处理错误，例如显示错误消息
     }
   };
 
-  fetchDocuments();
-
-  // 每 20 秒调用一次接口
-  //intervalId = window.setInterval(fetchDocuments, 20000);
+  await fetchDocuments();
 });
 
-// 组件卸载时清除定时器
 onUnmounted(() => {
   if (intervalId) {
     window.clearInterval(intervalId);
   }
 });
 </script>
+
 
 <style scoped>
 .dragover {
