@@ -176,6 +176,7 @@
             </div>
 
             <!-- 知识图谱设置 -->
+            <!---
             <div class="mb-8">
                 <h3 class="text-lg font-medium mb-4">知识图谱设置</h3>
 
@@ -234,7 +235,7 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
             <!-- 操作按钮 -->
             <div class="border-t pt-6 flex justify-between">

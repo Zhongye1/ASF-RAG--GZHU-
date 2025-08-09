@@ -45,7 +45,7 @@
         </div>
         <!-- 添加上传按钮 -->
         <button @click="showUploadModal = true"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+          class="bg-blue-600 hover:bg-blue-700  text-white font-bold px-4 py-2 rounded-md ">
           上传文件
         </button>
       </div>
@@ -201,6 +201,34 @@
         </div>
       </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <Knowledge_graph_setting :kb-name="kbName || ''" :kb-id="id || ''" :kb-description="kbDescription || ''"
+        @save="saveKnowledgeBaseSettings" @delete="showDeleteConfirmation = true" />
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- 检索测试部分 -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
@@ -869,6 +897,7 @@ const removeUploadedFile = (index: number) => {
 
 import { uploadFiles } from './file-upload';
 import { MessagePlugin } from 'tdesign-vue-next';
+import Knowledge_graph_setting from './knowledge_graph_setting.vue';
 
 const processFileUpload = async () => {
   await uploadFiles(uploadedFiles, isUploading, uploadProgress, KLB_id);

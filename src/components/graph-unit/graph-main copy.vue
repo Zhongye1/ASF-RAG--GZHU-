@@ -1,47 +1,83 @@
 <template>
-    <div class="graph-container flex flex-col">
-        <div class="self-start mb-4">
-            <button @click="fetchGraphData"
-                class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded transition duration-200 ease-in-out"
-                :disabled="isLoading">
-                <span v-if="isLoading" class="flex items-center">
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                        </circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                    加载中...
-                </span>
-                <span v-else>生成知识图谱</span>
-            </button>
+    <div class="graph-container w-[80vw] flex flex-col items-center">
+        <!-- 知识图谱设置 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-medium mb-4">知识图谱设置</h3>
+
+            <div class="mb-4">
+                <label class="flex items-center">
+                    <input type="checkbox" v-model="settings.extractKnowledgeGraph"
+                        class="h-4 w-4 text-blue-600 rounded border-gray-300" />
+                    <span class="ml-2 text-sm text-gray-700">启用知识图谱提取</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-1 ml-6">提取文档中的实体和关系，构建知识图谱</p>
+            </div>
+
+            <div v-if="settings.extractKnowledgeGraph" class="pl-6 border-l-2 border-blue-100 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">图谱方法</label>
+                    <t-select v-model="settings.kgMethod"
+                        class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <t-option value="General">通用 (适用于大多数文档)</t-option>
+                        <t-option value="Advanced">高级 (更精确的实体识别)</t-option>
+                        <t-option value="Domain">领域专用 (特定领域优化)</t-option>
+                    </t-select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">实体类型</label>
+                    <div class="flex flex-wrap gap-2">
+                        <div v-for="entity in entityTypes" :key="entity.value" @click="toggleEntityType(entity.value)"
+                            :class="[
+                                'px-3 py-1 rounded-full text-sm cursor-pointer transition-colors',
+                                settings.selectedEntityTypes.includes(entity.value)
+                                    ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                                    : 'bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200'
+                            ]">
+                            {{ entity.label }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" v-model="settings.entityNormalization"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300" />
+                        <span class="ml-2 text-sm text-gray-700">实体标准化</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" v-model="settings.communityReport"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300" />
+                        <span class="ml-2 text-sm text-gray-700">生成社区报告</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" v-model="settings.relationExtraction"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300" />
+                        <span class="ml-2 text-sm text-gray-700">关系抽取</span>
+                    </label>
+                </div>
+            </div>
         </div>
-        <div v-if="errorMessage" class="text-red-500 mb-4 p-3 bg-red-50 border border-red-200 rounded self-start">{{
-            errorMessage
-        }}</div>
-        <div id="sigma-container" class="w-[400px] h-[300px] bg-white rounded-lg border border-[#d9d9d9] shadow-md">
-        </div>
+
+        <button @click="fetchGraphData"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200 ease-in-out"
+            :disabled="isLoading">
+            <span v-if="isLoading" class="flex items-center">
+                <!-- 加载图标 -->
+                生成中...
+            </span>
+            <span v-else>生成知识图谱</span>
+        </button>
+
+        <div id="sigma-container" class="w-full h-[600px] bg-white rounded-lg shadow-md"></div>
     </div>
 </template>
 
+
 <script setup lang="ts">
-
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-
-// 定义props以接收知识库ID
-const props = defineProps({
-    kbId: {
-        type: String,
-        default: ''
-    }
-});
-
-
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import chroma from "chroma-js";
 import Graph from "graphology";
 import ForceSupervisor from "graphology-layout-force/worker";
@@ -75,6 +111,51 @@ interface ApiResponse {
     graph_data: GraphData;
 }
 
+
+interface KnowledgeGraphSettings {
+    extractKnowledgeGraph: boolean;
+    kgMethod: string;
+    selectedEntityTypes: string[];
+    entityNormalization: boolean;
+    communityReport: boolean;
+    relationExtraction: boolean;
+}
+
+// 实体类型选项
+const entityTypes = ref([
+    { value: 'PERSON', label: '人物' },
+    { value: 'ORGANIZATION', label: '组织' },
+    { value: 'LOCATION', label: '地点' },
+    { value: 'EVENT', label: '事件' },
+    { value: 'PRODUCT', label: '产品' },
+    { value: 'CONCEPT', label: '概念' },
+    { value: 'TIME', label: '时间' },
+    { value: 'MONEY', label: '金额' }
+]);
+
+
+// 图谱设置
+const settings = ref<KnowledgeGraphSettings>({
+    extractKnowledgeGraph: true,
+    kgMethod: 'General',
+    selectedEntityTypes: ['PERSON', 'ORGANIZATION', 'LOCATION'],
+    entityNormalization: true,
+    communityReport: false,
+    relationExtraction: true
+});
+
+// 切换实体类型
+const toggleEntityType = (entityType: string) => {
+    const index = settings.value.selectedEntityTypes.indexOf(entityType);
+    if (index > -1) {
+        settings.value.selectedEntityTypes.splice(index, 1);
+    } else {
+        settings.value.selectedEntityTypes.push(entityType);
+    }
+};
+
+
+
 // 状态变量
 let renderer: Sigma | null = null;
 let layout: ForceSupervisor | null = null;
@@ -94,18 +175,11 @@ const fetchGraphData = async (): Promise<void> => {
     errorMessage.value = '';
 
     try {
-        // 使用新的API端点并传递知识库ID
-        console.log('Fetching graph data for folder ID:', props.kbId || route.params.id);
-        const response = await fetch('http://localhost:8000/api/kg/process-knowledge-base', {
+        const response = await fetch('http://localhost:8000/api/kg/process-all-files', {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
-                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                // 从props或路由参数获取知识库ID
-                "folder_path": props.kbId || route.params.id
-            })
         });
 
         if (!response.ok) {
@@ -117,7 +191,7 @@ const fetchGraphData = async (): Promise<void> => {
         if (data && data.length > 0 && data[0].graph_data) {
             updateGraph(data[0].graph_data);
         } else {
-            errorMessage.value = '返回的数据格式不正确/知识库为空';
+            errorMessage.value = '返回的数据格式不正确';
         }
     } catch (error) {
         console.error('获取图数据出错:', error);
@@ -126,7 +200,6 @@ const fetchGraphData = async (): Promise<void> => {
         isLoading.value = false;
     }
 };
-
 
 // 更新图谱的函数
 const updateGraph = (graphData: GraphData): void => {
