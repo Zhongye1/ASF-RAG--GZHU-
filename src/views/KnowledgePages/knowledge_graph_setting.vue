@@ -2,16 +2,18 @@
 
     <!-- 知识图谱设置 -->
     <div class="mb-8">
-        <h3 class="text-lg font-medium mb-4">知识图谱设置</h3>
+        <h3 class="text-lg font-medium mb-4">知识图谱</h3>
 
         <div class="mb-4">
-            <label class="flex items-center">
-                <input type="checkbox" v-model="settings.extractKnowledgeGraph"
-                    class="h-4 w-4 text-blue-600 rounded border-gray-300" />
-                <span class="ml-2 text-sm text-gray-700">启用知识图谱提取</span>
-            </label>
-            <p class="text-sm text-gray-500 mt-1 ml-6">提取文档中的实体和关系，构建知识图谱</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-sm text-gray-700">启用知识图谱提取</span>
+                    <p class="text-sm text-gray-500 mt-1">提取文档中的实体和关系，构建知识图谱</p>
+                </div>
+                <t-switch v-model="settings.extractKnowledgeGraph" size="large" />
+            </div>
         </div>
+
 
         <div v-if="settings.extractKnowledgeGraph" class="pl-6 border-l-2 border-blue-100 space-y-4">
             <div>
