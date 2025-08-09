@@ -1,437 +1,340 @@
 <template>
-    <div class="w-full h-full bg-white rounded-lg shadow-sm border border-gray-200">
-        <!-- 图谱头部控制栏 -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-            <div class="flex items-center space-x-4">
-                <h3 class="text-lg font-semibold text-gray-800">知识图谱</h3>
-                <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                        节点: {{ graphData.metadata?.total_nodes || 0 }}
-                    </span>
-                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                        边: {{ graphData.metadata?.total_edges || 0 }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- 控制按钮组 -->
-            <div class="flex items-center space-x-2">
-                <button @click="resetLayout"
-                    class="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-                    重置布局
-                </button>
-                <button @click="toggleLayout"
-                    class="px-3 py-1.5 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">
-                    {{ isForceLayout ? '环形布局' : '力导向布局' }}
-                </button>
-                <button @click="refreshGraph" :disabled="loading"
-                    class="px-3 py-1.5 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50">
-                    <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                        </circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                    <span v-else>刷新</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- 图谱主体区域 -->
-        <div class="relative flex-1">
-            <!-- 加载状态 -->
-            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-50">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p class="text-gray-600">加载图谱数据中...</p>
-                </div>
-            </div>
-
-            <!-- Sigma图谱容器 -->
-            <div ref="sigmaContainer" class="w-full h-screen bg-white" :class="{ 'opacity-30': loading }">
-        </div>
-
-        <!-- 图例 -->
-        <div class="absolute top-4 left-4 bg-white rounded-lg shadow-md p-3 border border-gray-200">
-            <h4 class="text-sm font-semibold text-gray-700 mb-2">图例</h4>
-            <div class="space-y-1 text-xs">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span class="text-gray-600">人物角色</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span class="text-gray-600">情感状态</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span class="text-gray-600">其他概念</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 节点详情面板 -->
-    <div v-if="selectedNode" class="border-t border-gray-200 bg-gray-50 p-4">
-        <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <h4 class="text-lg font-semibold text-gray-800">{{ selectedNode.label }}</h4>
-                <p class="text-sm text-gray-600 mt-1">类型: {{ getNodeTypeLabel(selectedNode.type) }}</p>
-                <div v-if="selectedNode.attributes" class="mt-2">
-                    <p class="text-sm font-medium text-gray-700">属性:</p>
-                    <div class="mt-1 space-y-1">
-                        <span v-for="(value, key) in selectedNode.attributes" :key="key"
-                            class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full mr-1">
-                            {{ key }}: {{ value }}
-                        </span>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">文档ID: {{ selectedNode.document_id }}</p>
-            </div>
-            <button @click="selectedNode = null" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+    <div class="graph-container w-[80vw] flex flex-col items-center">
+        <button @click="fetchGraphData"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200 ease-in-out"
+            :disabled="isLoading">
+            <span v-if="isLoading" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                     </path>
                 </svg>
-            </button>
-        </div>
-    </div>
+                加载中...
+            </span>
+            <span v-else>生成知识图谱</span>
+        </button>
+        <div v-if="errorMessage" class="text-red-500 mb-4 p-3 bg-red-50 border border-red-200 rounded">{{ errorMessage
+            }}</div>
+        <div id="sigma-container" class="w-full h-[600px] bg-white rounded-lg shadow-md"></div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import Sigma from 'sigma'
-import Graph from 'graphology'
-import { circular } from 'graphology-layout'
-import forceAtlas2 from 'graphology-layout-forceatlas2'
-
-
-import axios from 'axios'
+import { onMounted, ref } from 'vue';
+import chroma from "chroma-js";
+import Graph from "graphology";
+import ForceSupervisor from "graphology-layout-force/worker";
+import Sigma from "sigma";
+import { v4 as uuid } from "uuid";
 
 // 类型定义
 interface GraphNode {
-    id: string
-    label: string
-    type: string
-    attributes?: Record<string, any>
-    document_id: string
+    id: string;
+    label?: string;
+    type?: string;
+    x?: number;
+    y?: number;
+    size?: number;
+    color?: string;
 }
 
 interface GraphEdge {
-    source: string
-    target: string
-    type: string
-    weight: number
+    source: string;
+    target: string;
+    label?: string;
 }
 
 interface GraphData {
-    nodes: GraphNode[]
-    edges: GraphEdge[]
-    metadata: {
-        total_nodes: number
-        total_edges: number
-    }
+    nodes: GraphNode[];
+    edges: GraphEdge[];
 }
 
-// 响应式数据
-const sigmaContainer = ref<HTMLElement | null>(null)
-const loading = ref(false)
-const selectedNode = ref<GraphNode | null>(null)
-const isForceLayout = ref(true)
-const graphData = ref<GraphData>({
-    nodes: [],
-    edges: [],
-    metadata: { total_nodes: 0, total_edges: 0 }
-})
-
-// Sigma实例
-let sigmaInstance: Sigma | null = null
-let graph: Graph | null = null
-
-
-// 获取边颜色
-const getEdgeColor = (type: string): string => {
-    const colorMap: Record<string, string> = {
-        'has_emotion': '#EF4444',     // 红色
-        'related_to': '#10B981',      // 绿色
-        'belongs_to': '#3B82F6',      // 蓝色
-        'interact_with': '#F59E0B',   // 黄色
-        'default': '#D1D5DB'          // 灰色
-    }
-    return colorMap[type] || colorMap.default
+interface ApiResponse {
+    message: string;
+    graph_data: GraphData;
 }
 
-// 获取边标签
-const getEdgeLabel = (type: string): string => {
-    const labelMap: Record<string, string> = {
-        'has_emotion': '具有情感',
-        'related_to': '相关',
-        'belongs_to': '属于',
-        'interact_with': '交互',
-        'default': '关联'
-    }
-    return labelMap[type] || labelMap.default
-}
+// 状态变量
+let renderer: Sigma | null = null;
+let layout: ForceSupervisor | null = null;
+let graph = new Graph({ multi: true });
 
-// 节点颜色映射
-const getNodeColor = (type: string): string => {
-    const colorMap: Record<string, string> = {
-        'character': '#3B82F6', // 蓝色
-        'emotion': '#EF4444',   // 红色
-        'concept': '#10B981',   // 绿色
-        'default': '#6B7280'    // 灰色
-    }
-    return colorMap[type] || colorMap.default
-}
+// 响应式状态
+const isLoading = ref<boolean>(false);
+const errorMessage = ref<string>('');
 
-// 获取节点类型标签
-const getNodeTypeLabel = (type: string): string => {
-    const labelMap: Record<string, string> = {
-        'character': '人物角色',
-        'emotion': '情感状态',
-        'concept': '概念',
-        'default': '其他'
-    }
-    return labelMap[type] || labelMap.default
-}
+// 拖拽状态
+let draggedNode: string | null = null;
+let isDragging = false;
 
-// 获取图谱数据
+// 实现获取图数据的函数
 const fetchGraphData = async (): Promise<void> => {
+    isLoading.value = true;
+    errorMessage.value = '';
+
     try {
-        loading.value = true
-        console.log('开始获取图谱数据...')
+        const response = await fetch('http://localhost:8000/api/kg/process-all-files', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+            },
+        });
 
-        const response = await axios.get<GraphData>('/api/graph/graph-data')
-        graphData.value = response.data
+        if (!response.ok) {
+            throw new Error(`API请求失败：${response.statusText}`);
+        }
 
-        console.log('图谱数据获取成功:', response.data)
+        const data = await response.json() as ApiResponse[];
 
-        if (sigmaInstance && graph) {
-            updateGraph()
+        if (data && data.length > 0 && data[0].graph_data) {
+            updateGraph(data[0].graph_data);
+        } else {
+            errorMessage.value = '返回的数据格式不正确';
         }
     } catch (error) {
-        console.error('获取图谱数据失败:', error)
-        // 这里可以添加错误提示
+        console.error('获取图数据出错:', error);
+        errorMessage.value = `获取图数据出错: ${error instanceof Error ? error.message : String(error)}`;
     } finally {
-        loading.value = false
+        isLoading.value = false;
     }
-}
+};
 
+// 更新图谱的函数
+const updateGraph = (graphData: GraphData): void => {
+    if (!graphData || !graphData.nodes || !graphData.edges) {
+        console.error('无效的图谱数据');
+        return;
+    }
 
-// 更新图谱数据
-const updateGraph = (): void => {
-    if (!graph) return
+    // 清空现有图谱
+    graph.clear();
 
-    // 清空现有图数据
-    graph.clear()
+    // 为节点分配随机位置和颜色
+    const nodeColors: Record<string, string> = {
+        '人物': '#FF6B6B',
+        '地点': '#4ECDC4',
+        '组织': '#45B7D1',
+        '概念': '#FFD166',
+        '事件': '#06D6A0',
+        '默认': '#90D8FF'
+    };
 
     // 添加节点
-    graphData.value.nodes.forEach(node => {
-        const normalizedType = normalizeNodeType(node.type)
+    graphData.nodes.forEach((node, index) => {
+        // 计算节点在圆形布局中的位置
+        const angle = (index / graphData.nodes.length) * 2 * Math.PI;
+        const radius = 10;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
 
-        graph!.addNode(node.id, {
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            size: 8 + (Object.keys(node.attributes || {}).length * 2),
-            label: node.label,
-            color: getNodeColor(node.type),
-            nodeType: normalizedType,
-            attributes: node.attributes,
-            document_id: node.document_id
-        })
-    })
+        const nodeType = node.type || '默认';
+        const color = nodeColors[nodeType] || nodeColors['默认'];
+
+        graph.addNode(node.id, {
+            x: x,
+            y: y,
+            size: 20,
+            color: color,
+            label: node.label + "//" + node.id,
+        });
+    });
 
     // 添加边
     // 添加边
-    graphData.value.edges.forEach(edge => {
-        graph!.addEdge(edge.source, edge.target, {
-            type: 'arrow',  // 统一使用 'arrow' 或 'line' 类型
-            weight: edge.weight,
-            color: getEdgeColor(edge.type),  // 根据原始类型设置颜色
-            originalType: edge.type,  // 保存原始类型用于显示
-            label: getEdgeLabel(edge.type)  // 可选：添加边标签
-        })
-    })
-
-
-    // 应用布局
-    applyLayout()
-}
-// 初始化Sigma图谱
-const initSigma = (): void => {
-    if (!sigmaContainer.value) return
-
-    // 创建图对象
-    graph = new Graph()
-
-    // 创建Sigma实例
-    sigmaInstance = new Sigma(graph, sigmaContainer.value, {
-        renderLabels: true,
-        renderEdgeLabels: false,
-        defaultNodeColor: '#6B7280',
-        defaultEdgeColor: '#D1D5DB',
-        labelThreshold: 0,
-        labelSize: 12,
-        labelFont: 'Arial, sans-serif',
-        labelWeight: 'bold',
-        enableEdgeHoverEvents: true,
-        enableNodeHoverEvents: true
-    })
-
-    // 添加事件监听器
-    setupEventListeners()
-
-    // 初始加载数据
-    updateGraph()
-}
-
-
-
-
-
-// 转换节点类型为Sigma可识别的类型
-const normalizeNodeType = (type: string): string => {
-    const validTypes = ['default', 'image', 'circle']
-    if (validTypes.includes(type)) return type
-    return 'default'
-}
-
-
-
-
-
-// 添加节点
-graphData.value.nodes.forEach(node => {
-    const normalizedType = normalizeNodeType(node.type)
-
-    graph!.addNode(node.id, {
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: 8 + (Object.keys(node.attributes || {}).length * 2),
-        label: node.label,
-        color: getNodeColor(node.type),
-        nodeType: normalizedType,
-        attributes: node.attributes,
-        document_id: node.document_id
-    })
-})
-
-
-// 应用布局算法
-const applyLayout = (): void => {
-    if (!graph) return
-
-    if (isForceLayout.value) {
-        // 力导向布局
-        const settings = forceAtlas2.inferSettings(graph)
-        forceAtlas2.assign(graph, {
-            settings,
-            iterations: 50,
-            worker: false,
-            timeout: 0
-        })
-    } else {
-        // 环形布局
-        circular.assign(graph)
-    }
-
-    // 刷新渲染
-    if (sigmaInstance) {
-        sigmaInstance.refresh()
-    }
-}
-
-
-// 设置事件监听器
-const setupEventListeners = (): void => {
-    if (!sigmaInstance) return
-
-    // 节点点击事件
-    sigmaInstance.on('clickNode', (event) => {
-        const nodeId = event.node
-        const nodeData = graph!.getNodeAttributes(nodeId)
-
-        selectedNode.value = {
-            id: nodeId,
-            label: nodeData.label,
-            type: nodeData.type,
-            attributes: nodeData.attributes,
-            document_id: nodeData.document_id
+    graphData.edges.forEach((edge, index) => {
+        if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
+            try {
+                graph.addEdge(edge.source, edge.target, {
+                    label: edge.label || '',
+                    size: 2,
+                    forceLabel: true,
+                    // 添加唯一标识，确保多重边可区分
+                    edgeId: `${edge.source}-${edge.target}-${index}`
+                });
+            } catch (error) {
+                console.warn(`添加边时出错 (${edge.source} -> ${edge.target}): `, error);
+            }
         }
-    })
+    });
 
-    // 点击空白处取消选择
-    sigmaInstance.on('clickStage', () => {
-        selectedNode.value = null
-    })
-
-    // 节点悬停效果
-    sigmaInstance.on('enterNode', (event) => {
-        sigmaInstance!.getGraph().setNodeAttribute(event.node, 'highlighted', true)
-        sigmaInstance!.refresh()
-    })
-
-    sigmaInstance.on('leaveNode', (event) => {
-        sigmaInstance!.getGraph().setNodeAttribute(event.node, 'highlighted', false)
-        sigmaInstance!.refresh()
-    })
-}
-
-// 重置布局
-const resetLayout = (): void => {
-    applyLayout()
-}
-
-// 切换布局
-const toggleLayout = (): void => {
-    isForceLayout.value = !isForceLayout.value
-    applyLayout()
-}
-
-// 刷新图谱
-const refreshGraph = async (): Promise<void> => {
-    await fetchGraphData()
-}
-
-// 组件挂载时初始化
-onMounted(async () => {
-    await nextTick()
-    await fetchGraphData()
-    initSigma()
-})
-
-// 组件卸载时清理
-onUnmounted(() => {
-    if (sigmaInstance) {
-        sigmaInstance.kill()
-        sigmaInstance = null
+    // 重新应用力导向布局
+    if (layout) {
+        layout.kill();
     }
-    graph = null
-})
+
+    layout = new ForceSupervisor(graph, { isNodeFixed: (_, attr) => attr.highlighted });
+    layout.start();
+
+    // 如果已有渲染器，需要先销毁它
+    if (renderer) {
+        renderer.kill();
+        renderer = null;
+    }
+
+    // 重新创建渲染器
+    const container = document.getElementById("sigma-container");
+    if (container) {
+        renderer = new Sigma(graph, container, {
+            minCameraRatio: 0.5,
+            maxCameraRatio: 2,
+            renderEdgeLabels: true,
+            edgeLabelSize: 12,
+            edgeLabelWeight: "bold"
+        });
+
+        // 重新绑定事件
+        bindEvents();
+    }
+};
+
+// 封装事件绑定函数
+const bindEvents = (): void => {
+    if (!renderer) return;
+
+    // On mouse down on a node
+    renderer.on("downNode", (e) => {
+        isDragging = true;
+        draggedNode = e.node;
+        graph.setNodeAttribute(draggedNode, "highlighted", true);
+        if (renderer && !renderer.getCustomBBox()) renderer.setCustomBBox(renderer.getBBox());
+    });
+
+    // On mouse move, if the drag mode is enabled, we change the position of the draggedNode
+    renderer.on("moveBody", ({ event }) => {
+        if (!isDragging || !draggedNode || !renderer) return;
+
+        // Get new position of node
+        const pos = renderer.viewportToGraph(event);
+
+        graph.setNodeAttribute(draggedNode, "x", pos.x);
+        graph.setNodeAttribute(draggedNode, "y", pos.y);
+
+        // Prevent sigma to move camera:
+        event.preventSigmaDefault();
+        event.original.preventDefault();
+        event.original.stopPropagation();
+    });
+
+    // On mouse up, we reset the dragging mode
+    const handleUp = () => {
+        if (draggedNode) {
+            graph.removeNodeAttribute(draggedNode, "highlighted");
+        }
+        isDragging = false;
+        draggedNode = null;
+    };
+
+    renderer.on("upNode", handleUp);
+    renderer.on("upStage", handleUp);
+
+    // When clicking on the stage, we add a new node and connect it to the closest node
+    renderer.on("clickStage", ({ event }) => {
+        if (!renderer) return;
+
+        const coordForGraph = renderer.viewportToGraph({ x: event.x, y: event.y });
+
+        // We create a new node
+        const node = {
+            ...coordForGraph,
+            size: 10,
+            color: chroma.random().hex(),
+            label: "新节点"
+        };
+
+        // Searching the two closest nodes to auto-create an edge to it
+        const closestNodes = graph
+            .nodes()
+            .map((nodeId) => {
+                const attrs = graph.getNodeAttributes(nodeId);
+                const distance = Math.pow(node.x - attrs.x, 2) + Math.pow(node.y - attrs.y, 2);
+                return { nodeId, distance };
+            })
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 2);
+
+        // We register the new node into graphology instance
+        const id = uuid();
+        graph.addNode(id, node);
+
+        // We create the edges
+        closestNodes.forEach((e) => graph.addEdge(id, e.nodeId, { label: "关联" }));
+    });
+};
+
+// 生命周期钩子
+onMounted(() => {
+    // 在DOM渲染后再获取容器元素
+    const container = document.getElementById("sigma-container");
+
+    if (!container) {
+        console.error("Container element not found!");
+        return;
+    }
+
+    // 初始化示例图谱数据
+    const initialNodes: GraphNode[] = [
+        { id: "示例节点", label: "点击上方按钮生成知识图谱", x: 0, y: 0, size: 15, color: "#4B96FF" }
+    ];
+
+    initialNodes.forEach(node => {
+        graph.addNode(node.id, {
+            x: node.x,
+            y: node.y,
+            size: node.size,
+            color: node.color,
+            label: node.label,
+        });
+    });
+
+    // Create the spring layout and start it
+    layout = new ForceSupervisor(graph, { isNodeFixed: (_, attr) => attr.highlighted });
+    layout.start();
+
+    // Create the sigma with settings to enable edge labels
+    renderer = new Sigma(graph, container, {
+        minCameraRatio: 0.5,
+        maxCameraRatio: 2,
+        renderEdgeLabels: true,
+        edgeLabelSize: 12,
+        edgeLabelWeight: "bold"
+    });
+
+    // 绑定事件
+    bindEvents();
+});
 </script>
 
 <style scoped>
-/* Sigma容器样式调整 */
-.sigma-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+.graph-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
-/* 动画效果 */
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+button:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+#sigma-container {
+    position: relative;
+    /* 为绝对定位的子元素提供定位上下文 */
+    width: 100%;
+    height: 600px;
+    /* 固定高度 */
+    overflow: hidden;
+    /* 隐藏溢出的内容 */
+}
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+
+
+#sigma-container :deep(canvas) {
+    position: absolute !important;
+    top: 0;
+    left: 0;
 }
 </style>
