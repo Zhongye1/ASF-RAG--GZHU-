@@ -104,33 +104,34 @@ router.beforeEach((to, from, next) => {
   if (publicRoutes.includes(to.path)) {
     return next();
   }
-  next();
-  // const jwt = localStorage.getItem('jwt');
+  
+  const jwt = localStorage.getItem('jwt');
   // console.log(jwt);
-  // // 没有JWT时重定向到登录页
-  // if (!jwt) {
-  //   return next(`/LogonOrRegister`);
-  // }
+  // 没有JWT时重定向到登录页
+  if (!jwt) {
+    return next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
+  }
 
-  // // 验证JWT有效性
-  // const formData = new FormData();
-  // formData.append('token', jwt);
+  // 验证JWT有效性
+  const formData = new FormData();
+  formData.append('token', jwt);
 
-  // post('/api/verify-token', formData)
-  //   .then((res: any) => {
-  //     console.log(res);
-  //     if (res.status === "success") {
-  //       next(); 
-  //     } else {
-  //       // token无效时清理并重定向
-  //       localStorage.removeItem('jwt');
-  //       next(`/LogonOrRegiste`);
-  //     }
-  //   })
-  //   .catch(() => {
-  //     localStorage.removeItem('jwt');
-  //     next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
-  //   });
+  post('/api/verify-token', formData)
+    .then((res: any) => {
+      console.log(res);
+      if (res.status === "success") {
+        next(); 
+      } else {
+        // token无效时清理并重定向
+        localStorage.removeItem('jwt');
+        next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('jwt');
+      next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
+    });
 });
 
 export default router
+
