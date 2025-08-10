@@ -62,6 +62,11 @@ const routes: Array<RouteRecordRaw> = [
         path: '/user/userInfo',
         name: '用户信息',
         component: () => import('../components/user-primary/user-primary.vue')
+      },
+      {
+        path: '/user/coming-soon/:id',
+        name: '功能即将上线',
+        component: () => import('../components/user-primary/ComingSoon.vue')
       }
     ]
   },
