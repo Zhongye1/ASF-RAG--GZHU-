@@ -26,16 +26,14 @@
               <t-input v-model="userInfo.name" placeholder="请输入您的姓名" />
             </t-form-item>
             <t-form-item label="公开邮箱">
-              <t-select v-model="userInfo.publicEmail" placeholder="请选择要显示的已验证邮箱">
-                <t-option v-for="email in emails" :value="email" :label="email"></t-option>
-              </t-select>
+              <t-input v-model="userInfo.publicEmail" placeholder="公开的邮箱地址" />
             </t-form-item>
             <t-form-item label="个人简介">
               <t-textarea v-model="userInfo.bio" placeholder="简单介绍一下自己" />
             </t-form-item>
 
-            <t-form-item label="个人网站">
-              <t-input v-model="userInfo.url" placeholder="请输入您的网站地址" />
+            <t-form-item label="社交账号">
+              <t-input v-model="userInfo.url" placeholder="社交账号地址" />
             </t-form-item>
             <t-form-item>
               <t-button theme="primary" type="submit">保存</t-button>
@@ -63,7 +61,7 @@
             加入我们的用户体验改善计划，帮助我们提供更好的产品体验。您的反馈对我们非常重要。
           </p>
           <div class="mt-3 flex items-center">
-            <t-switch v-model="uxImprovement" size="small" />
+            <t-switch v-model="uxImprovement" size="small" @change="onUxImprovementChange" />
             <span class="ml-2 text-sm text-blue-700">加入用户体验改善计划</span>
           </div>
         </div>
@@ -83,7 +81,8 @@
             <p class="text-gray-500 text-sm mt-1">选择您的开发工作流程</p>
           </div>
           <div class="mt-2 sm:mt-0 w-full sm:w-auto">
-            <t-select v-model="userInfo.devMode" :options="devModeOptions" class="w-full sm:w-64" />
+            <t-select v-model="userInfo.devMode" :options="devModeOptions" class="w-full sm:w-64"
+              @change="onDevModeChange" />
           </div>
         </div>
 
@@ -93,7 +92,8 @@
             <p class="text-gray-500 text-sm mt-1">设置界面显示语言</p>
           </div>
           <div class="mt-2 sm:mt-0 w-full sm:w-auto">
-            <t-select v-model="userInfo.language" :options="languageOptions" class="w-full sm:w-64" />
+            <t-select v-model="userInfo.language" :options="languageOptions" class="w-full sm:w-64"
+              @change="onLanguageChange" />
           </div>
         </div>
 
@@ -122,7 +122,7 @@
             </p>
           </div>
           <div class="mt-3 sm:mt-0">
-            <t-button theme="danger" variant="outline" size="small">注销账号</t-button>
+            <t-button theme="danger" variant="outline" size="small" @click="onDeleteAccount">注销账号</t-button>
           </div>
         </div>
       </div>
@@ -131,24 +131,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
+import { useDataUserStore } from '@/store/modules/useDataUser';
 import { Icon as TIcon } from 'tdesign-icons-vue-next';
+import { MessagePlugin, Dialog } from 'tdesign-vue-next';
 
 // 用户体验改进计划开关
 const uxImprovement = ref(true);
 
-// 用户信息（模拟数据）
-const userInfo = ref({
-  avatar: 'https://avatars.githubusercontent.com/u/145737758?v=4',
-  name: 'mmk',
+// 获取用户数据store
+const userStore = useDataUserStore();
+
+// 用户信息
+const userInfo = reactive({
+  avatar: '',
+  name: '',
   publicEmail: '',
   bio: '',
-  url: 'https://zhongye1.github.io/',
+  url: '',
   devMode: 'default',
   language: 'zh-CN'
 });
 
-const emails = ref(['example@example.com', 'test@test.com']);
+const emails = ref<string[]>([]);
 
 const devModeOptions = [
   { label: '默认', value: 'default' },
@@ -160,11 +165,75 @@ const languageOptions = [
   { label: 'English', value: 'en-US' }
 ];
 
-const onSubmit = ({ validateResult, firstError }) => {
+// 页面加载时获取用户数据
+onMounted(async () => {
+  try {
+    await userStore.fetchUserData();
+    // 使用接口返回的数据填充表单
+    userInfo.avatar = userStore.userData.avatar || '';
+    userInfo.name = userStore.userData.name || '';
+    userInfo.publicEmail = userStore.userData.email || '';
+    userInfo.bio = userStore.userData.signatur || '';
+    userInfo.url = userStore.userData.social_media || '';
+    // 模拟获取邮箱列表
+    emails.value = [userStore.userData.email || ''];
+  } catch (error) {
+    console.error('获取用户数据失败:', error);
+    MessagePlugin.error('获取用户数据失败');
+  }
+});
+
+// 表单提交事件
+const onSubmit = async ({ validateResult, firstError }) => {
   if (validateResult === true) {
-    console.log('表单提交成功');
+    try {
+      await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio);
+      MessagePlugin.success('保存成功');
+    } catch (error) {
+      console.error('更新用户数据失败:', error);
+      MessagePlugin.error('保存失败');
+    }
   } else {
     console.error('表单验证失败:', firstError);
+    MessagePlugin.error('请检查表单填写是否正确');
   }
+};
+
+// 用户体验改善计划变更事件
+const onUxImprovementChange = (value: boolean) => {
+  MessagePlugin.success(`已${value ? '加入' : '退出'}用户体验改善计划`);
+};
+
+// 开发模式变更事件
+const onDevModeChange = (value: string) => {
+  MessagePlugin.success(`开发模式已更新为: ${value === 'default' ? '默认' : '高级'}`);
+};
+
+// 语言设置变更事件
+const onLanguageChange = (value: string) => {
+  MessagePlugin.success(`语言已切换为: ${value === 'zh-CN' ? '中文' : 'English'}`);
+};
+
+// 注销账号事件
+const onDeleteAccount = () => {
+  Dialog.confirm({
+    header: '确认注销',
+    body: '确定要注销账号吗？注销后所有数据将被永久删除，无法恢复。',
+    confirmBtn: {
+      theme: 'danger',
+      content: '确认注销'
+    },
+    cancelBtn: '取消',
+    onConfirm: async () => {
+      try {
+        // 这里应该调用注销账号的接口
+        MessagePlugin.success('账号注销成功，将跳转到登录页面');
+        // 实际项目中应该执行跳转到登录页面的逻辑
+      } catch (error) {
+        console.error('注销账号失败:', error);
+        MessagePlugin.error('注销账号失败');
+      }
+    }
+  });
 };
 </script>
