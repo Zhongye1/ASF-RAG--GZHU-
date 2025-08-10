@@ -264,6 +264,9 @@
 <script setup lang="ts">
 import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, watch, computed, defineProps, defineEmits, onMounted } from 'vue';
+import { useChatImgtore } from '@/store';
+
+
 
 interface KnowledgeBaseSettings {
     pdfParser: string;
@@ -324,6 +327,8 @@ interface ApiResponse<T> {
     message: string;
     data: T;
 }
+//定义pinia
+const useChatImg = useChatImgtore()
 
 // 定义组件的输入属性
 const props = defineProps({

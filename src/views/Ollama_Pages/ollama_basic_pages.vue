@@ -85,9 +85,9 @@ const ollamaApi = {
     // 获取模型列表
     async getModels() {
         try {
-            const response = await fetch('http://localhost:11434/api/tags')
+        const response = await fetch('http://localhost:11434/api/tags')
             const data = await response.json()
-            return data.models || []
+            return data.models || []    
         } catch (error) {
             console.error('获取模型列表失败:', error)
             MessagePlugin.error('获取模型列表失败')
