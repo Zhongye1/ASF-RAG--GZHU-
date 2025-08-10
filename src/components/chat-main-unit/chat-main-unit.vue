@@ -1,46 +1,98 @@
 <template>
   <div class="chat-box">
-    <t-chat ref="chatRef" :clear-history="chatList.length > 0 && !isStreamLoad" :data="chatList" :text-loading="loading"
-      :is-stream-load="isStreamLoad" style="height: 100%" @scroll="handleChatScroll" @clear="clearConfirm">
-      <!-- eslint-disable vue/no-unused-vars -->
+    <t-chat
+      ref="chatRef"
+      :clear-history="chatList.length > 0 && !isStreamLoad"
+      :data="chatList"
+      :text-loading="loading"
+      :is-stream-load="isStreamLoad"
+      style="height: 100%"
+      @scroll="handleChatScroll"
+      @clear="clearConfirm"
+    >
       <template #content="{ item, index }">
         <t-chat-reasoning v-if="item.reasoning?.length > 0" expand-icon-placement="right">
           <template #header>
-            <t-chat-loading v-if="isStreamLoad && item.content.length === 0" text="思考中...按Ctrl+C停止" />
+            <t-chat-loading
+              v-if="isStreamLoad && item.content.length === 0"
+              text="思考中...按Ctrl+C停止"
+            />
             <div v-else style="display: flex; align-items: center">
-              <CheckCircleIcon style="
+              <CheckCircleIcon
+                style="
                   color: var(--td-success-color-5);
                   font-size: 20px;
                   margin-right: 8px;
-                " />
+                "
+              />
               <span>已深度思考</span>
             </div>
           </template>
           <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
         </t-chat-reasoning>
-        <t-chat-content v-if="item.content.length > 0" :content="item.content" class="custom-chat-dialog" />
+        <t-chat-content
+          v-if="item.content.length > 0"
+          :content="item.content"
+          class="custom-chat-dialog"
+        />
       </template>
 
       <template #actions="{ item, index }">
-        <t-chat-action :content="item.content" :operation-btn="['good', 'bad', 'replay', 'copy']"
-          @operation="handleOperation" />
+        <t-chat-action
+          :content="item.content"
+          :operation-btn="['good', 'bad', 'replay', 'copy']"
+          @operation="handleOperation"
+        />
       </template>
 
       <template #footer>
-        <t-chat-sender id="chatSender" ref="chatSenderRef" v-model="inputValue" class="chat-sender" :textarea-props="{
-          placeholder: '请输入消息...',
-        }" :loading="isStreamLoad" @send="inputEnter" @file-select="fileSelect" @stop="onStop">
+        <div>
+          <t-space size="medium">
+            <t-image
+              v-for="item in imgDatas"
+              :key="item"
+              :src="item"
+              alt="上传失败"
+              :style="{ width: '60px', height: '60px' }"
+            />
+          </t-space>
+        </div>
+        <t-chat-sender
+          id="chatSender"
+          ref="chatSenderRef"
+          v-model="inputValue"
+          class="chat-sender"
+          :textarea-props="{
+            placeholder: '请输入消息...',
+          }"
+          :loading="isStreamLoad"
+          @send="inputEnter"
+          @file-select="fileSelect"
+          @stop="onStop"
+        >
           <template #suffix="{ renderPresets }">
-            <component :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])" />
+            <component
+              :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])"
+            />
           </template>
 
           <template #prefix>
             <div class="model-select">
-              <t-tooltip v-model:visible="allowToolTip" content="切换模型" trigger="hover">
-                <t-select v-model="selectValue" :options="selectOptions" value-type="object"
-                  @focus="allowToolTip = false" @change="handleModelChange"></t-select>
+              <t-tooltip v-model:visible="allowToolTip" trigger="hover">
+                <t-select
+                  v-model="selectValue"
+                  :options="selectOptions"
+                  value-type="object"
+                  @focus="allowToolTip = false"
+                  @change="handleModelChange"
+                ></t-select>
               </t-tooltip>
-              <t-button class="check-box" :class="{ 'is-active': isChecked }" variant="text" @click="checkClick">
+              <t-button
+                class="check-box"
+                :class="{ 'is-active': isChecked }"
+                variant="text"
+                @click="checkClick"
+              >
                 <SystemSumIcon />
                 <span>深度思考</span>
               </t-button>
@@ -50,7 +102,12 @@
       </template>
     </t-chat>
 
-    <t-button v-show="isShowToBottom" variant="text" class="bottomBtn" @click="backBottom">
+    <t-button
+      v-show="isShowToBottom"
+      variant="text"
+      class="bottomBtn"
+      @click="backBottom"
+    >
       <div class="to-bottom">
         <ArrowDownIcon />
       </div>
@@ -67,6 +124,7 @@ import {
   onBeforeUnmount,
   nextTick,
   defineProps,
+  computed,
 } from "vue";
 //import { MockSSEResponse } from './sseRequest-reasoning';
 import { ArrowDownIcon, CheckCircleIcon, SystemSumIcon } from "tdesign-icons-vue-next";
@@ -81,7 +139,9 @@ import {
 } from "@tdesign-vue-next/chat";
 import { fetchOllamaStream } from "./sseRequest-reasoning";
 import { MessagePlugin } from "tdesign-vue-next";
+import { useChatImgtore } from "@/store";
 
+const useChatImg = useChatImgtore();
 // 基础状态
 const fetchCancel = ref(null);
 const loading = ref(false);
@@ -121,11 +181,8 @@ const props = defineProps({
 });
 
 // 模型选择相关
-const selectOptions = ref([
-  { label: "qwen3:0.6b", value: "qwen3:0.6b" },
-  { label: "Deepseek", value: "deepseek-r1" },
-]);
-const selectValue = ref({ label: "默认模型", value: "qwen3:0.6b" });
+const selectOptions = ref([]);
+const selectValue = ref({});
 const isChecked = ref(false);
 
 // 处理模型选择事件
@@ -141,7 +198,7 @@ const checkClick = () => {
 //[Vue warn] toRefs() expects a reactive object but received a plain one.
 // 解决方法：这里要使用toRefs()将reactive对象转换为响应式对象
 const state = reactive({
-  chatList: props.history
+  chatList: props.history,
 });
 
 const { chatList } = toRefs(state);
@@ -169,8 +226,55 @@ const handleOperation = function (type, options) {
 };
 
 // 文件选择处理
-const fileSelect = function (files) {
-  console.log("选择的文件:", files);
+const fileSelect = async function (files) {
+  const getFileUrlByFileRaw = (file) => {
+    if (!file || !(file instanceof Blob)) {
+      throw new Error("无效的文件对象");
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (e) => reject(new Error("文件读取失败: " + e));
+      reader.readAsDataURL(file);
+    });
+  };
+  try {
+    if (!files.files || files.files.length === 0) {
+      throw new Error("没有选择文件");
+    }
+
+    const fileObj = files.files[0];
+    if (!fileObj.type.startsWith("image/")) {
+      //如果上传的不是图片，进入其他操作
+      //如果是txt文本
+      if (fileObj.type === "text/plain") {
+        //直接读取文件添加到对话框
+        const text = await readFileAsText(fileObj);
+        inputValue.value += text;
+      }
+      //不进行中断
+    }
+
+    if (!(fileObj instanceof Blob)) {
+      if (fileObj.name && fileObj.type && fileObj.size) {
+        const reconstructedFile = new File([], fileObj.name, {
+          type: fileObj.type,
+          lastModified: fileObj.lastModified || Date.now(),
+        });
+        const dataUrl = await getFileUrlByFileRaw(reconstructedFile);
+        useChatImg.addImage(dataUrl);
+        return;
+      }
+      throw new Error("无效的文件类型");
+    }
+    const dataUrl = await getFileUrlByFileRaw(fileObj);
+
+    // 存储到 Pinia
+    useChatImg.addImage(dataUrl);
+  } catch (error) {
+    console.error("文件处理失败:", error);
+  }
 };
 
 // 添加中断状态标识
@@ -189,12 +293,10 @@ const onStop = () => {
     loading.value = false;
     isStreamLoad.value = false;
 
-    console.log('用户主动停止流式响应');
-    MessagePlugin.info('已停止生成');
+    console.log("用户主动停止流式响应");
+    MessagePlugin.info("已停止生成");
   }
 };
-
-
 
 // 消息发送处理 - 修复后的版本
 const inputEnter = function (messageContent) {
@@ -295,17 +397,15 @@ const fetchSSE = async (fetchFn, options) => {
 // src/components/chat-main-unit/chat-main-unit.vue
 
 // 修改数据处理函数
-const emit = defineEmits(['chat-updated']);
+const emit = defineEmits(["chat-updated"]);
 
 // 修改数据处理函数
 const handleData = async (messageContent) => {
   console.log("开始处理数据:", messageContent);
 
-
   isUserAborted.value = false;
   const lastItem = chatList.value[0];
   const selectedModel = selectValue.value.value;
-
 
   // 用于追踪思考过程状态
   let isInThinking = false;
@@ -425,7 +525,7 @@ const handleData = async (messageContent) => {
             fetchCancel.value = null;
 
             // **发送保存信号给父组件**
-            emit('chat-updated');
+            emit("chat-updated");
           }
         }
       } catch (error) {
@@ -441,12 +541,12 @@ const handleData = async (messageContent) => {
     console.log("用户主动中断:", error);
 
     // 区分用户主动中断和真正的连接错误
-    if (isUserAborted.value || error.name === 'AbortError') {
+    if (isUserAborted.value || error.name === "AbortError") {
       // 用户主动中断，不显示错误消息
-      console.log('流式响应被用户中断');
+      console.log("流式响应被用户中断");
       if (lastItem) {
         // 保持当前内容，不覆盖为错误消息
-        lastItem.content = lastItem.content || '响应已停止';
+        lastItem.content = lastItem.content || "响应已停止";
       }
     } else {
       // 真正的连接或其他错误
@@ -465,7 +565,6 @@ const handleData = async (messageContent) => {
   }
 };
 
-
 // 键盘事件处理
 const handleKeyDown = (event) => {
   if (event.ctrlKey && event.key === "c") {
@@ -474,9 +573,28 @@ const handleKeyDown = (event) => {
   }
 };
 
+//图片展示相关
+const imgDatas = computed(() => {
+  console.log(useChatImg.images);
+  return useChatImg.images;
+});
+
 // 生命周期
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("keydown", handleKeyDown);
+  // 获取模型列表
+  try {
+    const response = await fetch("http://localhost:11434/api/tags");
+    const data = await response.json();
+    data.models.forEach((model) => {
+      selectOptions.value.push({ label: model.name, value: model.model });
+    });
+    selectValue.value = selectOptions.value[0];
+  } catch (error) {
+    console.error("获取模型列表失败:", error);
+    MessagePlugin.error("获取模型列表失败");
+    return [];
+  }
 });
 
 onBeforeUnmount(() => {
@@ -603,7 +721,6 @@ onBeforeUnmount(() => {
 }
 
 .chat-sender {
-
   bottom: 0;
   left: 0;
   right: 0;
