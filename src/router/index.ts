@@ -67,7 +67,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/testrange',
-    name: '用户界面',
+    name: 'CTE',
     component: () => import('../components/graph-unit/graph-main.vue'),
   },
   // 添加专门的404页面路由

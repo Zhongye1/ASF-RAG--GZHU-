@@ -1,123 +1,65 @@
 <template>
   <div class="chat-box">
-    <t-chat
-      ref="chatRef"
-      :clear-history="chatList.length > 0 && !isStreamLoad"
-      :data="chatList"
-      :text-loading="loading"
-      :is-stream-load="isStreamLoad"
-      style="height: 100%"
-      @scroll="handleChatScroll"
-      @clear="clearConfirm"
-    >
+    <t-chat ref="chatRef" :clear-history="chatList.length > 0 && !isStreamLoad" :data="chatList" :text-loading="loading"
+      :is-stream-load="isStreamLoad" style="height: 100%" class="p-5" @scroll="handleChatScroll" @clear="clearConfirm">
       <template #default="{ item, index }">
         <t-chat-item :key="index" :role="item?.role">
           <template #default>
-            <t-chat-reasoning
-              v-if="item.reasoning?.length > 0"
-              expand-icon-placement="right"
-            >
+            <t-chat-reasoning v-if="item.reasoning?.length > 0" expand-icon-placement="right">
               <template #header>
-                <t-chat-loading
-                  v-if="isStreamLoad && item.content.length === 0"
-                  text="思考中...按Ctrl+C停止"
-                />
+                <t-chat-loading v-if="isStreamLoad && item.content.length === 0" text="思考中...按Ctrl+C停止" />
                 <div v-else style="display: flex; align-items: center">
-                  <CheckCircleIcon
-                    style="
+                  <CheckCircleIcon style="
                       color: var(--td-success-color-5);
                       font-size: 20px;
                       margin-right: 8px;
-                    "
-                  />
+                    " />
                   <span>已思考</span>
                 </div>
               </template>
-              <t-chat-content
-                v-if="item.reasoning.length > 0"
-                :content="item.reasoning"
-              />
+              <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
             </t-chat-reasoning>
-            <t-chat-content
-              v-if="item.content.length > 0"
-              :content="item.content"
-              class="custom-chat-dialog"
-            />
+            <t-chat-content v-if="item.content.length > 0" :content="item.content" class="custom-chat-dialog" />
           </template>
         </t-chat-item>
       </template>
       <template #actions="{ item, index }">
-        <t-chat-action
-          :content="item.content"
-          :operation-btn="['good', 'bad', 'replay', 'copy']"
-          :class="{
-            'active-good': item.actionsState?.good,
-            'active-bad': item.actionsState?.bad,
-          }"
-          @operation="(op) => handleOperation(op, item)"
-        />
+        <t-chat-action :content="item.content" :operation-btn="['good', 'bad', 'replay', 'copy']" :class="{
+          'active-good': item.actionsState?.good,
+          'active-bad': item.actionsState?.bad,
+        }" @operation="(op) => handleOperation(op, item)" />
       </template>
 
       <template #footer>
         <div v-if="imgDatas && imgDatas.length > 0" class="image-preview-container">
           <t-space :gap="10" class="image-preview-space">
             <div v-for="(item, index) in imgDatas" :key="index" class="image-wrapper">
-              <t-image
-                :src="item"
-                alt="上传失败"
-                :style="{ width: '60px', height: '60px' }"
-                fit="cover"
-              />
-              <t-button
-                class="remove-image-btn"
-                shape="circle"
-                size="small"
-                variant="base"
-                @click="useChatImg.clearImage(item)"
-              >
-                <template #icon><CloseIcon /></template>
+              <t-image :src="item" alt="上传失败" :style="{ width: '60px', height: '60px' }" fit="cover" />
+              <t-button class="remove-image-btn" shape="circle" size="small" variant="base"
+                @click="useChatImg.clearImage(item)">
+                <template #icon>
+                  <CloseIcon />
+                </template>
               </t-button>
             </div>
           </t-space>
         </div>
 
-        <t-chat-sender
-          id="chatSender"
-          ref="chatSenderRef"
-          v-model="inputValue"
-          class="chat-sender"
-          :textarea-props="{
-            placeholder: '请输入消息，Shift + Enter 换行',
-          }"
-          :loading="isStreamLoad"
-          @send="inputEnter"
-          @file-select="fileSelect"
-          @stop="onStop"
-        >
+        <t-chat-sender id="chatSender" ref="chatSenderRef" v-model="inputValue" class="chat-sender" :textarea-props="{
+          placeholder: '请输入消息，Shift + Enter 换行',
+        }" :loading="isStreamLoad" @send="inputEnter" @file-select="fileSelect" @stop="onStop">
           <template #suffix="{ renderPresets }">
-            <component
-              :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])"
-            />
+            <component :is="renderPresets([{ name: 'uploadImage' }, { name: 'uploadAttachment' }])" />
           </template>
 
           <template #prefix>
             <div class="sender-prefix-controls">
               <t-tooltip>
-                <t-select
-                  v-model="selectValue"
-                  class="model-select"
-                  :options="selectOptions"
-                  value-type="object"
-                  @change="handleModelChange"
-                />
+                <t-select v-model="selectValue" class="model-select" :options="selectOptions" value-type="object"
+                  @change="handleModelChange" />
               </t-tooltip>
               <t-tooltip content="开启后模型会进行更深度的思考，但响应会变慢">
-                <t-button
-                  class="deep-think-btn"
-                  :class="{ 'is-active': isChecked }"
-                  variant="text"
-                  @click="checkClick"
-                >
+                <t-button class="deep-think-btn" :class="{ 'is-active': isChecked }" variant="text" @click="checkClick">
                   <SystemSumIcon />
                   <span>深度思考</span>
                 </t-button>
@@ -128,12 +70,7 @@
       </template>
     </t-chat>
 
-    <t-button
-      v-show="isShowToBottom"
-      variant="text"
-      class="bottomBtn"
-      @click="backBottom"
-    >
+    <t-button v-show="isShowToBottom" variant="text" class="bottomBtn" @click="backBottom">
       <div class="to-bottom">
         <ArrowDownIcon />
       </div>
@@ -614,7 +551,7 @@ const handleOperation = async (operation, item) => {
   }
 
   const state = item.actionsState;
-  
+
   switch (operation) {
     case "good":
       state.good = !state.good;
@@ -798,6 +735,7 @@ onBeforeUnmount(() => {
   padding: 16px;
   box-sizing: border-box;
 }
+
 /* 原有样式保持不变 */
 .chat-box .t-chat {
   padding-bottom: 50px;
@@ -833,6 +771,7 @@ onBeforeUnmount(() => {
 
   &:hover {
     transform: translateY(-2px);
+
     .remove-image-btn {
       opacity: 1;
     }
@@ -861,6 +800,7 @@ onBeforeUnmount(() => {
 
 .model-select {
   width: 130px;
+
   :deep(.t-input) {
     border: none !important;
     background-color: transparent !important;
@@ -880,6 +820,7 @@ onBeforeUnmount(() => {
   &:hover {
     background-color: var(--td-bg-color-container-hover);
   }
+
   &.is-active {
     color: var(--td-brand-color);
     font-weight: bold;
@@ -902,7 +843,7 @@ onBeforeUnmount(() => {
 
 /* 如果想让踩的颜色不同 */
 .t-chat-action.active-bad :deep([aria-label="bad"]) {
-   color: var(--td-error-color) !important;
-   background-color: var(--td-error-color-1) !important;
+  color: var(--td-error-color) !important;
+  background-color: var(--td-error-color-1) !important;
 }
 </style>

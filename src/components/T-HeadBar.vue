@@ -14,11 +14,11 @@
       <t-menu-item value="item3" @click="navigateTo('/service')" :class="$route.path === '/service'">
         模型管理
       </t-menu-item>
-      <t-menu-item value="item4" @click="navigateTo('/agent')" :class="$route.path === '/agent'">
-        MCP
-      </t-menu-item>
       <t-menu-item value="item5" @click="navigateTo('/files')" :class="$route.path === '/files'">
         文件管理
+      </t-menu-item>
+      <t-menu-item value="item4" @click="navigateTo('/user')" :class="$route.path === '/agent'">
+        个人主页
       </t-menu-item>
       <t-menu-item value="item6" @click="navigateTo('/DOC')" :class="$route.path === '/DOC'">
         开发文档
@@ -82,7 +82,7 @@ const currentMenuItem = computed(() => {
       return 'item1';
     case '/service':
       return 'item3';
-    case '/agent':
+    case '/user':
       return 'item4';
     case '/files':
       return 'item5';
@@ -109,7 +109,7 @@ const navToHelper = () => {
   window.open('https://tdesign.tencent.com/vue-next/overview');
   // 你的帮助页面链接
 };
-const navToUser = () =>{
+const navToUser = () => {
   router.push('/user')
 }
 
