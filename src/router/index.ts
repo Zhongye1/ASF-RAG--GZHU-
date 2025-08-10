@@ -65,6 +65,11 @@ const routes: Array<RouteRecordRaw> = [
       }
     ]
   },
+  {
+    path: '/testrange',
+    name: '用户界面',
+    component: () => import('../components/graph-unit/graph-main.vue'),
+  },
   // 添加专门的404页面路由
   {
     path: '/404',
@@ -105,7 +110,7 @@ router.beforeEach((to, from, next) => {
   // // 验证JWT有效性
   // const formData = new FormData();
   // formData.append('token', jwt);
-  
+
   // post('/api/verify-token', formData)
   //   .then((res: any) => {
   //     console.log(res);

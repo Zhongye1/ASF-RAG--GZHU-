@@ -126,12 +126,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">分段方法</label>
                         <t-select v-model="settings.segmentMethod" @change="handleSegmentMethodChange"
-                            class="w-full  border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                            <t-option value="通用">通用</t-option>
-                            <t-option value="语义">语义</t-option>
-                            <t-option value="固定长度">固定长度</t-option>
+                            class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            <t-option value="General">General</t-option>
+                            <t-option value="Semantic">Semantic</t-option>
+                            <t-option value="Fixed">Fixed</t-option>
                         </t-select>
                     </div>
+
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -175,6 +176,7 @@
             </div>
 
             <!-- 知识图谱设置 -->
+            <!---
             <div class="mb-8">
                 <h3 class="text-lg font-medium mb-4">知识图谱设置</h3>
 
@@ -233,7 +235,7 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
             <!-- 操作按钮 -->
             <div class="border-t pt-6 flex justify-between">

@@ -15,7 +15,7 @@
         模型管理
       </t-menu-item>
       <t-menu-item value="item4" @click="navigateTo('/agent')" :class="$route.path === '/agent'">
-        Agent
+        MCP
       </t-menu-item>
       <t-menu-item value="item5" @click="navigateTo('/files')" :class="$route.path === '/files'">
         文件管理

@@ -45,7 +45,7 @@
         </div>
         <!-- 添加上传按钮 -->
         <button @click="showUploadModal = true"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+          class="bg-blue-600 hover:bg-blue-700  text-white font-bold px-4 py-2 rounded-md ">
           上传文件
         </button>
       </div>
@@ -202,10 +202,16 @@
       </div>
     </div>
 
+
+
+
+
+
+
     <!-- 检索测试部分 -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-medium">检索测试</h2>
+        <h2 class="text-xl font-medium">检索模块</h2>
         <button @click="isHelpVisible = !isHelpVisible" class="text-gray-500 hover:text-blue-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -216,46 +222,73 @@
 
       <div v-if="isHelpVisible" class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
         <p class="text-sm text-blue-700">
-          请完成召回测试：确保你的配置可以从数据库召回正确的文本块。如果你调整了这里的默认设置，比如关键词相似度权重，请注意这里的改动不会被自动保存。请务必在聊天助手设置或者召回算子设置处同步更新相关设置。
+          RAG检索：确保你的配置可以从数据库召回正确的文本块，请先对知识库的数据执行处理
         </p>
+      </div>
+
+
+
+
+      <!-- 流式处理结果展示 -->
+      <div v-if="isIngesting || ingestResults.length > 0" class="border rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-700">处理输出</h3>
+          <div v-if="isIngesting" class="flex items-center text-blue-600">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            <span>处理中...</span>
+          </div>
+          <div v-else-if="ingestComplete" class="text-green-600 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>处理完成</span>
+          </div>
+        </div>
+
+
+        <div class="p-4 bg-gray-50 max-h-60 overflow-auto font-mono text-sm">
+          <div v-for="(result, index) in ingestResults" :key="index" class="pb-1">
+            <div v-if="result.includes('{')">
+              <!-- 尝试格式化JSON -->
+              <pre class="text-green-600">{{ formatJsonOutput(result) }}</pre>
+            </div>
+            <div v-else class="text-gray-700">{{ result }}</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- 测试按钮和结果 -->
+      <div class="flex justify-start mb-4">
+        <button @click="runSearchTest" :disabled="isTesting" :class="[
+          'bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-center',
+          isTesting ? 'opacity-50 cursor-not-allowed' : ''
+        ]">
+          <svg v-if="isTesting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+
+          {{ isTesting ? '处理中...' : '执行向量化处理' }}
+        </button>
       </div>
 
       <!-- 检索参数设置 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            相似度阈值: {{ similarityThreshold.toFixed(2) }}
-          </label>
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500">0.0</span>
-            <input type="range" min="0" max="1" step="0.01" v-model="similarityThreshold"
-              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
-            <span class="text-sm text-gray-500">1.0</span>
-          </div>
-        </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            关键字相似度权重: {{ keywordWeight }}%
-          </label>
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-500">0%</span>
-            <input type="range" min="0" max="100" step="1" v-model="keywordWeight"
-              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
-            <span class="text-sm text-gray-500">100%</span>
-          </div>
-        </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Rerank模型</label>
-          <select v-model="selectedRerankModel"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
-            <option disabled value="">请选择模型</option>
-            <option v-for="model in rerankModels" :key="model.value" :value="model.value">
-              {{ model.label }}
-            </option>
-          </select>
-        </div>
+
         <!---
         <div>
           <div class="flex items-center">
@@ -273,73 +306,34 @@
         </div>-->
       </div>
 
-      <!-- 跨语言搜索 -->
+      <!-- 跨语言搜索 --><!---
       <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">跨语言搜索</label>
         <select v-model="selectedLanguage"
           class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
           <option value="auto">自动检测</option>
-          <option value="en">English</option>
           <option value="zh-CN">简体中文</option>
-          <option value="zh-TW">繁體中文</option>
-          <option value="ja">日本語</option>
-          <option value="ko">한국어</option>
         </select>
-      </div>
+      </div>-->
+
 
       <!-- 测试文本和文件选择 -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div class="lg:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">测试文本</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">向量化处理后，进行RAG检索</label>
           <textarea v-model="testQuery" rows="4"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="输入测试文本以执行检索..."></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">选定的文件</label>
-          <div class="border border-gray-300 rounded-md p-4 min-h-[150px]">
-            <div v-if="selectedFilesForTest.length === 0"
-              class="flex flex-col items-center justify-center h-full text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-              </svg>
-              <span class="text-center">暂未选择文件<br>在数据集中选择要测试的文件</span>
-            </div>
-            <div v-else>
-              <div v-for="file in selectedFilesForTest" :key="file.id" class="flex justify-between items-center mb-2">
-                <div class="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span class="truncate max-w-xs">{{ file.name }}</span>
-                </div>
-                <button @click="removeFileFromTest(file.id)" class="text-gray-400 hover:text-red-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div class="mt-3 text-sm text-gray-500">
-              已选 {{ selectedFilesForTest.length }}/{{ documents.length }} 个文件
-            </div>
-          </div>
+            placeholder="输入问题以执行检索..."></textarea>
         </div>
       </div>
 
-      <!-- 测试按钮和结果 -->
-      <div class="flex justify-end mb-4">
-        <button @click="runSearchTest" :disabled="testQuery.trim() === '' || isTesting" :class="[
+      <!-- 查询按钮 -->
+      <div class="flex justify-start mb-4">
+        <button @click="performRagQuery" :disabled="isQuerying || testQuery.trim() === ''" :class="[
           'bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-center',
-          (testQuery.trim() === '' || isTesting) ? 'opacity-50 cursor-not-allowed' : ''
+          (isQuerying || testQuery.trim() === '') ? 'opacity-50 cursor-not-allowed' : ''
         ]">
-          <svg v-if="isTesting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+          <svg v-if="isQuerying" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
             fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor"
@@ -351,46 +345,84 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          {{ isTesting ? '测试中...' : '执行测试' }}
+          {{ isQuerying ? '生成中...' : '执行检索' }}
         </button>
       </div>
 
-      <!-- 测试结果展示 -->
-      <div class="border rounded-lg overflow-hidden">
-        <div class="bg-gray-50 px-4 py-3 border-b">
-          <h3 class="text-lg font-medium text-gray-700">检索结果</h3>
-        </div>
 
-        <div v-if="searchResults.length > 0" class="divide-y">
-          <div v-for="(result, index) in searchResults" :key="index" class="p-4 hover:bg-gray-50">
-            <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-medium text-blue-600 mb-1">{{ result.source }}</h4>
-                <p class="text-gray-700">{{ result.content }}</p>
-              </div>
-              <div class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">
-                相似度: {{ (result.score * 100).toFixed(1) }}%
-              </div>
-            </div>
-            <div class="mt-2 text-sm text-gray-500">
-              <span>文件: {{ result.file }}</span>
-              <span class="mx-2">|</span>
-              <span>分块: #{{ result.chunk }}</span>
-            </div>
+      <!-- 查询结果显示 -->
+      <div v-if="queryResults.length > 0" class="border rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-700">检索结果</h3>
+          <div v-if="isQuerying" class="flex items-center text-blue-600">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            <span>生成中...</span>
+          </div>
+          <div v-else-if="queryComplete" class="text-green-600 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>完成</span>
           </div>
         </div>
 
-        <div v-else class="p-8 text-center text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p class="mb-1 font-medium">暂无数据</p>
-          <p>请输入测试文本并执行检索测试</p>
+        <!-- 查询结果内容 -->
+        <div class="p-4 bg-white">
+          <div v-if="finalAnswer" class="mb-4 border-l-4 border-green-500 pl-4 py-2">
+            <h4 class="font-medium text-lg mb-2">回答结果：</h4>
+            <div class="text-gray-700 whitespace-pre-wrap">{{ finalAnswer }}</div>
+          </div>
+
+          <div v-if="sources.length > 0" class="mt-4">
+            <h4 class="font-medium text-gray-700 mb-2">参考来源：</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-600">
+              <li v-for="(source, index) in sources" :key="index" class="mb-1">
+                {{ source.source }} (页码: {{ parseInt(source.page) + 1 }})
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-4 border-t pt-4">
+            <h4 class="font-medium text-gray-700 mb-2">详细处理过程：</h4>
+            <div class="max-h-80 overflow-auto font-mono text-sm">
+              <div v-for="(result, index) in queryResults" :key="index" class="pb-1 text-gray-700">
+                {{ result }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+
     </div>
+
+
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <Knowledge_graph_setting :kb-name="kbName || ''" :kb-id="id || ''" :kb-description="kbDescription || ''"
+        @save="saveKnowledgeBaseSettings" @delete="showDeleteConfirmation = true" />
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -527,6 +559,7 @@
                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">
                 确认删除
               </button>
+
             </div>
           </div>
         </div>
@@ -556,7 +589,13 @@ const dragover = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(5);
 const showDeleteConfirmation = ref(false);
-const selectedDocuments = ref<number[]>([]);
+
+// 在已有状态变量旁边添加
+const queryResults = ref<string[]>([]);
+const isQuerying = ref(false);
+const queryComplete = ref(false);
+const finalAnswer = ref('');
+const sources = ref<any[]>([]);
 
 // 检索测试功能
 const filterStatus = ref('全部');
@@ -569,7 +608,6 @@ const selectedRerankModel = ref('bge-large'); // 设置默认模型
 const useKnowledgeGraph = ref(false);
 const selectedLanguage = ref('auto'); // 设置默认语言
 
-// 可用模型列表
 const rerankModels = ref([
   { label: 'bge-reranker-base', value: 'bge-base' },
   { label: 'bge-reranker-large', value: 'bge-large' },
@@ -584,6 +622,13 @@ const isTesting = ref(false);
 const selectedFilesForTest = ref<Document[]>([]);
 const searchResults = ref<SearchResult[]>([]);
 const uploadProgress = ref(0);
+
+
+// 添加在已有状态变量旁边
+const ingestResults = ref<string[]>([]);
+const isIngesting = ref(false);
+const ingestComplete = ref(false);
+
 
 // 更新接口类型定义以匹配实际响应
 interface KnowledgeBaseConfig {
@@ -745,21 +790,90 @@ const saveRetrievalConfig = async () => {
 
 // 运行搜索测试 - 调用后端接口
 const runSearchTest = async () => {
-  if (testQuery.value.trim() === '') return;
+  // 移除对 testQuery 为空的检查
+  // if (testQuery.value.trim() === '') return;
 
   isTesting.value = true;
+  isIngesting.value = true;
+  ingestResults.value = [];
+  ingestComplete.value = false;
   searchResults.value = [];
+
+  try {
+    // 构建知识库路径
+    const docsDir = `local-KLB-files/${KLB_id}`;
+
+    // 创建EventSource连接
+    const response = await fetch('http://localhost:8000/api/RAG/ingest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        docs_dir: docsDir
+      })
+    });
+
+    // 处理SSE响应
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (reader) {
+      // 处理流式数据
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // 解码并处理数据行
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.substring(6);
+            ingestResults.value.push(data);
+
+            // 检查是否为最后一条JSON消息
+            if (data.includes('"message": "Successfully ingested')) {
+              try {
+                const jsonData = JSON.parse(data);
+                // 在此处理最终结果
+                console.log("Ingestion complete:", jsonData);
+                ingestComplete.value = true;
+
+                // 如果有查询文本，则执行搜索
+                //if (testQuery.value.trim() !== '') {
+                //  await performSearch();
+                //}
+              } catch (e) {
+                console.error("Error parsing final JSON message", e);
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('RAG检索请求失败:', error);
+    ingestResults.value.push(`错误: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    isIngesting.value = false;
+    isTesting.value = false;
+  }
+};
+
+// 添加一个函数来执行实际搜索（如果该函数尚未实现）
+const performSearch = async () => {
+  // 如果没有查询文本，则不执行搜索
+  if (testQuery.value.trim() === '') return;
 
   try {
     const response = await axios.post('/api/search-test', {
       knowledge_base_id: KLB_id,
       query: testQuery.value,
       similarity_threshold: similarityThreshold.value,
-      keyword_weight: keywordWeight.value / 100,
-      rerank_model: selectedRerankModel.value,
-      use_knowledge_graph: useKnowledgeGraph.value,
       language: selectedLanguage.value,
-      selected_files: selectedFilesForTest.value.map(f => f.id)
     });
 
     if (response.data.success) {
@@ -769,12 +883,87 @@ const runSearchTest = async () => {
     }
   } catch (error) {
     console.error('搜索测试请求失败:', error);
-  } finally {
-    isTesting.value = false;
   }
 };
 
-// 其余的函数保持不变...
+//RAG查询
+const performRagQuery = async () => {
+  // 如果已经在处理中或输入为空，则不执行
+  if (isQuerying.value || testQuery.value.trim() === '') return;
+
+  // 设置状态为处理中
+  isQuerying.value = true;
+  queryResults.value = [];
+  queryComplete.value = false;
+  finalAnswer.value = '';
+  sources.value = [];
+
+  try {
+    // 构建知识库路径
+    const docsDir = `local-KLB-files/${KLB_id}`;
+
+    // 创建fetch请求
+    const response = await fetch('http://localhost:8000/api/RAG/RAG_query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        query: testQuery.value,
+        docs_dir: docsDir
+      })
+    });
+
+    // 处理SSE响应
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (reader) {
+      // 处理流式数据
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // 解码并处理数据行
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.substring(6).trim();
+            if (data) {
+              queryResults.value.push(data);
+
+              // 检查是否为JSON结果(完成标志)
+              if (data.startsWith('COMPLETE:')) {
+                try {
+                  const jsonStr = data.substring(9).trim();
+                  const jsonData = JSON.parse(jsonStr);
+                  console.log("Query complete:", jsonData);
+                  queryComplete.value = true;
+                  finalAnswer.value = jsonData.answer;
+                  sources.value = jsonData.sources || [];
+                } catch (e) {
+                  console.error("Error parsing final JSON result", e);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('RAG查询请求失败:', error);
+    queryResults.value.push(`错误: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    // 确保总是重置状态，即使出错或被中断
+    isQuerying.value = false;
+  }
+};
+
+
+// 其余的函数保持不变
 const displayedDocuments = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
@@ -869,6 +1058,7 @@ const removeUploadedFile = (index: number) => {
 
 import { uploadFiles } from './file-upload';
 import { MessagePlugin } from 'tdesign-vue-next';
+import Knowledge_graph_setting from './knowledge_graph_setting.vue';
 
 const processFileUpload = async () => {
   await uploadFiles(uploadedFiles, isUploading, uploadProgress, KLB_id);
@@ -943,6 +1133,23 @@ const removeFileFromTest = (id: number) => {
   const index = selectedFilesForTest.value.findIndex(file => file.id === id);
   if (index !== -1) {
     selectedFilesForTest.value.splice(index, 1);
+  }
+};
+
+
+// 将此函数移动到组件顶层作用域
+const formatJsonOutput = (text) => {
+  try {
+    // 如果字符串包含JSON对象，提取并格式化它
+    const jsonMatch = text.match(/{.*}/);
+    if (jsonMatch) {
+      const jsonStr = jsonMatch[0];
+      const parsedJson = JSON.parse(jsonStr);
+      return JSON.stringify(parsedJson, null, 2);
+    }
+    return text;
+  } catch (e) {
+    return text; // 如果解析失败，返回原始文本
   }
 };
 
