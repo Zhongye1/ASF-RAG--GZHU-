@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia'
-import { get, post } from '@/utils/ASFaxios'
-import { Dialog, MessagePlugin } from 'tdesign-vue-next'
 
 export const useChatImgtore = defineStore('chatImg', {
   state: () => ({
@@ -16,8 +14,11 @@ export const useChatImgtore = defineStore('chatImg', {
     },
 
     // 清除图片
-    clearImage () {
-      this.uploadedImage = null
+    clearImage (item:any) {
+        this.images = this.images.filter((img:any) => img !== item)
+    },
+    clearAllImg(){
+        this.images = []
     }
   }
 })

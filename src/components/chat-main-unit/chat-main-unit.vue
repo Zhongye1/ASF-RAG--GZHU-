@@ -10,60 +10,84 @@
       @scroll="handleChatScroll"
       @clear="clearConfirm"
     >
-      <template #content="{ item, index }">
-        <t-chat-reasoning v-if="item.reasoning?.length > 0" expand-icon-placement="right">
-          <template #header>
-            <t-chat-loading
-              v-if="isStreamLoad && item.content.length === 0"
-              text="思考中...按Ctrl+C停止"
-            />
-            <div v-else style="display: flex; align-items: center">
-              <CheckCircleIcon
-                style="
-                  color: var(--td-success-color-5);
-                  font-size: 20px;
-                  margin-right: 8px;
-                "
+      <template #default="{ item, index }">
+        <t-chat-item :key="index" :role="item?.role">
+          <template #default>
+            <t-chat-reasoning
+              v-if="item.reasoning?.length > 0"
+              expand-icon-placement="right"
+            >
+              <template #header>
+                <t-chat-loading
+                  v-if="isStreamLoad && item.content.length === 0"
+                  text="思考中...按Ctrl+C停止"
+                />
+                <div v-else style="display: flex; align-items: center">
+                  <CheckCircleIcon
+                    style="
+                      color: var(--td-success-color-5);
+                      font-size: 20px;
+                      margin-right: 8px;
+                    "
+                  />
+                  <span>已思考</span>
+                </div>
+              </template>
+              <t-chat-content
+                v-if="item.reasoning.length > 0"
+                :content="item.reasoning"
               />
-              <span>已深度思考</span>
-            </div>
+            </t-chat-reasoning>
+            <t-chat-content
+              v-if="item.content.length > 0"
+              :content="item.content"
+              class="custom-chat-dialog"
+            />
           </template>
-          <t-chat-content v-if="item.reasoning.length > 0" :content="item.reasoning" />
-        </t-chat-reasoning>
-        <t-chat-content
-          v-if="item.content.length > 0"
-          :content="item.content"
-          class="custom-chat-dialog"
-        />
+        </t-chat-item>
       </template>
-
       <template #actions="{ item, index }">
         <t-chat-action
           :content="item.content"
           :operation-btn="['good', 'bad', 'replay', 'copy']"
-          @operation="handleOperation"
+          :class="{
+            'active-good': item.actionsState?.good,
+            'active-bad': item.actionsState?.bad,
+          }"
+          @operation="(op) => handleOperation(op, item)"
         />
       </template>
 
       <template #footer>
-        <div>
-          <t-space size="medium">
-            <t-image
-              v-for="item in imgDatas"
-              :key="item"
-              :src="item"
-              alt="上传失败"
-              :style="{ width: '60px', height: '60px' }"
-            />
+        <div v-if="imgDatas && imgDatas.length > 0" class="image-preview-container">
+          <t-space :gap="10" class="image-preview-space">
+            <div v-for="(item, index) in imgDatas" :key="index" class="image-wrapper">
+              <t-image
+                :src="item"
+                alt="上传失败"
+                :style="{ width: '60px', height: '60px' }"
+                fit="cover"
+              />
+              <t-button
+                class="remove-image-btn"
+                shape="circle"
+                size="small"
+                variant="base"
+                @click="useChatImg.clearImage(item)"
+              >
+                <template #icon><CloseIcon /></template>
+              </t-button>
+            </div>
           </t-space>
         </div>
+
         <t-chat-sender
           id="chatSender"
           ref="chatSenderRef"
           v-model="inputValue"
           class="chat-sender"
           :textarea-props="{
-            placeholder: '请输入消息...',
+            placeholder: '请输入消息，Shift + Enter 换行',
           }"
           :loading="isStreamLoad"
           @send="inputEnter"
@@ -77,25 +101,27 @@
           </template>
 
           <template #prefix>
-            <div class="model-select">
-              <t-tooltip v-model:visible="allowToolTip" trigger="hover">
+            <div class="sender-prefix-controls">
+              <t-tooltip>
                 <t-select
                   v-model="selectValue"
+                  class="model-select"
                   :options="selectOptions"
                   value-type="object"
-                  @focus="allowToolTip = false"
                   @change="handleModelChange"
-                ></t-select>
+                />
               </t-tooltip>
-              <t-button
-                class="check-box"
-                :class="{ 'is-active': isChecked }"
-                variant="text"
-                @click="checkClick"
-              >
-                <SystemSumIcon />
-                <span>深度思考</span>
-              </t-button>
+              <t-tooltip content="开启后模型会进行更深度的思考，但响应会变慢">
+                <t-button
+                  class="deep-think-btn"
+                  :class="{ 'is-active': isChecked }"
+                  variant="text"
+                  @click="checkClick"
+                >
+                  <SystemSumIcon />
+                  <span>深度思考</span>
+                </t-button>
+              </t-tooltip>
             </div>
           </template>
         </t-chat-sender>
@@ -140,6 +166,7 @@ import {
 import { fetchOllamaStream } from "./sseRequest-reasoning";
 import { MessagePlugin } from "tdesign-vue-next";
 import { useChatImgtore } from "@/store";
+import { CloseIcon } from "tdesign-icons-vue-next";
 
 const useChatImg = useChatImgtore();
 // 基础状态
@@ -203,6 +230,7 @@ const state = reactive({
 
 const { chatList } = toRefs(state);
 
+const nextMsg = ref("");
 // 滚动相关
 const backBottom = () => {
   chatRef.value.scrollToBottom({
@@ -220,60 +248,57 @@ const clearConfirm = function () {
   chatList.value = [];
 };
 
-// 操作处理
-const handleOperation = function (type, options) {
-  console.log("handleOperation", type, options);
-};
-
 // 文件选择处理
+/**
+ * 处理文件选择的异步函数
+ * - 如果是图片，则生成预览并添加到图片列表。
+ * - 如果是文本文件，则读取内容并填充到输入框。
+ * - 其他文件类型则提示不支持。
+ */
 const fileSelect = async function (files) {
   const getFileUrlByFileRaw = (file) => {
-    if (!file || !(file instanceof Blob)) {
-      throw new Error("无效的文件对象");
-    }
-
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (e) => reject(new Error("文件读取失败: " + e));
+      reader.onerror = (e) => reject(new Error("图片读取失败: " + e));
       reader.readAsDataURL(file);
     });
   };
+
+  const getTextByFileRaw = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (e) => reject(new Error("文本文件读取失败: " + e));
+    });
+  };
+
   try {
-    if (!files.files || files.files.length === 0) {
-      throw new Error("没有选择文件");
+    if (!files || !files.files || files.files.length === 0) {
+      console.warn("没有选择任何文件");
+      return;
     }
 
     const fileObj = files.files[0];
-    if (!fileObj.type.startsWith("image/")) {
-      //如果上传的不是图片，进入其他操作
-      //如果是txt文本
-      if (fileObj.type === "text/plain") {
-        //直接读取文件添加到对话框
-        const text = await readFileAsText(fileObj);
-        inputValue.value += text;
-      }
-      //不进行中断
+    if (fileObj.type.startsWith("image/")) {
+      console.log("检测到图片文件，正在处理...");
+      const dataUrl = await getFileUrlByFileRaw(fileObj);
+      useChatImg.addImage(dataUrl);
+    } else if (fileObj.type === "text/plain") {
+      console.log("检测到文本文件，正在读取内容...");
+      const fileContent = await getTextByFileRaw(fileObj);
+      const newText = `--- 从文件 ${fileObj.name} 中读取的内容 ---\n\n${fileContent}`;
+      inputValue.value = newText;
+      document.querySelector("#chatSender textarea")?.focus();
+    } else {
+      const message = `暂不支持处理此类型的文件: ${fileObj.name} (${fileObj.type})`;
+      console.warn(message);
+      MessagePlugin.warning(message);
     }
-
-    if (!(fileObj instanceof Blob)) {
-      if (fileObj.name && fileObj.type && fileObj.size) {
-        const reconstructedFile = new File([], fileObj.name, {
-          type: fileObj.type,
-          lastModified: fileObj.lastModified || Date.now(),
-        });
-        const dataUrl = await getFileUrlByFileRaw(reconstructedFile);
-        useChatImg.addImage(dataUrl);
-        return;
-      }
-      throw new Error("无效的文件类型");
-    }
-    const dataUrl = await getFileUrlByFileRaw(fileObj);
-
-    // 存储到 Pinia
-    useChatImg.addImage(dataUrl);
   } catch (error) {
     console.error("文件处理失败:", error);
+    MessagePlugin.error(error.message || "文件处理失败，请重试");
   }
 };
 
@@ -301,11 +326,12 @@ const onStop = () => {
 // 消息发送处理 - 修复后的版本
 const inputEnter = function (messageContent) {
   // 防止重复发送
+
   if (isStreamLoad.value) {
     console.log("正在处理中，忽略重复发送");
     return;
   }
-
+  nextMsg.value = messageContent;
   console.log("发送的消息:", messageContent);
 
   // 添加用户消息
@@ -315,6 +341,7 @@ const inputEnter = function (messageContent) {
     datetime: new Date().toLocaleString(),
     content: messageContent,
     role: "user",
+    actionsState: { good: false, bad: false },
   };
 
   // 添加AI占位消息
@@ -325,6 +352,7 @@ const inputEnter = function (messageContent) {
     content: "",
     reasoning: "",
     role: "assistant",
+    actionsState: { good: false, bad: false },
   };
 
   chatList.value.unshift(userMessage);
@@ -336,6 +364,7 @@ const inputEnter = function (messageContent) {
 
   // 清空输入框 - 正确的方式
   inputValue.value = "";
+  useChatImg.clearAllImg();
 
   // 如果组件提供了清空方法，也调用一下
   nextTick(() => {
@@ -579,9 +608,49 @@ const imgDatas = computed(() => {
   return useChatImg.images;
 });
 
+const handleOperation = async (operation, item) => {
+  if (!item.actionsState) {
+    item.actionsState = { good: false, bad: false };
+  }
+
+  const state = item.actionsState;
+  
+  switch (operation) {
+    case "good":
+      state.good = !state.good;
+      if (state.good) state.bad = false;
+      MessagePlugin.success(state.good ? "已点赞" : "已取消赞");
+      break;
+
+    case "bad":
+      state.bad = !state.bad;
+      if (state.bad) state.good = false;
+      MessagePlugin.info(state.bad ? "已点踩" : "已取消踩");
+      break;
+
+    case "copy":
+      try {
+        await navigator.clipboard.writeText(item.content);
+        MessagePlugin.success("内容已复制到剪贴板");
+      } catch (err) {
+        MessagePlugin.error("复制失败");
+      }
+      break;
+
+    case "replay":
+      MessagePlugin.info("“重新生成”");
+      inputEnter(nextMsg.value);
+      break;
+  }
+};
+
 // 生命周期
 onMounted(async () => {
+  console.log(chatList.value);
+  nextMsg.value = chatList.value[Object.keys(chatList.value)[0]]?.content || "";
+  console.log(nextMsg.value);
   window.addEventListener("keydown", handleKeyDown);
+
   // 获取模型列表
   try {
     const response = await fetch("http://localhost:11434/api/tags");
@@ -729,14 +798,11 @@ onBeforeUnmount(() => {
   padding: 16px;
   box-sizing: border-box;
 }
-
-/* 确保聊天内容区域有足够的底部间距，避免被输入框遮挡 */
+/* 原有样式保持不变 */
 .chat-box .t-chat {
   padding-bottom: 50px;
-  /* 根据输入框高度调整 */
 }
 
-/* 移动端适配 */
 @media (max-width: 768px) {
   .chat-sender {
     padding: 12px;
@@ -745,5 +811,98 @@ onBeforeUnmount(() => {
   .chat-box .t-chat {
     padding-bottom: 100px;
   }
+}
+
+.image-preview-container {
+  padding: 8px 12px;
+  background-color: var(--td-bg-color-secondarycontainer);
+  border-bottom: 1px solid var(--td-border-level-1-color);
+  max-height: 120px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--td-border-level-1-color);
+}
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  border-radius: var(--td-radius-medium);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    .remove-image-btn {
+      opacity: 1;
+    }
+  }
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  opacity: 0;
+
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+  border: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.sender-prefix-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+}
+
+.model-select {
+  width: 130px;
+  :deep(.t-input) {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+.deep-think-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--td-text-color-placeholder);
+  padding: 4px 8px;
+  border-radius: var(--td-radius-medium);
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--td-bg-color-container-hover);
+  }
+  &.is-active {
+    color: var(--td-brand-color);
+    font-weight: bold;
+  }
+}
+
+.chat-sender {
+  :deep(.t-textarea__inner) {
+    padding-left: 2px;
+  }
+}
+
+/* 使用这个更精确和健壮的选择器 */
+.t-chat-action.active-good :deep([aria-label="good"]),
+.t-chat-action.active-bad :deep([aria-label="bad"]) {
+  color: var(--td-brand-color) !important;
+  background-color: var(--td-brand-color-light) !important;
+  border-radius: var(--td-radius-default);
+}
+
+/* 如果想让踩的颜色不同 */
+.t-chat-action.active-bad :deep([aria-label="bad"]) {
+   color: var(--td-error-color) !important;
+   background-color: var(--td-error-color-1) !important;
 }
 </style>

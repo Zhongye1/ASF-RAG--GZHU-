@@ -569,11 +569,8 @@ const handleImageUpload = async (event: Event) => {
     const reader = new FileReader();
     reader.onload = (e) => {
         localKbImageUrl.value = e.target?.result as string;
-
-        useChatImg.addImage(localKbImageUrl.value)
     };
     reader.readAsDataURL(file);
-    useChatImg.addImage(localKbImageUrl.value)
 
     // 上传到后端
     await uploadImage(file);
