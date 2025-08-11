@@ -6,6 +6,7 @@ const apiClient: AxiosInstance = axios.create({
   // baseURL: 'https://your-api.com/v1',
   timeout: 10000, // 请求超时时间
   headers: {
+    'Content-Type': 'application/json', // 默认请求头
     'Accept': 'application/json',
     'Authorization': `Bearer ${token}`
   }

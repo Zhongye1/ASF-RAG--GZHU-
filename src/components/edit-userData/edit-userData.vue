@@ -27,49 +27,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from "vue";
-import { MessagePlugin } from "tdesign-vue-next";
-import { useDataUserStore } from "@/store";
+import { defineStore } from 'pinia'
+import { get, post } from '@/utils/ASFaxios'
+import { Dialog, MessagePlugin } from 'tdesign-vue-next'
 
-const DataUserStore = useDataUserStore();
-const props = defineProps({
-  visible: Boolean,
-  userData: Object,
-});
+export const useDataUserStore = defineStore('dataUser', {
+  state: () => {
+    return {
+      userData: {
+        name: '未知',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?s=400&u=90eecb2edb0caf7cea2cd073d75270cbaa155cdf&v=4',
+        signatur: '未知'
+      },
 
+    }
+  },
 
+  actions: {
+    async fetchUserData() {
+      try {
+        // 先获取当前用户信息
+        const userResponse = await get<any>('/api/users/me');
+        if (userResponse.status === "success") {
+          // 可以根据需要获取更多用户信息
+          // 这里暂时使用默认数据，后续可以根据需要扩展
+          console.log('User info:', userResponse.user);
+        }
+        // 保持现有逻辑，但可以添加更多用户信息
+        const response = await get<any>('/api/GetUserData')
+        this.userData = response.data
+        console.log('API Response:', response.data)
+      } catch (error) {
+        MessagePlugin.error('获取用户数据失败！')
+      }
+    },
+    async updateUserData(name: string, avatar: string, signatur: string) {
+      try {
+        const data = new FormData()
+        data.append('name', name)
+        data.append('avatar', avatar)
+        data.append('signatur', signatur)
+        const response = await post<any>('/api/UpdateUserData', data)
+        MessagePlugin.success('更新用户数据成功！')
+        this.userData = response.data
+        console.log('API Response:', response.data)
+      } catch (error) {
+        MessagePlugin.error('更新用户数据失败！')
 
-const emit = defineEmits(["update:visible", "update:userData"]);
-// 表单数据
-const formData = reactive({
-  name: "",
-  signatur: "",
-  avatar: "",
-});
-
-// 头像预览URL
-const previewUrl = ref("");
-// 当对话框显示时初始化表单
-watch(
-  () => props.visible,
-  (visible) => {
-    if (visible && props.userData) {
-      formData.name = props.userData.name || "";
-      formData.signatur = props.userData.signatur || "";
-      formData.avatar = props.userData.avatar||""
-      previewUrl.value = props.userData.avatarUrl || "";
+      }
     }
   }
-);
-// 关闭对话框
-const closeDialog = () => {
-  emit("update:visible", false);
-};
-
-// 提交表单
-const handleSubmit = async () => {
-  DataUserStore.updateUserData(formData.name, formData.signatur, formData.avatar);
-};
+})
 </script>
 
 <style scoped>

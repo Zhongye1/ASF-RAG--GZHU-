@@ -1,118 +1,44 @@
-import { defineStore } from 'pinia';
-import { ref, reactive } from 'vue';
-import { get, post, del } from '@/utils/ASFaxios'; 
+import { defineStore } from 'pinia'
+import { get, post } from '@/utils/ASFaxios'
+import { Dialog, MessagePlugin } from 'tdesign-vue-next'
 
-// 定义用户资料的数据结构，与后端返回的对象匹配
-interface UserProfile {
-  user_id: number | null;
-  name: string;
-  signature: string; 
-  avatar: string;
-}
-type UserProfileResponse = {
-  status: 'success' | 'error';
-  data?: [number, string, string, string];
-  message?: string;
-}
+export const useDataUserStore = defineStore('dataUser', {
+  state: () => {
+    return {
+      userData: {
+        name: '未知',
+        avatar: 'https://avatars.githubusercontent.com/u/145737758?s=400&u=90eecb2edb0caf7cea2cd073d75270cbaa155cdf&v=4',
+        signatur: '未知',
+        email: '' // 添加 email 字段
+      },
 
-export const useDataUserStore = defineStore('dataUser', () => {
-  const profile = reactive<UserProfile>({
-    user_id: null,
-    name: '',
-    signature: '',
-    avatar: '',
-  });
+    }
+  },
 
-  const email = ref('');
-  const isLoading = ref(false);
-  const error = ref<string | null>(null);
-
-
-  async function fetchUserData() {
-    isLoading.value = true;
-    error.value = null;
-    try {
-      const response = await get<UserProfileResponse>('/api/user/api/GetUserData');
-      if (response.status === 'success' && response.data) {
-        const [userId, name, signature, avatar] = response.data;
-        profile.user_id = userId;
-        profile.name = name;
-        profile.signature = signature;
-        profile.avatar = avatar;
-      } else {
-        throw new Error(response.message || '获取用户资料失败');
+  actions: {
+    async fetchUserData() {
+      try {
+        const response = await get<any>('/api/user/GetUserData')
+        this.userData = response.data
+        console.log('API Response:', response.data)
+      } catch (error) {
+        MessagePlugin.error('获取用户数据失败！')
       }
-    } catch (e: any) {
-      error.value = e.message || '发生未知错误';
-      throw e;
-    } finally {
-      isLoading.value = false;
+    },
+    async updateUserData(name: string, avatar: string, signatur: string) {
+      try {
+        const data = new FormData()
+        data.append('name', name)
+        data.append('avatar', avatar)
+        data.append('signatur', signatur)
+        const response = await post<any>('/api/user/UpdateUserData', data)
+        MessagePlugin.success('更新用户数据成功！')
+        this.userData = response.data
+        console.log('API Response:', response.data)
+      } catch (error) {
+        MessagePlugin.error('更新用户数据失败！')
+
+      }
     }
   }
-
-
-  async function updateUserData(name: string, signature: string, avatar: string) {
-    isLoading.value = true;
-    error.value = null;
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('signatur', signature);
-    formData.append('avatar', avatar);
-
-    try {
-
-      const response: { status: 'success' | 'error'; message?: string }  = await post('/api/user/api/UpdateUserData', formData);
-      if (response.status !== 'success') {
-        throw new Error(response.message || '更新失败');
-      }
-      profile.name = name;
-      profile.signature = signature;
-      profile.avatar = avatar;
-    } catch (e: any) {
-      error.value = e.message || '发生未知错误';
-      throw e;
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  async function deleteAccount() {
-    isLoading.value = true;
-    error.value = null;
-    try {
-      const response: { status: 'success' | 'error'; message?: string }  = await del('/api/user/api/DeleteUserData');
-      if (response.status !== 'success') {
-        throw new Error(response.message || '注销失败');
-      }
-      resetState();
-      localStorage.removeItem('jwt'); // 清除 token
-    } catch (e: any) {
-      error.value = e.message || '发生未知错误';
-      throw e;
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  function resetState() {
-    profile.user_id = null;
-    profile.name = '';
-    profile.signature = '';
-    profile.avatar = '';
-    email.value = '';
-    isLoading.value = false;
-    error.value = null;
-  }
-
-  return {
-    profile,
-    email,
-    isLoading,
-    error,
-    fetchUserData,
-    updateUserData,
-    deleteAccount,
-    resetState,
-  };
-});
+})
