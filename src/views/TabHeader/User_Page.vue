@@ -37,14 +37,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import {
-  Icon as TIcon,
-  Layout as TLayout,
-  Content as TContent,
-  Aside as TAside,
-  Menu as TMenu,
-  MenuItem as TMenuItem
-} from "tdesign-vue-next";
+
+import { Icon as TIcon, Layout as TLayout, Content as TContent, Aside as TAside, Menu as TMenu, MenuItem as TMenuItem, MenuValue } from "tdesign-vue-next";
 
 const router = useRouter();
 const route = useRoute();
@@ -53,10 +47,12 @@ const route = useRoute();
 const activeMenu = computed(() => route.path);
 
 // 处理菜单切换
-const handleMenuChange = (path: string) => {
+const handleMenuChange = (value: MenuValue) => {
+  const path = String(value);
   console.log("点击了:", path);
   router.push(path);
 };
+
 
 // 导航配置
 

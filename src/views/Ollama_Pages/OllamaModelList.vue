@@ -38,8 +38,8 @@
                 </template>
                 <template #operation="{ row }">
                     <t-space>
-                        <t-button class="z-10 bg-red-600 text-white :hover:bg-red-700 text-white" variant="text"
-                            size="small" @click="deleteModel(row.name)">删除</t-button>
+                        <t-button class="z-10 bg-red-600 text-white :hover:bg-red-700" variant="text" size="small"
+                            @click="deleteModel(row.name)">删除</t-button>
                     </t-space>
                 </template>
             </t-table>
@@ -157,7 +157,7 @@ const deleteSelected = async () => {
                 await refreshModels()
                 dialog.destroy()  // 删除成功后关闭弹窗
             } catch (error) {
-                MessagePlugin.error('删除失败')
+                MessagePlugin.error('删除失败' + error)
                 dialog.destroy() // 删除失败后也关闭弹窗
             } finally {
                 loading.value = false
@@ -185,7 +185,7 @@ const deleteModel = async (modelName) => {
                 await refreshModels()
                 dialog.destroy()  // 删除成功后关闭弹窗
             } catch (error) {
-                MessagePlugin.error('删除失败')
+                MessagePlugin.error('删除失败' + error)
                 dialog.destroy() // 删除失败后也关闭弹窗
             } finally {
                 loading.value = false

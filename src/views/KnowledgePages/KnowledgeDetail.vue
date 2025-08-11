@@ -65,7 +65,7 @@
 
 
         <div v-if="displayedDocuments.length > 0">
-          <div v-for="(doc, index) in displayedDocuments" :key="doc.id"
+          <div v-for="(doc) in displayedDocuments" :key="doc.id"
             class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 border-b">
             <div class="col-span-1 flex justify-center">
               <button @click="deleteSelectedDocuments(doc.id)" class="text-gray-400 hover:text-red-500">
@@ -406,8 +406,8 @@
 
 
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-      <Knowledge_graph_setting :kb-name="kbName || ''" :kb-id="id || ''" :kb-description="kbDescription || ''"
-        @save="saveKnowledgeBaseSettings" @delete="showDeleteConfirmation = true" />
+      <Knowledge_graph_setting :kb-name="`${kbName || ''}`" :kb-id="`${id || ''}`"
+        :kb-description="`${kbDescription || ''}`" />
 
 
     </div>
@@ -441,7 +441,7 @@
           </div>
 
           <div class="mt-6">
-            <div @click="$refs.fileInput.click()"
+            <div @click="fileInput?.click()"
               class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500"
               @dragover.prevent="dragover = true" @dragleave="dragover = false" @drop.prevent="handleFileDrop">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none"
@@ -526,7 +526,7 @@
       </div>
     </div>
 
-    <knowledgeSettingCard :kb-name="kbName || ''" :kb-id="id || ''" :kb-description="kbDescription || ''"
+    <knowledgeSettingCard :kb-name="kbName || ''" :kb-id="`${id || ''}`" :kb-description="kbDescription || ''"
       @save="saveKnowledgeBaseSettings" @delete="showDeleteConfirmation = true" />
     <!-- 删除知识库确认模态框 -->
     <div v-if="showDeleteConfirmation"
@@ -574,6 +574,10 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import knowledgeSettingCard from './knowledge-setting-card.vue';
 
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+
 const route = useRoute();
 const router = useRouter();
 const id = ref(route.params.id || 'ASF');
@@ -595,7 +599,14 @@ const queryResults = ref<string[]>([]);
 const isQuerying = ref(false);
 const queryComplete = ref(false);
 const finalAnswer = ref('');
-const sources = ref<any[]>([]);
+const sources = ref<Source[]>([]);
+
+
+interface Source {
+  source: string;
+  page: string;
+  // 根据实际需要添加其他字段
+}
 
 // 检索测试功能
 const filterStatus = ref('全部');
@@ -608,18 +619,19 @@ const selectedRerankModel = ref('bge-large'); // 设置默认模型
 const useKnowledgeGraph = ref(false);
 const selectedLanguage = ref('auto'); // 设置默认语言
 
+/** 
 const rerankModels = ref([
   { label: 'bge-reranker-base', value: 'bge-base' },
   { label: 'bge-reranker-large', value: 'bge-large' },
   { label: '没有 Rerank 模型', value: 'none' }
 ]);
-
+*/
 // 加载状态
 const configLoading = ref(true);
 
 const testQuery = ref('');
 const isTesting = ref(false);
-const selectedFilesForTest = ref<Document[]>([]);
+//const selectedFilesForTest = ref<Document[]>([]);
 const searchResults = ref<SearchResult[]>([]);
 const uploadProgress = ref(0);
 
@@ -760,6 +772,7 @@ const setDefaultConfig = () => {
 };
 
 // 保存检索配置到后端
+/** 
 const saveRetrievalConfig = async () => {
   try {
     const configData = {
@@ -786,7 +799,7 @@ const saveRetrievalConfig = async () => {
   } catch (error) {
     console.error('保存检索配置失败:', error);
   }
-};
+};*/
 
 // 运行搜索测试 - 调用后端接口
 const runSearchTest = async () => {
@@ -864,6 +877,7 @@ const runSearchTest = async () => {
 };
 
 // 添加一个函数来执行实际搜索（如果该函数尚未实现）
+/** 
 const performSearch = async () => {
   // 如果没有查询文本，则不执行搜索
   if (testQuery.value.trim() === '') return;
@@ -884,7 +898,7 @@ const performSearch = async () => {
   } catch (error) {
     console.error('搜索测试请求失败:', error);
   }
-};
+};*/
 
 //RAG查询
 const performRagQuery = async () => {
@@ -1129,16 +1143,17 @@ const deleteKnowledgeBase = async () => {
   }
 };
 
+/** 
 const removeFileFromTest = (id: number) => {
   const index = selectedFilesForTest.value.findIndex(file => file.id === id);
   if (index !== -1) {
     selectedFilesForTest.value.splice(index, 1);
   }
 };
-
+*/
 
 // 将此函数移动到组件顶层作用域
-const formatJsonOutput = (text) => {
+const formatJsonOutput = (text: string) => {
   try {
     // 如果字符串包含JSON对象，提取并格式化它
     const jsonMatch = text.match(/{.*}/);
@@ -1149,6 +1164,7 @@ const formatJsonOutput = (text) => {
     }
     return text;
   } catch (e) {
+    console.error('解析JSON失败:', e);
     return text; // 如果解析失败，返回原始文本
   }
 };
@@ -1188,7 +1204,8 @@ onUnmounted(() => {
 
 <style scoped>
 .dragover {
-  @apply border-blue-500 bg-blue-50;
+  border-color: #3b82f6;
+  background-color: #eff6ff;
 }
 
 .app-container {

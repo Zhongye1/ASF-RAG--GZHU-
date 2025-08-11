@@ -34,9 +34,10 @@
               <t-textarea v-model="userInfo.bio" placeholder="简单介绍一下自己" />
             </t-form-item>
 
+            <!---
             <t-form-item label="社交账号">
               <t-input v-model="userInfo.url" placeholder="社交账号地址" />
-            </t-form-item>
+            </t-form-item>-->
             <t-form-item>
               <t-button theme="primary" type="submit">保存</t-button>
             </t-form-item>
@@ -152,8 +153,6 @@ import { Icon as TIcon } from 'tdesign-icons-vue-next';
 import {
   MessagePlugin,
   DialogPlugin,    // 使用DialogPlugin代替Dialog
-  type DialogOptions,
-  Dialog
 } from 'tdesign-vue-next';
 import router from '@/router';
 
@@ -254,11 +253,11 @@ onMounted(async () => {
 });
 
 // 表单提交事件
-const onSubmit = async ({ validateResult, firstError }) => {
+const onSubmit = async ({ validateResult, firstError }: { validateResult: boolean; firstError: string }) => {
   if (validateResult === true) {
     try {
       await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio);
-      MessagePlugin.success('保存成功');
+      //MessagePlugin.success('保存成功');
     } catch (error) {
       console.error('更新用户数据失败:', error);
       MessagePlugin.error('保存失败');

@@ -55,7 +55,7 @@
                             <div class="flex flex-col space-y-2">
                                 <input ref="imageInput" type="file" accept="image/*" @change="handleImageUpload"
                                     class="hidden" />
-                                <button @click="$refs.imageInput.click()"
+                                <button @click="triggerFileInput"
                                     class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-sm">
                                     上传新封面
                                 </button>
@@ -264,8 +264,11 @@
 <script setup lang="ts">
 import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, watch, computed, defineProps, defineEmits, onMounted } from 'vue';
-import { useChatImgtore } from '@/store';
+//import { useChatImgtore } from '@/store';
 
+const triggerFileInput = () => {
+    imageInput.value?.click();
+};
 
 
 interface KnowledgeBaseSettings {
@@ -328,7 +331,7 @@ interface ApiResponse<T> {
     data: T;
 }
 //定义pinia
-const useChatImg = useChatImgtore()
+//const useChatImg = useChatImgtore()
 
 // 定义组件的输入属性
 const props = defineProps({
@@ -367,7 +370,11 @@ const localKbName = ref('');
 const localKbDescription = ref('');
 const localKbImageUrl = ref('');
 
+
+const imageInput = ref<HTMLInputElement | null>(null);
+
 // 实体类型选项
+/** 
 const entityTypes = ref([
     { value: 'PERSON', label: '人物' },
     { value: 'ORGANIZATION', label: '组织' },
@@ -377,7 +384,7 @@ const entityTypes = ref([
     { value: 'CONCEPT', label: '概念' },
     { value: 'TIME', label: '时间' },
     { value: 'MONEY', label: '金额' }
-]);
+]);*/
 
 // 默认设置
 const defaultSettings: KnowledgeBaseSettings = {
@@ -538,6 +545,7 @@ const handleSegmentMethodChange = () => {
 };
 
 // 切换实体类型
+/** 
 const toggleEntityType = (entityType: string) => {
     const index = settings.value.selectedEntityTypes.indexOf(entityType);
     if (index > -1) {
@@ -545,7 +553,7 @@ const toggleEntityType = (entityType: string) => {
     } else {
         settings.value.selectedEntityTypes.push(entityType);
     }
-};
+};*/
 
 // 处理图片上传
 const handleImageUpload = async (event: Event) => {

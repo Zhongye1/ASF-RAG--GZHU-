@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import KnowledgeBase from '../views/KnowledgePages/KnowledgeBase.vue'
 import NotFound from '../components/ERS-Pages/404.vue'
-import { get, post } from '@/utils/ASFaxios'
+//import { get, post } from '@/utils/ASFaxios'
+interface UserResponse {
+  status: string;
+}
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -56,7 +59,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/user',
     name: '用户界面',
-    component: () => import('../views/TabHeader/User.vue'),
+    component: () => import('../views/TabHeader/User_Page.vue'),
     children: [
       {
         path: '/user/userInfo',
@@ -119,7 +122,7 @@ router.beforeEach((to, from, next) => {
     }
   })
     .then(response => response.json())
-    .then((res: any) => {
+    .then((res: UserResponse) => {
       if (res.status === "success") {
         next();
       } else {

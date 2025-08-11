@@ -23,7 +23,7 @@
           </template>
         </t-chat-item>
       </template>
-      <template #actions="{ item, index }">
+      <template #actions="{ item }">
         <t-chat-action :content="item.content" :operation-btn="['good', 'bad', 'replay', 'copy']" :class="{
           'active-good': item.actionsState?.good,
           'active-bad': item.actionsState?.bad,
@@ -95,7 +95,7 @@ import {
   Chat as TChat,
   ChatAction as TChatAction,
   ChatContent as TChatContent,
-  ChatInput as TChatInput,
+  //ChatInput as TChatInput,
   ChatItem as TChatItem,
   ChatReasoning as TChatReasoning,
   ChatLoading as TChatLoading,
@@ -114,10 +114,11 @@ const chatRef = ref(null);
 const chatSenderRef = ref(null);
 const inputValue = ref("");
 const isShowToBottom = ref(false);
-const allowToolTip = ref(false);
+//const allowToolTip = ref(false);
 
 //定义props
 // 定义 MessageRecord 类型
+/** 
 const MessageRecord = {
   avatar: String,
   name: String,
@@ -126,7 +127,7 @@ const MessageRecord = {
   role: String,
   reasoning: String,
   duration: Number,
-};
+};*/
 
 // 定义 props
 const props = defineProps({
@@ -315,6 +316,7 @@ const inputEnter = function (messageContent) {
 };
 
 // SSE 处理
+/** 
 const fetchSSE = async (fetchFn, options) => {
   try {
     const response = await fetchFn();
@@ -357,7 +359,7 @@ const fetchSSE = async (fetchFn, options) => {
     console.error("fetchSSE 出错:", error);
     options.complete?.(false, error.message);
   }
-};
+};*/
 
 // 数据处理
 // src/components/chat-main-unit/chat-main-unit.vue
@@ -570,7 +572,7 @@ const handleOperation = async (operation, item) => {
         await navigator.clipboard.writeText(item.content);
         MessagePlugin.success("内容已复制到剪贴板");
       } catch (err) {
-        MessagePlugin.error("复制失败");
+        MessagePlugin.error("复制失败" + err);
       }
       break;
 

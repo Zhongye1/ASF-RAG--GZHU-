@@ -1,6 +1,5 @@
 <template>
-  <t-card :title="props.card.title" :description="props.card.description" 
-    @click="handleClick">
+  <t-card :title="props.card.title" :description="props.card.description" @click="handleClick">
     <!-- 使用 cover 插槽来自定义封面 -->
     <template #cover>
       <img :src="props.card.cover" class="knowledge-card-image" />
@@ -74,7 +73,7 @@ const props = defineProps<{
 
 const handleClick = () => {
   // 调用父组件传递的 goToDetail 方法
-  MessagePlugin.success("点击了卡片");
+  //MessagePlugin.success("点击了卡片");
 };
 
 const clickHandler: DropdownProps["onClick"] = async (data) => {
