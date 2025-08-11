@@ -121,7 +121,7 @@ import { storeToRefs } from 'pinia';
 import { Icon as TIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin, Dialog } from 'tdesign-vue-next';
 import type { SubmitContext, FormInstanceFunctions } from 'tdesign-vue-next';
-
+import { get, put, del, post } from '@/utils/ASFaxios';
 
 const userStore = useDataUserStore();
 const { profile, email, isLoading } = storeToRefs(userStore);
@@ -157,7 +157,7 @@ watch(
 );
 
 
-onMounted(() => {
+onMounted(async() => {
   // 如果 store 中还没有用户数据，则去获取
   if (!userStore.profile.user_id) {
     userStore.fetchUserData().catch(error => {
@@ -165,6 +165,25 @@ onMounted(() => {
     });
   }
   userInfo.publicEmail = localStorage.getItem("email")!;
+  const token = localStorage.getItem('jwt');
+  
+  // 创建表单数据
+  const formData = new FormData();
+  formData.append('name', '未知');
+  formData.append('signature', '未知');
+  formData.append('avatar', "");
+  formData.append('social_media', 'https://github.com/ourcx');
+  try {
+    const response = await post('/api/user/api/init', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    
+    console.log('资料创建成功:', response);
+  } catch (error) {
+      console.error('错误:', error);
+  }
 });
 
 
