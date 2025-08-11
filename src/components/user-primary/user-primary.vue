@@ -173,7 +173,7 @@ onMounted(async () => {
     userInfo.avatar = userStore.userData.avatar || '';
     userInfo.name = userStore.userData.name || '';
     userInfo.publicEmail = userStore.userData.email || '';
-    userInfo.bio = userStore.userData.signatur || '';
+    userInfo.bio = userStore.userData.signature || ''; // 修正字段名
     userInfo.url = userStore.userData.social_media || '';
     // 模拟获取邮箱列表
     emails.value = [userStore.userData.email || ''];
@@ -187,7 +187,7 @@ onMounted(async () => {
 const onSubmit = async ({ validateResult, firstError }) => {
   if (validateResult === true) {
     try {
-      await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio);
+      await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio); // 这里是正确的
       MessagePlugin.success('保存成功');
     } catch (error) {
       console.error('更新用户数据失败:', error);
