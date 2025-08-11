@@ -104,24 +104,23 @@ router.beforeEach((to, from, next) => {
   if (publicRoutes.includes(to.path)) {
     return next();
   }
-
+  
   const jwt = localStorage.getItem('jwt');
+  // console.log(jwt);
   // 没有JWT时重定向到登录页
   if (!jwt) {
     return next(`/LogonOrRegister?redirect=${encodeURIComponent(to.fullPath)}`);
   }
 
   // 验证JWT有效性
-  fetch('/api/users/me', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${jwt}`
-    }
-  })
-    .then(response => response.json())
+  const formData = new FormData();
+  formData.append('token', jwt);
+
+  post('/api/verify-token', formData)
     .then((res: any) => {
+      console.log(res);
       if (res.status === "success") {
-        next();
+        next(); 
       } else {
         // token无效时清理并重定向
         localStorage.removeItem('jwt');

@@ -29,10 +29,10 @@
 
                     <!-- 用户名/邮箱 -->
                     <div class="mb-4">
-                        <label class="block text-white/80 text-sm font-light mb-2">邮箱</label>
-                        <input v-model="loginForm.username" type="text" required autocomplete="username"
+                        <label class="block text-white/80 text-sm font-light mb-2">用户名或邮箱</label>
+                        <input v-model="loginForm.username" type="text" required
                             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-                            placeholder="请输入邮箱" />
+                            placeholder="请输入用户名或邮箱" />
                     </div>
 
                     <!-- 密码 -->
@@ -40,7 +40,6 @@
                         <label class="block text-white/80 text-sm font-light mb-2">密码</label>
                         <div class="relative">
                             <input v-model="loginForm.password" :type="showPassword ? 'text' : 'password'" required
-                                autocomplete="current-password"
                                 class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
                                 placeholder="请输入密码" />
                             <button type="button" @click="showPassword = !showPassword"
@@ -78,10 +77,12 @@
 
                 <!-- 注册表单 -->
                 <div v-else>
+
+
                     <!-- 用户名或邮箱 -->
                     <div class="mb-4">
                         <label class="block text-white/80 text-sm font-light mb-2">用户名</label>
-                        <input v-model="registerForm.username" type="text" required autocomplete="username"
+                        <input v-model="registerForm.username" type="text" required
                             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
                             placeholder="请输入用户名或邮箱" />
                     </div>
@@ -90,7 +91,6 @@
                         <label class="block text-white/80 text-sm font-light mb-2">密码</label>
                         <div class="relative">
                             <input v-model="registerForm.password" :type="showPassword ? 'text' : 'password'" required
-                                autocomplete="new-password"
                                 class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
                                 placeholder="请输入密码" />
                             <button type="button" @click="showPassword = !showPassword"
@@ -116,7 +116,7 @@
                     <div class="mb-6">
                         <label class="block text-white/80 text-sm font-light mb-2">确认密码</label>
                         <input v-model="registerForm.confirmPassword" :type="showPassword ? 'text' : 'password'"
-                            required autocomplete="new-password"
+                            required
                             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
                             placeholder="请再次输入密码"
                             :class="{ 'border-red-400': registerForm.password && registerForm.confirmPassword && registerForm.password !== registerForm.confirmPassword }" />
@@ -213,6 +213,7 @@ const loginForm = ref({
 
 const registerForm = ref({
     username: '',
+    email: '',
     password: '',
     confirmPassword: '',
     agreeTerms: false
@@ -225,6 +226,7 @@ const isFormValid = computed(() => {
     } else {
         return (
             registerForm.value.username &&
+            registerForm.value.email &&
             registerForm.value.password &&
             registerForm.value.confirmPassword &&
             registerForm.value.password === registerForm.value.confirmPassword &&
@@ -246,44 +248,14 @@ const handleSubmit = async () => {
     isSubmitting.value = true
 
     try {
-        // 根据当前模式调用不同的API
-        let response;
-        if (currentMode.value === 'login') {
-            // 使用表单数据格式登录
-            const formData = new FormData();
-            formData.append('username', loginForm.value.username);
-            formData.append('password', loginForm.value.password);
+        // 模拟API调用延迟
+        await new Promise(resolve => setTimeout(resolve, 1500))
 
-            response = await fetch('/api/login', {
-                method: 'POST',
-                body: formData
-            });
-        } else {
-            // 使用表单数据格式注册
-            const formData = new FormData();
-            formData.append('email', registerForm.value.username);
-            formData.append('password', registerForm.value.password);
+        const formData = currentMode.value === 'login'
+            ? { ...loginForm.value, type: 'login' }
+            : { ...registerForm.value, type: 'register' }
 
-            response = await fetch('/api/register/form', {
-                method: 'POST',
-                body: formData
-            });
-        }
-
-        const result = await response.json();
-
-        if (result.status === "success" || result.access_token) {
-            // 成功处理
-            const token = result.access_token || result.token;
-            emit('form-submit', {
-                type: currentMode.value,
-                email: currentMode.value === 'login' ? loginForm.value.username : registerForm.value.username,
-                password: currentMode.value === 'login' ? loginForm.value.password : registerForm.value.password,
-                token: token
-            });
-        } else {
-            alert(`${currentMode.value === 'login' ? '登录' : '注册'}失败: ${result.detail || '未知错误'}`);
-        }
+        emit('form-submit', formData)
 
         // 重置表单
         if (currentMode.value === 'login') {
@@ -291,6 +263,7 @@ const handleSubmit = async () => {
         } else {
             registerForm.value = {
                 username: '',
+                email: '',
                 password: '',
                 confirmPassword: '',
                 agreeTerms: false
@@ -298,7 +271,6 @@ const handleSubmit = async () => {
         }
     } catch (error) {
         console.error('提交失败:', error)
-        alert('认证过程中发生错误，请稍后重试')
     } finally {
         isSubmitting.value = false
     }

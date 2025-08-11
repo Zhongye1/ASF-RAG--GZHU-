@@ -60,7 +60,7 @@
             加入我们的用户体验改善计划，帮助我们提供更好的产品体验。您的反馈对我们非常重要。
           </p>
           <div class="mt-3 flex items-center">
-            <t-switch v-model="uxImprovement" size="small" @change="onUxImprovementChange" />
+            <t-switch v-model="uxImprovement" size="small" />
             <span class="ml-2 text-sm text-blue-700">加入用户体验改善计划</span>
           </div>
         </div>
@@ -78,8 +78,7 @@
             <p class="text-gray-500 text-sm mt-1">选择您的开发工作流程</p>
           </div>
           <div class="mt-2 sm:mt-0 w-full sm:w-auto">
-            <t-select v-model="userInfo.devMode" :options="devModeOptions" class="w-full sm:w-64"
-              @change="onDevModeChange" />
+            <t-select v-model="userInfo.devMode" :options="devModeOptions" class="w-full sm:w-64" />
           </div>
         </div>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100">
@@ -88,8 +87,7 @@
             <p class="text-gray-500 text-sm mt-1">设置界面显示语言</p>
           </div>
           <div class="mt-2 sm:mt-0 w-full sm:w-auto">
-            <t-select v-model="userInfo.language" :options="languageOptions" class="w-full sm:w-64"
-              @change="onLanguageChange" />
+            <t-select v-model="userInfo.language" :options="languageOptions" class="w-full sm:w-64" />
           </div>
         </div>
       </div>
@@ -106,7 +104,7 @@
             </p>
           </div>
           <div class="mt-3 sm:mt-0">
-            <t-button theme="danger" variant="outline" size="small" @click="onDeleteAccount">注销账号</t-button>
+            <t-button theme="danger" variant="outline" size="small">注销账号</t-button>
           </div>
         </div>
       </div>

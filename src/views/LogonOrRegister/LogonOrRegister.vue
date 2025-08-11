@@ -12,6 +12,8 @@
 
     <!-- 主要内容区域 -->
     <div class="grid grid-cols-[1fr_1fr] gap-16 max-w-6xl mx-auto px-8 pb-16 relative z-10">
+
+
       <!-- 右侧Logo区域 -->
       <div class="relative flex flex-col h-full items-center gap-8">
         <div
@@ -51,27 +53,15 @@
         </div>
       </div>
     </div>
-
-    <!-- 全局加载遮罩 -->
-    <div v-if="isLoading" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
-        <div class="flex items-center space-x-4">
-          <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-white font-light">{{ loadingText }}</span>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import DynamicLogo from '@/components/canvas-point-unit/DynamicLogo.vue'
 import LoginRegisterForm from './LoginRegisterForm.vue'
 
 const currentImageKey = ref<string>('welcome')
-const isLoading = ref(false)
-const loadingText = ref('')
 
 // 图片映射
 const imageMap: Record<string, { src: string; alt: string }> = {
@@ -108,36 +98,17 @@ const handleImageChange = (imageKey: string) => {
 }
 
 // 处理表单提交
-const handleFormSubmit = async (data: any) => {
-  isLoading.value = true
-  loadingText.value = data.type === 'login' ? '正在登录...' : '正在注册...'
+const handleFormSubmit = (data: any) => {
+  console.log('Form submitted:', data)
+  // 这里可以添加API调用逻辑
+  currentImageKey.value = 'success'
 
-  try {
-    // token已经在handleSubmit中处理过了，直接使用
-    if (data.token) {
-      // 保存JWT token
-      localStorage.setItem('jwt', data.token);
-
-      if (data.type === 'login') {
-        // 登录成功后跳转
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/knowledge';
-        window.location.href = redirectUrl;
-      } else {
-        // 注册成功后跳转到主页面
-        window.location.href = '/knowledge';
-      }
-    } else {
-      console.error(`${data.type === 'login' ? '登录' : '注册'}失败: 未获取到token`);
-      alert(`${data.type === 'login' ? '登录' : '注册'}失败: 未获取到访问令牌`);
-    }
-  } catch (error) {
-    console.error('认证失败:', error);
-    alert('认证过程中发生错误，请稍后重试');
-  } finally {
-    isLoading.value = false
-    loadingText.value = ''
-  }
+  // 模拟成功后的操作
+  setTimeout(() => {
+    alert(`${data.type === 'login' ? '登录' : '注册'}成功！见src/views/LogonOrRegister/LogonOrRegister.vue 107行，没写逻辑`)
+  }, 1000)
 }
+
 
 import VueTypewriterEffect from 'vue-typewriter-effect'
 
