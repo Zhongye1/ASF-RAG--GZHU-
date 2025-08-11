@@ -9,14 +9,16 @@
       <div class="flex flex-col md:flex-row items-start gap-8">
         <!-- 头像区域 -->
         <div class="flex flex-col items-center w-48 md:w-64">
-          <t-avatar :image="userInfo.avatar" :hide-on-load-failed="false" size="x-large"
+          <t-avatar :image="displayAvatar" :hide-on-load-failed="false" size="x-large"
             class="w-32 h-32 md:w-48 md:h-48" />
-          <t-button class="mt-3" variant="outline" size="small">
+          <t-button class="mt-3" variant="outline" size="small" @click="changeAvatar">
             <template #icon>
               <t-icon name="edit" />
             </template>
             更改头像
           </t-button>
+          <!-- 添加隐藏的文件输入框 -->
+          <input ref="avatarInput" type="file" accept="image/*" @change="handleAvatarUpload" class="hidden" />
         </div>
 
         <!-- 基础信息 -->
@@ -111,8 +113,21 @@
 
     <!-- 危险区域 -->
     <section class="pt-6 border-t border-gray-100">
-      <h2 class="text-xl font-semibold text-gray-900 mb-6">危险操作</h2>
-
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">其他操作</h2>
+      <div class="border border-yello-200 rounded-lg p-5  bg-yellow-50">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+          <div>
+            <h3 class="text-gray-900 font-medium">登出</h3>
+            <p class="text-gray-600 text-sm mt-1">
+              返回登录页面
+            </p>
+          </div>
+          <div class="mt-3 sm:mt-0">
+            <t-button theme="danger" variant="outline" size="small" @click="onLogoutAccount">登出账号</t-button>
+          </div>
+        </div>
+      </div>
+      <div class="h-5"></div>
       <div class="border border-red-200 rounded-lg p-5 bg-red-50">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between">
           <div>
@@ -131,10 +146,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useDataUserStore } from '@/store/modules/useDataUser';
 import { Icon as TIcon } from 'tdesign-icons-vue-next';
-import { MessagePlugin, Dialog } from 'tdesign-vue-next';
+import {
+  MessagePlugin,
+  DialogPlugin,    // 使用DialogPlugin代替Dialog
+  type DialogOptions,
+  Dialog
+} from 'tdesign-vue-next';
+import router from '@/router';
 
 // 用户体验改进计划开关
 const uxImprovement = ref(true);
@@ -165,6 +186,55 @@ const languageOptions = [
   { label: 'English', value: 'en-US' }
 ];
 
+// 添加计算属性处理头像URL
+const displayAvatar = computed(() => {
+  if (userInfo.avatar && userInfo.avatar.startsWith('/static/')) {
+    return `http://localhost:8000${userInfo.avatar}`;
+  }
+  return userInfo.avatar;
+});
+
+// 添加头像输入框的引用
+const avatarInput = ref<HTMLInputElement | null>(null);
+
+// 添加更改头像的方法
+const changeAvatar = () => {
+  if (avatarInput.value) {
+    avatarInput.value.click();
+  }
+};
+
+// 添加处理头像上传的方法
+const handleAvatarUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (file) {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      MessagePlugin.error('请选择图片文件');
+      return;
+    }
+
+    // 验证文件大小（例如限制为5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      MessagePlugin.error('图片大小不能超过5MB');
+      return;
+    }
+
+    // 创建预览URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      if (result) {
+        userInfo.avatar = result;
+        MessagePlugin.success('头像已更新，点击保存以应用更改');
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 // 页面加载时获取用户数据
 onMounted(async () => {
   try {
@@ -173,7 +243,7 @@ onMounted(async () => {
     userInfo.avatar = userStore.userData.avatar || '';
     userInfo.name = userStore.userData.name || '';
     userInfo.publicEmail = userStore.userData.email || '';
-    userInfo.bio = userStore.userData.signature || ''; // 修正字段名
+    userInfo.bio = userStore.userData.signature || '';
     userInfo.url = userStore.userData.social_media || '';
     // 模拟获取邮箱列表
     emails.value = [userStore.userData.email || ''];
@@ -187,7 +257,7 @@ onMounted(async () => {
 const onSubmit = async ({ validateResult, firstError }) => {
   if (validateResult === true) {
     try {
-      await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio); // 这里是正确的
+      await userStore.updateUserData(userInfo.name, userInfo.avatar, userInfo.bio);
       MessagePlugin.success('保存成功');
     } catch (error) {
       console.error('更新用户数据失败:', error);
@@ -214,9 +284,32 @@ const onLanguageChange = (value: string) => {
   MessagePlugin.success(`语言已切换为: ${value === 'zh-CN' ? '中文' : 'English'}`);
 };
 
+// 登出账号事件
+const onLogoutAccount = () => {
+  const dialog = DialogPlugin.confirm({
+    header: '确认登出',
+    body: '确定要登出账号吗？登出后需要重新登录才能访问。',
+    confirmBtn: {
+      theme: 'danger',
+      content: '确认登出'
+    },
+    cancelBtn: '取消',
+    onConfirm: async () => {
+      try {
+        await router.push('/LogonOrRegister');
+        MessagePlugin.success('已登出账号');
+      } catch (error) {
+        console.error('路由跳转失败:', error);
+      } finally {
+        dialog.destroy(); // 确保dialog关闭
+      }
+    }
+  });
+};
+
 // 注销账号事件
 const onDeleteAccount = () => {
-  Dialog.confirm({
+  const dialog = DialogPlugin.confirm({
     header: '确认注销',
     body: '确定要注销账号吗？注销后所有数据将被永久删除，无法恢复。',
     confirmBtn: {
@@ -226,12 +319,12 @@ const onDeleteAccount = () => {
     cancelBtn: '取消',
     onConfirm: async () => {
       try {
-        // 这里应该调用注销账号的接口
         MessagePlugin.success('账号注销成功，将跳转到登录页面');
-        // 实际项目中应该执行跳转到登录页面的逻辑
+        await router.push('/LogonOrRegister');
       } catch (error) {
-        console.error('注销账号失败:', error);
-        MessagePlugin.error('注销账号失败');
+        console.error('路由跳转失败:', error);
+      } finally {
+        dialog.destroy(); // 确保dialog关闭
       }
     }
   });
