@@ -68,20 +68,20 @@ const handleModelDownloaded = () => {
 
 // 加载设置
 const loadSettings = () => {
-  const savedSettings = localStorage.getItem('ollamaSettings')
-  if (savedSettings) {
-    try {
-      const settings = JSON.parse(savedSettings)
-      ollamaServerUrl.value = settings.serverUrl || 'http://localhost:11434'
-    } catch (e) {
-      console.error('加载设置失败:', e)
+    const savedSettings = localStorage.getItem('ollamaSettings')
+    if (savedSettings) {
+        try {
+            const settings = JSON.parse(savedSettings)
+            ollamaServerUrl.value = settings.serverUrl || 'http://localhost:11434'
+        } catch (e) {
+            console.error('加载设置失败:', e)
+        }
     }
-  }
 }
 
 // 监听设置更新事件
 const handleSettingsUpdated = (event) => {
-  ollamaServerUrl.value = event.detail.serverUrl || 'http://localhost:11434'
+    ollamaServerUrl.value = event.detail.serverUrl || 'http://localhost:11434'
 }
 
 // API 函数
@@ -91,7 +91,7 @@ const ollamaApi = {
         try {
             const response = await fetch(`${ollamaServerUrl.value}/api/tags`)
             const data = await response.json()
-            return data.models || []    
+            return data.models || []
         } catch (error) {
             console.error('获取模型列表失败:', error)
             MessagePlugin.error('获取模型列表失败')
@@ -147,7 +147,7 @@ const ollamaApi = {
             throw error
         }
     },
-    
+
     // 获取当前服务器URL
     getServerUrl() {
         return ollamaServerUrl.value
@@ -159,8 +159,8 @@ provide('ollamaApi', ollamaApi)
 
 // 组件挂载时加载设置并监听更新事件
 onMounted(() => {
-  loadSettings()
-  window.addEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
+    loadSettings()
+    window.addEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
 })
 
 </script>

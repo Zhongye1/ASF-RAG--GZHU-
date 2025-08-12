@@ -23,7 +23,7 @@ export class MockSSEResponse {
           setTimeout(() => this.pushData(), this.delay); // 延迟开始推送数据
         }
       },
-      cancel() {},
+      cancel() { },
     });
   }
 
@@ -80,7 +80,7 @@ export class MockSSEResponse {
           return;
         }
       }
-    } catch {}
+    } catch { }
   }
 
   getResponse(): Promise<Response> {
@@ -105,12 +105,12 @@ export class MockSSEResponse {
 // src/components/chat-main-unit/sseRequest-reasoning.ts
 
 // 添加一个新的函数用于Ollama API通信
-export async function fetchOllamaStream(prompt: string, model: string = "llama2") {
+export async function fetchOllamaStream(prompt: string, model: string = "llama2", serverUrl: string = "http://localhost:11434") {
   const controller = new AbortController();
   const signal = controller.signal;
-  
+
   try {
-    const response = await fetch("http://localhost:11434/api/generate", {
+    const response = await fetch(`${serverUrl}/api/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -122,7 +122,7 @@ export async function fetchOllamaStream(prompt: string, model: string = "llama2"
       }),
       signal
     });
-    
+
     return {
       response,
       controller

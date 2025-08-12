@@ -35,7 +35,7 @@ import { ref, onMounted } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 // 设置状态
-const serverUrl = ref('http://172.22.121.2:11434')
+const serverUrl = ref('http://localhost:11434')
 const timeout = ref(30)
 
 // 组件挂载时加载设置

@@ -375,6 +375,18 @@ const handleData = async (messageContent) => {
   const lastItem = chatList.value[0];
   const selectedModel = selectValue.value.value;
 
+  // 获取 Ollama 配置
+  let serverUrl = "http://localhost:11434";
+  try {
+    const savedSettings = localStorage.getItem('ollamaSettings');
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      serverUrl = settings.serverUrl || "http://localhost:11434";
+    }
+  } catch (e) {
+    console.error('加载 Ollama 设置失败:', e);
+  }
+
   // 用于追踪思考过程状态
   let isInThinking = false;
   let thinkingStarted = false;
@@ -383,7 +395,8 @@ const handleData = async (messageContent) => {
   try {
     const { response, controller } = await fetchOllamaStream(
       messageContent,
-      selectedModel
+      selectedModel,
+      serverUrl  // 添加 serverUrl 参数
     );
     fetchCancel.value = { controller };
 
@@ -521,7 +534,7 @@ const handleData = async (messageContent) => {
       console.error("Ollama连接错误:", error);
       if (lastItem) {
         lastItem.role = "error";
-        lastItem.content = `连接Ollama服务失败: ${error.message}`;
+        lastItem.content = `连接Ollama服务失败，请检查API服务是否配置正确: ${error.message}`;
         lastItem.reasoning = "";
       }
     }
@@ -592,15 +605,38 @@ onMounted(async () => {
 
   // 获取模型列表
   try {
-    const response = await fetch("http://localhost:11434/api/tags");
+    // 获取 Ollama 配置
+    let serverUrl = "http://localhost:11434";
+    let ollamaSettings = {}; // 定义 ollamaSettings 变量
+    try {
+      const savedSettings = localStorage.getItem('ollamaSettings');
+      if (savedSettings) {
+        ollamaSettings = JSON.parse(savedSettings);
+        serverUrl = ollamaSettings.serverUrl || "http://localhost:11434";
+      }
+    } catch (e) {
+      console.error('加载 Ollama 设置失败:', e);
+    }
+
+    const response = await fetch(`${serverUrl}/api/tags`);
     const data = await response.json();
     data.models.forEach((model) => {
       selectOptions.value.push({ label: model.name, value: model.model });
     });
-    selectValue.value = selectOptions.value[0];
+    // 设置默认选中模型
+    if (ollamaSettings.defaultModel) {
+      const defaultOption = selectOptions.value.find(option => option.value === ollamaSettings.defaultModel);
+      if (defaultOption) {
+        selectValue.value = defaultOption;
+      } else {
+        selectValue.value = selectOptions.value[0];
+      }
+    } else {
+      selectValue.value = selectOptions.value[0];
+    }
   } catch (error) {
-    console.error("获取模型列表失败:", error);
-    MessagePlugin.error("获取模型列表失败");
+    console.error("获取模型列表失败，请检查API服务是否配置正确:", error);
+    MessagePlugin.error("获取模型列表失败，请检查API服务是否配置正确");
     return [];
   }
 });

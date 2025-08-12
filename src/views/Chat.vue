@@ -1,64 +1,37 @@
 <template>
   <div class="height-full flex">
     <!-- 侧边栏：对话历史记录 -->
-    <div
-      class="w-64 border-r border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 flex flex-col"
-    >
-      <div
-        class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
-      >
+    <div class="w-64 border-r border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <h2 class="font-medium text-gray-900 dark:text-white">对话历史</h2>
+
         <button
           class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-          @click="createNewSession"
-          :disabled="loading"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
+          @click="showOllamaSettings" :disabled="loading">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </button>
       </div>
 
       <!-- 加载状态 -->
-      <div
-        v-if="loading && chatSessions.length === 0"
-        class="flex-1 flex items-center justify-center"
-      >
+      <div v-if="loading && chatSessions.length === 0" class="flex-1 flex items-center justify-center">
         <div class="text-center">
-          <div
-            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"
-          ></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <p class="text-sm text-gray-500 dark:text-gray-400">加载对话历史...</p>
         </div>
       </div>
 
       <!-- 会话列表 -->
       <div v-else class="flex-1 overflow-y-auto p-3 space-y-2">
-        <div
-          v-for="(chat, idx) in chatSessions"
-          :key="chat.id"
-          @click="selectSession(idx)"
-          :class="[
-            'px-3 py-2 rounded-md cursor-pointer flex items-center transition-colors duration-200 group',
-            currentSessionIndex === idx
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-              : 'hover:bg-gray-100 text-gray-800 dark:hover:bg-gray-700 dark:text-gray-200',
-          ]"
-        >
+        <div v-for="(chat, idx) in chatSessions" :key="chat.id" @click="selectSession(idx)" :class="[
+          'px-3 py-2 rounded-md cursor-pointer flex items-center transition-colors duration-200 group',
+          currentSessionIndex === idx
+            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+            : 'hover:bg-gray-100 text-gray-800 dark:hover:bg-gray-700 dark:text-gray-200',
+        ]">
           <div
-            class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0"
-          >
+            class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
             <span class="text-xs font-medium text-white">{{ idx + 1 }}</span>
           </div>
           <div class="flex-1 min-w-0">
@@ -71,24 +44,13 @@
             </div>
           </div>
           <!-- 删除按钮 -->
-          <button
-            @click.stop="deleteSession(idx)"
+          <button @click.stop="deleteSession(idx)"
             class="opacity-0 group-hover:opacity-100 ml-2 p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-opacity"
-            :disabled="chatSessions.length <= 1"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
+            :disabled="chatSessions.length <= 1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
         </div>
@@ -96,46 +58,24 @@
 
       <!-- 底部操作按钮 -->
       <div class="p-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
-        <button
-          @click="createNewSession"
-          :disabled="loading"
-          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
+        <button @click="createNewSession" :disabled="loading"
+          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           新对话
         </button>
-        <button
-          @click="refreshSessions"
-          :disabled="loading"
-          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-2"
-            :class="{ 'animate-spin': loading }"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
+        <button @click="showOllamaSettings" :disabled="loading"
+          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-300 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          ollama服务设置
+        </button>
+        <button @click="refreshSessions" :disabled="loading"
+          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" :class="{ 'animate-spin': loading }" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           刷新
         </button>
@@ -145,46 +85,52 @@
     <!-- 主聊天区域 -->
     <div id="chat-container" class="flex height-full">
       <!-- 停止提示 -->
-      <div
-        v-if="showStopHint"
-        class="absolute top-4 right-4 bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 rounded-md shadow-md z-50 animate-fade-in"
-      >
+      <div v-if="showStopHint"
+        class="absolute top-4 right-4 bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 rounded-md shadow-md z-50 animate-fade-in">
         已停止生成
       </div>
 
-      <chatMainUnit
-        v-if="currentSession"
-        :history="currentSession.history"
-        :title="currentSession.title"
-        :lastMessage="currentSession.lastMessage"
-        :key="currentSession.id"
-        :loading="isStreamLoad"
-        @chat-updated="handleChatUpdated"
-        @send-message="inputEnter"
-      />
+      <chatMainUnit v-if="currentSession" :history="currentSession.history" :title="currentSession.title"
+        :lastMessage="currentSession.lastMessage" :key="currentSession.id" :loading="isStreamLoad"
+        @chat-updated="handleChatUpdated" @send-message="inputEnter" />
 
       <!-- 无会话状态 -->
       <div v-else class="flex-1 flex items-center justify-center">
         <div class="text-center">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">暂无对话</h3>
           <p class="text-gray-500 dark:text-gray-400 mb-4">点击"新对话"开始聊天</p>
-          <button
-            @click="createNewSession"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
+          <button @click="createNewSession" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             开始新对话
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Ollama设置对话框 -->
+    <t-dialog header="Ollama 设置" :visible="showSettingsDialog" mode="modal" :onConfirm="confirmSettings"
+      :onCancel="closeSettingsDialog" width="500px">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">服务器地址</label>
+          <t-input v-model="settings.serverUrl" placeholder="http://172.22.121.2:11434" />
+          <p class="text-xs text-gray-500 mt-1">本地模型则为: http://localhost:11434</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">连接超时（秒）</label>
+          <t-input-number v-model="settings.timeout" :min="1" :max="300" />
+        </div>
+      </div>
+    </t-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from "vue";
+import { ref, computed, nextTick, watch, reactive, onMounted } from "vue";
 import chatMainUnit from "../components/chat-main-unit/chat-main-unit.vue";
 import { useRouter, useRoute } from "vue-router";
 import { MessagePlugin } from "tdesign-vue-next";
+import OllamaSettings from "./Ollama_Pages/OllamaSettings.vue";
+
 
 // 接口定义
 interface ChatMessage {
@@ -223,6 +169,71 @@ const chatSessions = ref<ChatSession[]>([]);
 // 计算属性
 const currentSession = computed(() => {
   return chatSessions.value[currentSessionIndex.value];
+});
+
+// Ollama设置对话框相关
+const showSettingsDialog = ref(false);
+const settings = reactive({
+  serverUrl: 'http://localhost:11434',
+  timeout: 30
+});
+
+// 显示Ollama设置对话框
+const showOllamaSettings = () => {
+  loadSettings();
+  showSettingsDialog.value = true;
+};
+
+// 关闭设置对话框
+const closeSettingsDialog = () => {
+  showSettingsDialog.value = false;
+};
+
+// 确认设置
+const confirmSettings = () => {
+  saveSettings();
+  closeSettingsDialog();
+};
+
+// 保存设置
+const saveSettings = () => {
+  const settingsToSave = {
+    serverUrl: settings.serverUrl,
+    timeout: settings.timeout
+  };
+
+  localStorage.setItem('ollamaSettings', JSON.stringify(settingsToSave));
+  MessagePlugin.success('设置已保存');
+
+  // 发送事件通知其他组件设置已更新
+  window.dispatchEvent(new CustomEvent('ollamaSettingsUpdated', {
+    detail: settingsToSave
+  }));
+
+  // 添加页面刷新逻辑
+  setTimeout(() => {
+    window.location.reload();
+  }, 100);
+};
+
+// 加载设置
+const loadSettings = () => {
+  const savedSettings = localStorage.getItem('ollamaSettings');
+  if (savedSettings) {
+    try {
+      const parsedSettings = JSON.parse(savedSettings);
+      settings.serverUrl = parsedSettings.serverUrl || 'http://localhost:11434';
+      settings.timeout = parsedSettings.timeout || 30;
+    } catch (e) {
+      console.error('加载设置失败:', e);
+      MessagePlugin.error('加载设置失败');
+    }
+  }
+};
+
+// 组件挂载时加载设置
+onMounted(() => {
+  loadSettings();
 });
 
 // API 配置
@@ -298,7 +309,7 @@ const fetchChatSessions = async (): Promise<boolean> => {
           ? session.history[1].content.slice(0, 5) + "..."
           : "新对话",
         lastMessage: session.history[session.history.length - 1]
-          ? session.history[session.history.length-1].content.slice(0, 10) + "..."
+          ? session.history[session.history.length - 1].content.slice(0, 10) + "..."
           : "空",
         history: session.history || [],
         created_at: session.created_at || Date.now() / 1000,
@@ -508,6 +519,11 @@ const inputEnter = async (inputValue: string) => {
         message: inputValue.trim(),
         sessionId: currentId,
         history: chatSessions.value[sessionIndex].history,
+        // 添加Ollama设置到请求中
+        ollamaSettings: {
+          serverUrl: settings.serverUrl,
+          timeout: settings.timeout
+        }
       }),
     });
 
@@ -657,9 +673,9 @@ watch(
 );
 
 // 生命周期钩子
-import { onMounted, onUnmounted } from "vue";
+import { onMounted as onMountedHook, onUnmounted } from "vue";
 
-onMounted(async () => {
+onMountedHook(async () => {
   // 注册键盘事件
   document.addEventListener("keydown", handleKeyDown);
 
