@@ -37,7 +37,7 @@ const renderedContent = ref('');
 onMounted(async () => {
   try {
     // 加载 Markdown 文件内容
-    const response = await fetch('README.md');
+    const response = await fetch('src/assets/README.md');
     documentContent.value = await response.text();
 
     // 渲染 Markdown 并净化 HTML

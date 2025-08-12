@@ -15,6 +15,7 @@
                 全选
             </t-checkbox>
         </div>
+        
 
         <!-- 模型表格 -->
         <div class="bg-white rounded-lg shadow table-container">
@@ -48,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, onMounted } from 'vue'
+import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
 
 // 注入共享的 API 服务
@@ -223,8 +224,18 @@ const formatTime = (timestamp) => {
     })
 }
 
+const handleSettingsUpdated = () => {
+    // 设置更新后刷新模型列表
+    refreshModels()
+}
+
 onMounted(() => {
     refreshModels()
+    window.addEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
 })
 
 </script>

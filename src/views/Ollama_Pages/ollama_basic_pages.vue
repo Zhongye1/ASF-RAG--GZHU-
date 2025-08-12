@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 //import ollama_model_pages from './Ollama_Pages/ollama_model_pages.vue'
@@ -34,7 +34,6 @@ import OllamaModelDownload from './OllamaModelDownload.vue'
 import OllamaSettings from './OllamaSettings.vue'
 
 //import CanvasPoint from '@/components/canvas-point-unit/CanvasPoint.vue'
-
 
 // 当前活动标签
 const activeTab = ref('models')
@@ -56,21 +55,8 @@ const componentMap = {
 // 计算当前组件
 const currentComponent = computed(() => componentMap[activeTab.value])
 
-/** 
-const loading = ref(false)
-const downloading = ref(false)
-const downloadProgress = ref(0)
-const downloadStatus = ref('')
-const models = ref([])
-const selectedModels = ref([])
-const downloadModel = ref('')
-const showRenameDialog = ref(false)
-const newModelName = ref('')
-const isAllSelected = ref(false)
-const isIndeterminate = computed(() => {
-    return selectedModels.value.length > 0 && selectedModels.value.length < models.value.length
-})
-*/
+// Ollama服务器URL
+const ollamaServerUrl = ref('http://localhost:11434')
 
 // 事件处理
 const handleModelDownloaded = () => {
@@ -80,12 +66,30 @@ const handleModelDownloaded = () => {
     }
 }
 
+// 加载设置
+const loadSettings = () => {
+  const savedSettings = localStorage.getItem('ollamaSettings')
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings)
+      ollamaServerUrl.value = settings.serverUrl || 'http://localhost:11434'
+    } catch (e) {
+      console.error('加载设置失败:', e)
+    }
+  }
+}
+
+// 监听设置更新事件
+const handleSettingsUpdated = (event) => {
+  ollamaServerUrl.value = event.detail.serverUrl || 'http://localhost:11434'
+}
+
 // API 函数
 const ollamaApi = {
     // 获取模型列表
     async getModels() {
         try {
-        const response = await fetch('http://localhost:11434/api/tags')
+            const response = await fetch(`${ollamaServerUrl.value}/api/tags`)
             const data = await response.json()
             return data.models || []    
         } catch (error) {
@@ -98,7 +102,7 @@ const ollamaApi = {
     // 删除模型
     async deleteModel(name) {
         try {
-            const response = await fetch('http://localhost:11434/api/delete', {
+            const response = await fetch(`${ollamaServerUrl.value}/api/delete`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name })
@@ -113,7 +117,7 @@ const ollamaApi = {
     // 下载模型
     async downloadModel(name, onProgress) {
         try {
-            const response = await fetch('http://localhost:11434/api/pull', {
+            const response = await fetch(`${ollamaServerUrl.value}/api/pull`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name })
@@ -143,13 +147,21 @@ const ollamaApi = {
             throw error
         }
     },
+    
+    // 获取当前服务器URL
+    getServerUrl() {
+        return ollamaServerUrl.value
+    }
 }
+
 import { provide } from 'vue'  // 添加 provide
 provide('ollamaApi', ollamaApi)
 
-
-
-
+// 组件挂载时加载设置并监听更新事件
+onMounted(() => {
+  loadSettings()
+  window.addEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
+})
 
 </script>
 

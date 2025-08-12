@@ -1,9 +1,17 @@
 <template>
-    <div class="flex-1 p-6 overflow-auto bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <!-- 这里到时候搞一个搜索框 --><!-- 筛选按钮 -->
-            <!-- 搜索和筛选栏 -->
-
+    <div class="flex-1 p-6 overflow-hidden max-h-[97vh] bg-gray-50">
+        <div class="max-w-7xl mx-auto ">
+            <!-- 下载表单 -->
+            <div class="bg-white rounded-lg shadow p-3 mb-3">
+                <h3 class="text-lg font-medium mb-4">模型下载</h3>
+                <div class="flex gap-4 mb-4">
+                    <t-input v-model="modelName" placeholder="请输入模型名称，如: llama2" class="flex-1" />
+                    <t-button theme="primary" @click="startDownload" :loading="downloading" :disabled="!modelName">
+                        {{ downloading ? '下载中...' : '开始下载' }}
+                    </t-button>
+                </div>
+                <p class="text-sm text-gray-500">提示：可输入完整模型标签，如 llama2:13b 或 llama2:latest</p>
+            </div>
 
             <!-- 下载进度提示 -->
             <div v-if="downloading" class="mb-6 p-4 translate-x-2 bg-blue-50 border border-blue-200 rounded-lg">
@@ -55,7 +63,7 @@
             <!-- 模型网格 -->
 
             <div v-else-if="models.length > 0"
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 h-[80vh] bg-slate-50  overflow-auto gap-4 mb-8">
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 h-[67vh] bg-slate-50  overflow-auto gap-4 mb-8">
                 <div v-for="model in models" :key="model.name"
                     class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200 hover:-translate-y-1 cursor-pointer group flex flex-col h-full">
 
@@ -159,7 +167,7 @@
             </div>
 
             <!-- 分页 -->
-            <div v-if="totalPages > 1" class="flex justify-center mt-8">
+            <div v-if="totalPages > 1" class="flex justify-center mt-8 sticky bottom-0 bg-gray-50 py-4 border-t">
                 <t-pagination v-model="currentPage" :total="totalCount" :page-size="pageSize" :show-jumper="true"
                     :show-page-size="false" @change="handlePageChange" class="justify-center" />
             </div>
@@ -173,13 +181,16 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import axios from 'axios'
 import VueTypewriterEffect from 'vue-typewriter-effect'
 
+// 新增：自定义服务器URL
+const customServerUrl = ref('')
+
 
 // 注入共享的 API 服务
 const ollamaApi = inject('ollamaApi')
 
 // 组件状态
 const loading = ref(false)
-const downloading = ref(false)
+
 const downloadProgress = ref(0)
 const downloadStatus = ref('')
 const currentDownloadModel = ref('')
@@ -236,6 +247,37 @@ const selectModelSize = (modelName, size) => {
 // 获取完整模型名称
 const getModelFullName = (name, size) => {
     return `${name}:${size}`
+}
+
+// 新增：模型名称输入框
+const modelName = ref('')
+
+// 新增：下载按钮状态
+const downloading = ref(false)
+
+
+// 新增：开始下载逻辑
+const startDownload = async () => {
+    if (!modelName.value.trim()) {
+        MessagePlugin.warning('请输入模型名称')
+        return
+    }
+
+    downloading.value = true
+    try {
+        const fullModelName = modelName.value.trim()
+        const serverUrl = customServerUrl.value.trim() || undefined
+        await ollamaApi.downloadModel(fullModelName, (progress) => {
+            console.log('下载进度:', progress)
+        }, serverUrl)
+        MessagePlugin.success(`模型 ${fullModelName} 下载完成`)
+        modelName.value = ''
+    } catch (error) {
+        console.error('下载失败:', error)
+        MessagePlugin.error(`下载失败: ${error.message || '未知错误'}`)
+    } finally {
+        downloading.value = false
+    }
 }
 
 
@@ -307,150 +349,15 @@ watch([sizeFilter, sortBy], () => {
 // 事件发射
 const emit = defineEmits(['model-downloaded'])
 
-// 组件挂载时获取数据
+// 新增：监听设置更新事件
+const handleSettingsUpdated = () => {
+    // 设置更新后可以提示用户需要重新下载
+    console.log('Ollama服务器设置已更新')
+}
+
+// 组件挂载时获取数据和监听事件
 onMounted(() => {
     fetchModels()
+    window.addEventListener('ollamaSettingsUpdated', handleSettingsUpdated)
 })
 </script>
-
-<style scoped>
-.app-container {
-    background-color: #f9fafb;
-    height: 100vh;
-    width: 100vw;
-    position: fixed;
-    z-index: -1;
-    overflow: auto;
-}
-
-/* 文本截断 */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* 卡片阴影动画 */
-.group:hover {
-    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* 加载动画 */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.group {
-    animation: fadeIn 0.5s ease-out;
-}
-
-
-/* 文本截断样式 */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-}
-
-.line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-}
-
-/* 确保卡片等高 */
-.grid>div {
-    display: flex;
-    flex-direction: column;
-}
-
-/* 优化卡片阴影和过渡效果 */
-.group:hover {
-    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    transform: translateY(-2px);
-}
-
-/* 响应式网格调整 */
-@media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-
-/* 下载进度弹窗样式 */
-.download-progress-content {
-    padding: 8px 0;
-}
-
-/* 进度条容器样式 */
-:deep(.t-progress) {
-    margin-bottom: 8px;
-}
-
-/* 弹窗按钮样式 */
-:deep(.t-dialog__footer) {
-    text-align: center;
-    padding-top: 16px;
-}
-
-/* 优化加载动画 */
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
-</style>
