@@ -25,6 +25,14 @@
         <t-icon name="chat" class="mr-2" />
         对话
       </t-menu-item>
+      <t-menu-item value="itemacmd" @click="navigateTo('/acmd_sre')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/acmd_sre',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/acmd_sre'
+        }">
+        <t-icon name="mobile-list" class="mr-2" />
+        学术检索
+      </t-menu-item>
 
       <t-menu-item value="item3" @click="navigateTo('/service')"
         class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
@@ -222,6 +230,8 @@ const currentMenuItem = computed(() => {
       return 'item5';
     case '/DOC':
       return 'item6';
+    case '/acmd_sre':
+      return 'itemacmd';
     default:
       // 处理所有以 /user 开头的路径
       if (path.startsWith('/user')) {

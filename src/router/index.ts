@@ -74,6 +74,11 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/acmd_sre',
+    name: 'ACMD',
+    component: () => import('../views/ACMD_serach/ACMD_search.vue'),
+  },
+  {
     path: '/testrange',
     name: 'CTE',
     component: () => import('../components/graph-unit/graph-main.vue'),

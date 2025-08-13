@@ -14,6 +14,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true
+      },
+      '/lens-api': {
+        target: 'https://api.lens.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/lens-api/, '')
       }
     }
   },
