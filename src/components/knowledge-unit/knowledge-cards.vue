@@ -6,7 +6,7 @@
     </template>
 
     <template #avatar>
-      <t-avatar :image="props.card.avatar" size="56px"></t-avatar>
+      <t-avatar :image="displayAvatar" size="56px"></t-avatar>
     </template>
 
     <template #actions>
@@ -37,16 +37,26 @@
   </t-card>
 </template>
 
-<script lang="tsx" setup>
-import { MessagePlugin, CardProps, DropdownProps } from "tdesign-vue-next";
+<script lang="ts" setup>
+import { MessagePlugin, DropdownProps } from "tdesign-vue-next";
 import { HeartIcon, ChatIcon, ShareIcon, MoreIcon } from "tdesign-icons-vue-next";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useCardDataStore } from "@/store";
 import axios from "axios";
+import { useDataUserStore } from '@/store/modules/useDataUser';
 
+interface Card {
+  id: string;
+  title: string;
+  avatar: string;
+  description: string;
+  cover: string;
+  createdTime: string;
+}
 
 const cardDataStore = useCardDataStore();
-const options: DropdownProps["options"] = [
+
+const options: DropdownProps['options'] = [
   {
     content: "删除",
     value: 1,
@@ -58,25 +68,33 @@ const options: DropdownProps["options"] = [
 ];
 
 const props = defineProps<{
-  card: {
-    id: string;
-    title: string;
-    avatar: string;
-    description: string;
-    cover: string;
-    createdTime: string;
-    //hoverShadow: true;
-    //headerBordered: true;
-  };
+  card: Card;
   goToDetail: Function;
 }>();
+
+// 使用与Header组件相同的头像处理逻辑
+const displayAvatar = computed(() => {
+  const userStore = useDataUserStore();
+
+  // 如果用户数据还未加载，返回默认头像
+  if (!userStore.userData) {
+    console.log('用户头像数据未加载');
+    return 'https://tdesign.gtimg.com/site/avatar.jpg';
+  }
+
+  const avatar = userStore.userData?.avatar || props.card.avatar || '';
+  if (avatar && avatar.startsWith('/static/')) {
+    return `http://localhost:8000${avatar}`;
+  }
+  return avatar || 'https://tdesign.gtimg.com/site/avatar.jpg';
+});
 
 const handleClick = () => {
   // 调用父组件传递的 goToDetail 方法
   //MessagePlugin.success("点击了卡片");
 };
 
-const clickHandler: DropdownProps["onClick"] = async (data) => {
+const clickHandler: DropdownProps['onClick'] = async (data) => {
   // 处理下拉菜单点击事件
   if (data.value === 1) {
     // 删除操作
@@ -102,17 +120,17 @@ const clickHandler: DropdownProps["onClick"] = async (data) => {
   }
 };
 
-
 const HertIconColor = ref<string>(""); // 心形图标颜色
+
 // 点击卡片图标时触发
-const handleClickHeartIcon = (e: any) => {
-  HertIconColor.value === ""
-    ? (HertIconColor.value = "#d90026")
-    : (HertIconColor.value = "");
+const handleClickHeartIcon = (e: Event) => {
+  e.stopPropagation();
+  HertIconColor.value = HertIconColor.value === "" ? "#d90026" : "";
   // 这里可以添加其他逻辑，比如发送请求到后端保存状态等
   //这个颜色要修改到适合的，最好不要写死在这里
 };
 </script>
+
 <style scoped>
 .knowledge-card-footer-buttonlists {
   display: flex;

@@ -1,9 +1,9 @@
 <template>
   <div
-    class="min-h-screen relative font-sans bg-cover bg-[url('https://pic3.zhimg.com/v2-59e4679ba11c333dde41264d44dc72e6_r.jpg')] ">
+    class="min-h-screen relative font-sans bg-cover bg-[url('https://pic3.zhimg.com/v2-30a45afb19fee7450415d366cedacd30_r.jpg')] ">
     <!-- 顶部标题区域 -->
     <div class="text-center py-10 relative z-10">
-      <div class="text-5xl font-thin text-white mb-4 tracking-wider drop-shadow-lg">RAG-F01智能知识库系统</div>
+      <div class="text-5xl font-thin text-white mb-4 tracking-wider drop-shadow-lg">RAG-F智能知识库系统</div>
       <div class="flex justify-center">
         <vue-typewriter-effect :strings="typewriterStrings" class="text-2xl text-white font-light" :loop="true">
         </vue-typewriter-effect>
@@ -15,9 +15,9 @@
       <!-- 右侧Logo区域 -->
       <div class="relative flex flex-col h-full items-center gap-8">
         <div
-          class="bg-black/20 backdrop-blur-xl h-[600px] border border-white/10 rounded-2xl p-8 sticky top-8 min-h-[400px] flex items-center justify-center">
-          <div v-if="currentDisplayImage.src" class="relative w-full h-full">
-            <transition class="mt-[100px]" name="image-fade" mode="out-in">
+          class="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sticky top-8 min-h-[400px] flex items-center justify-center">
+          <div v-if="currentDisplayImage.src" class="relative w-full h-30">
+            <transition class="mt-[10px] mb-[100px]" name="image-fade" mode="out-in">
               <DynamicLogo :key="currentDisplayImage.src" :logo-src="currentDisplayImage.src"
                 class="w-full  object-cover rounded-xl" />
             </transition>
@@ -80,15 +80,15 @@ const imageMap: Record<string, { src: string; alt: string }> = {
     alt: '欢迎使用RAG-F01'
   },
   login: {
-    src: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400',
-    alt: '安全登录'
+    src: 'https://pic2.zhimg.com/v2-e99667cad558acfb5be8572eb0c2b31b_r.jpg',
+    alt: '登录'
   },
   register: {
-    src: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400',
-    alt: '注册账户'
+    src: 'https://pic3.zhimg.com/v2-ffed82bbc3cccbede8c17ab1c4885c1c_r.jpg',
+    alt: '注册'
   },
   forgot: {
-    src: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400',
+    src: 'https://pic2.zhimg.com/v2-6ebd9fe3e9ae1b3421ae2b8f378c47dd_r.jpg',
     alt: '找回密码'
   },
   success: {
@@ -142,7 +142,7 @@ const handleFormSubmit = async (data: any) => {
 import VueTypewriterEffect from 'vue-typewriter-effect'
 
 const typewriterStrings = computed(() => [
-  `RAG-F01智能知识库系统`,
+  `RAG-F智能知识库系统`,
   `安全、便捷、智能的知识管理解决方案`,
 ])
 </script>

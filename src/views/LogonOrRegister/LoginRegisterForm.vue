@@ -174,13 +174,13 @@
             </div>
 
             <div class="mt-6 grid grid-cols-2 gap-3">
-                <button type="button"
+                <button type="button" @click="MessagePlugin.warning('QQ登录功能暂未实现')"
                     class="w-full inline-flex justify-center py-2 px-4 border border-white/20 rounded-md shadow-sm bg-white/10 text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
                     <t-icon name="logo-qq" class="w-5 h-5" />
                     <span class="ml-2">QQ</span>
                 </button>
 
-                <button type="button"
+                <button type="button" @click="MessagePlugin.warning('微信登录功能暂未实现')"
                     class="w-full inline-flex justify-center py-2 px-4 border border-white/20 rounded-md shadow-sm bg-white/10 text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
                     <t-icon name="logo-wechat-stroke" class="w-5 h-5" />
                     <span class="ml-2">微信</span>
@@ -191,6 +191,7 @@
 </template>
 
 <script setup lang="ts">
+import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, computed, watch } from 'vue'
 
 // 定义 emits
