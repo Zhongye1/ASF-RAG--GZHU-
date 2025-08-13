@@ -177,12 +177,10 @@ const emails = ref<string[]>([]);
 
 const devModeOptions = [
   { label: '默认', value: 'default' },
-  { label: '高级', value: 'advanced' }
 ];
 
 const languageOptions = [
   { label: '中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' }
 ];
 
 // 添加计算属性处理头像URL

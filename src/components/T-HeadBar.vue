@@ -1,97 +1,207 @@
 <template>
-  <t-header>
-    <t-head-menu theme="light" :value="currentMenuItem" height="80px">
+  <t-header class="shadow-sm bg-white border-b border-gray-200">
+    <t-head-menu theme="light" :value="currentMenuItem" height="80px" class="flex items-center ">
       <template #logo>
-        <!-- <p class="text-xl font-bold text-blue-600">RAGF-01</p> -->
-        <h2 class="logo-title font-bold text-blue-500 text-xl">{{ 'RAGF-01' }}</h2>
+        <h2 class="logo-title font-bold text-blue-600 text-xl flex items-center">
+          <t-icon name="cloud" class="mr-2 text-blue-500" />
+          RAGF-01
+        </h2>
       </template>
-      <t-menu-item value="item1" @click="navigateTo('/knowledge')" :class="$route.path === '/knowledge'">
+
+      <t-menu-item value="item1" @click="navigateTo('/knowledge')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/knowledge',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/knowledge'
+        }">
+        <t-icon name="book" class="mr-2" />
         知识库
       </t-menu-item>
-      <t-menu-item value="item2" @click="navigateTo('/chat')" :class="$route.path === '/chat'">
+
+      <t-menu-item value="item2" @click="navigateTo('/chat')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/chat',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/chat'
+        }">
+        <t-icon name="chat" class="mr-2" />
         对话
       </t-menu-item>
-      <t-menu-item value="item3" @click="navigateTo('/service')" :class="$route.path === '/service'">
+
+      <t-menu-item value="item3" @click="navigateTo('/service')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/service',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/service'
+        }">
+        <t-icon name="server" class="mr-2" />
         模型管理
       </t-menu-item>
-      <t-menu-item value="item5" @click="navigateTo('/files')" :class="$route.path === '/files'">
+
+      <t-menu-item value="item5" @click="navigateTo('/files')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/files',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/files'
+        }">
+        <t-icon name="file" class="mr-2" />
         文件管理
       </t-menu-item>
-      <t-menu-item value="item4" @click="navigateTo('/user')" :class="$route.path.startsWith('/user')">
+
+      <t-menu-item value="item4" @click="navigateTo('/user')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path.startsWith('/user'),
+          'text-gray-700 hover:bg-gray-100': !$route.path.startsWith('/user')
+        }">
+        <t-icon name="user" class="mr-2" />
         个人主页
       </t-menu-item>
-      <t-menu-item value="item6" @click="navigateTo('/DOC')" :class="$route.path === '/DOC'">
+
+      <t-menu-item value="item6" @click="navigateTo('/DOC')"
+        class="mx-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200" :class="{
+          'bg-blue-50 text-blue-600': $route.path === '/DOC',
+          'text-gray-700 hover:bg-gray-100': $route.path !== '/DOC'
+        }">
+        <t-icon name="mobile-list" class="mr-2" />
         开发文档
       </t-menu-item>
-      <template #operations>
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
-            <t-icon name="logo-github" />
-          </t-button>
-        </t-tooltip>
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="navToHelper">
-            <t-icon name="help-circle" />
-          </t-button>
-        </t-tooltip>
+      <div class="w-10"></div>
 
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="navigateTo('/knowledge')">
-            <t-icon name="home" />
-          </t-button>
-        </t-tooltip>
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="navToUser">
-            <t-icon name="user" />
-          </t-button>
-        </t-tooltip>
-        <t-tooltip placement="bottom">
-          <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
-            <setting-icon />
-          </t-button>
-        </t-tooltip>
+      <template #operations>
+        <div class="flex items-center ml-4 space-x-1">
+          <t-tooltip content="GitHub仓库" placement="bottom">
+            <t-button theme="default" shape="square" variant="text" @click="navToGitHub"
+              class="rounded-lg hover:bg-gray-100 transition-colors duration-200 p-2">
+              <t-icon name="logo-github" class="text-lg text-gray-600" />
+            </t-button>
+          </t-tooltip>
+
+          <t-tooltip content="帮助文档" placement="bottom">
+            <t-button theme="default" shape="square" variant="text" @click="navToHelper"
+              class="rounded-lg hover:bg-gray-100 transition-colors duration-200 p-2">
+              <t-icon name="help-circle" class="text-lg text-gray-600" />
+            </t-button>
+          </t-tooltip>
+
+          <t-tooltip content="返回首页" placement="bottom">
+            <t-button theme="default" shape="square" variant="text" @click="navigateTo('/knowledge')"
+              class="rounded-lg hover:bg-gray-100 transition-colors duration-200 p-2">
+              <t-icon name="home" class="text-lg text-gray-600" />
+            </t-button>
+          </t-tooltip>
+
+          <div class="h-6 w-px bg-gray-300 mx-2"></div>
+
+          <!-- 用户头像和下拉菜单 -->
+          <t-dropdown :min-column-width="130" trigger="click" placement="bottom-right">
+            <t-avatar :image="userAvatar" :hide-on-load-failed="false" size="medium"
+              class="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-200" />
+            <template #dropdown>
+              <t-dropdown-menu class="rounded-lg shadow-lg">
+                <t-dropdown-item @click="goToProfile"
+                  class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md mx-2 mt-2 transition-colors duration-200">
+                  <t-icon name="user" class="text-blue-500" />
+                  <span class="ml-2">个人中心</span>
+                </t-dropdown-item>
+                <!---  <t-dropdown-item @click="toggleSettingPanel"
+                  class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md mx-2 transition-colors duration-200">
+                  <t-icon name="setting" class="text-blue-500" />
+                  <span class="ml-2">系统设置</span>
+                </t-dropdown-item>-->
+                <t-dropdown-item @click="logout" divided
+                  class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md mx-2 mb-2 transition-colors duration-200">
+                  <t-icon name="logout" class="text-red-500" />
+                  <span class="ml-2">退出登录</span>
+                </t-dropdown-item>
+              </t-dropdown-menu>
+            </template>
+          </t-dropdown>
+        </div>
       </template>
     </t-head-menu>
   </t-header>
-  <t-drawer v-model:visible="drawerVisible" :header="'设置面板'" :footer="null" size="400px">
+
+
+
+  <t-drawer v-model:visible="drawerVisible" placement="bottom" :header="'设置面板'" :footer="null" size="400px">
     <!-- 在这里挂载你的子组件 -->
     <your-child-component />
-    <p>滚滚长江东逝水</p>
-    <div class="text-center py-12">
+    <div class="text-center py-8">
       <t-icon name="info-circle" class="text-5xl text-blue-500 mx-auto mb-4" />
       <h3 class="text-lg font-medium text-gray-900 mb-2">功能即将上线</h3>
       <p class="text-gray-500 max-w-md mx-auto">
         我们正在努力开发中，请耐心等待！
       </p>
     </div>
-    <div class="grid grid-rows-1 md:grid-rows-3 gap-6 mt-8">
-      <div class="border border-gray-200 rounded-lg p-5 text-center">
-        <t-icon name="color-invert" class="text-3xl text-blue-500 mx-auto mb-3" />
-        <h4 class="font-medium text-gray-900 mb-2">主题颜色</h4>
-        <p class="text-sm text-gray-500">自定义界面主题颜色</p>
-      </div>
 
-      <div class="border border-gray-200 rounded-lg p-5 text-center">
-        <t-icon name="layout" class="text-3xl text-blue-500 mx-auto mb-3" />
-        <h4 class="font-medium text-gray-900 mb-2">布局选项</h4>
-        <p class="text-sm text-gray-500">选择不同的界面布局</p>
-      </div>
-
-      <div class="border border-gray-200 rounded-lg p-5 text-center">
-        <t-icon name="contrast" class="text-3xl text-blue-500 mx-auto mb-3" />
-        <h4 class="font-medium text-gray-900 mb-2">深色模式</h4>
-        <p class="text-sm text-gray-500">启用深色或浅色主题</p>
-      </div>
-    </div>
   </t-drawer>
 </template>
 
 <script setup lang="ts">
 //import CanvasPoint from './canvas-point-unit/CanvasPoint.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { SettingIcon } from 'tdesign-icons-vue-next';
-import { Drawer } from 'tdesign-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next';
+
+import { useDataUserStore } from '@/store';
+
+const userStore = useDataUserStore();
+
+
+
+// 修改 userAvatar 计算属性，添加加载状态处理
+const userAvatar = computed(() => {
+  // 如果用户数据还未加载，返回默认头像
+  if (!userStore.userData) {
+    console.log('用户头像数据未加载');
+    return 'https://tdesign.gtimg.com/site/avatar.jpg';
+  }
+
+  const avatar = userStore.userData?.avatar || '';
+  if (avatar && avatar.startsWith('/static/')) {
+    return `http://localhost:8000${avatar}`;
+  }
+  return avatar || 'https://tdesign.gtimg.com/site/avatar.jpg';
+});
+
+const goToProfile = () => {
+  router.push('/user/userInfo');
+};
+
+
+const logout = async () => {
+  try {
+    await router.push('/LogonOrRegister');
+    MessagePlugin.success('已登出账号');
+  } catch (error) {
+    console.error('路由跳转失败:', error);
+  }
+};
+
+// 在组件挂载时立即获取用户数据
+onMounted(async () => {
+  try {
+    // 即使用户数据已存在，也尝试重新获取以确保是最新的
+    await userStore.fetchUserData();
+    handleUserDropdownOpen();
+  } catch (error) {
+    console.error('获取用户数据失败:', error);
+    // 即使获取失败，也使用默认头像，不影响页面显示
+  }
+});
+
+// 添加一个方法来主动刷新用户数据
+const refreshUserAvatar = async () => {
+  try {
+    await userStore.fetchUserData();
+  } catch (error) {
+    console.error('刷新用户数据失败:', error);
+  }
+};
+
+// 在用户执行操作时（如打开下拉菜单）刷新用户数据
+const handleUserDropdownOpen = () => {
+  // 可以在这里添加刷新逻辑
+  refreshUserAvatar();
+};
+
+
 const route = useRoute();
 const router = useRouter();
 
@@ -137,9 +247,6 @@ const navToHelper = () => {
   window.open('https://tdesign.tencent.com/vue-next/overview');
   // 你的帮助页面链接
 };
-const navToUser = () => {
-  router.push('/user/userInfo')
-}
 
 
 // 新增 toggleSettingPanel 方法

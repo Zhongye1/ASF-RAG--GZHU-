@@ -107,8 +107,9 @@
     </div>
 
     <!-- Ollama设置对话框 -->
-    <t-dialog header="Ollama 设置" :visible="showSettingsDialog" mode="modal" :onConfirm="confirmSettings"
-      :onCancel="closeSettingsDialog" width="500px">
+    <!-- Ollama设置抽屉 -->
+    <t-drawer header="Ollama 设置" :visible="showSettingsDialog" placement="right" :onConfirm="confirmSettings"
+      :onCancel="closeSettingsDialog" :onClose="closeSettingsDialog" size="500px">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">服务器地址</label>
@@ -120,7 +121,7 @@
           <t-input-number v-model="settings.timeout" :min="1" :max="300" />
         </div>
       </div>
-    </t-dialog>
+    </t-drawer>
   </div>
 </template>
 
@@ -129,7 +130,7 @@ import { ref, computed, nextTick, watch, reactive, onMounted } from "vue";
 import chatMainUnit from "../components/chat-main-unit/chat-main-unit.vue";
 import { useRouter, useRoute } from "vue-router";
 import { MessagePlugin } from "tdesign-vue-next";
-import OllamaSettings from "./Ollama_Pages/OllamaSettings.vue";
+
 
 
 // 接口定义
