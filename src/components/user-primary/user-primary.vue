@@ -230,6 +230,7 @@ const handleAvatarUpload = (event: Event) => {
       }
     };
     reader.readAsDataURL(file);
+    
   }
 };
 

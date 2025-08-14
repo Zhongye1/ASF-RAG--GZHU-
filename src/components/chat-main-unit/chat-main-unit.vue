@@ -104,6 +104,7 @@ import { fetchOllamaStream } from "./sseRequest-reasoning";
 import { MessagePlugin } from "tdesign-vue-next";
 import { useChatImgtore } from "@/store";
 import { CloseIcon } from "tdesign-icons-vue-next";
+import ollamaApiService from '@/utils/ollamaApi'; // 导入统一的Ollama API服务
 
 const useChatImg = useChatImgtore();
 // 基础状态
@@ -605,25 +606,28 @@ onMounted(async () => {
 
   // 获取模型列表
   try {
-    // 获取 Ollama 配置
-    let serverUrl = "http://localhost:11434";
-    let ollamaSettings = {}; // 定义 ollamaSettings 变量
+    const models = await ollamaApiService.getModels();
+    
+    models.forEach((model) => {
+      selectOptions.value.push({ label: model.name, value: model.model });
+    });
+    
+    // 获取当前服务器URL用于显示（可选）
+    const serverUrl = ollamaApiService.getServerUrl();
+    console.log("当前Ollama服务器:", serverUrl);
+    
+    // 设置默认选中模型（保持原有逻辑）
+    // 这里需要从localStorage获取设置，因为这是组件特定的逻辑
+    let ollamaSettings = {};
     try {
       const savedSettings = localStorage.getItem('ollamaSettings');
       if (savedSettings) {
         ollamaSettings = JSON.parse(savedSettings);
-        serverUrl = ollamaSettings.serverUrl || "http://localhost:11434";
       }
     } catch (e) {
       console.error('加载 Ollama 设置失败:', e);
     }
-
-    const response = await fetch(`${serverUrl}/api/tags`);
-    const data = await response.json();
-    data.models.forEach((model) => {
-      selectOptions.value.push({ label: model.name, value: model.model });
-    });
-    // 设置默认选中模型
+    
     if (ollamaSettings.defaultModel) {
       const defaultOption = selectOptions.value.find(option => option.value === ollamaSettings.defaultModel);
       if (defaultOption) {
@@ -637,7 +641,6 @@ onMounted(async () => {
   } catch (error) {
     console.error("获取模型列表失败，请检查API服务是否配置正确:", error);
     MessagePlugin.error("获取模型列表失败，请检查API服务是否配置正确");
-    return [];
   }
 });
 

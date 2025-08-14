@@ -39,6 +39,9 @@ export const useDataUserStore = defineStore('dataUser', {
         MessagePlugin.success('更新用户数据成功！')
         this.userData = response.data
         console.log('API Response:', response.data)
+        // 触发整个页面的刷新
+
+        window.location.reload();
       } catch (error) {
         MessagePlugin.error('更新用户数据失败！')
 

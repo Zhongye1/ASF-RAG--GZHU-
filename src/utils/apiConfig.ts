@@ -37,7 +37,12 @@ export const API_ENDPOINTS = {
 
   // Ollama 模型相关
   OLLAMA: {
-    MODELS: `${BASE_URL}/api/ollama-models`
+    MODELS: `${BASE_URL}/api/ollama-models`,
+    BASE: 'http://localhost:11434', // 默认Ollama服务器地址
+    TAGS: '/api/tags',
+    DELETE: '/api/delete',
+    PULL: '/api/pull',
+    COPY: '/api/copy'
   },
 
   // 聊天相关
@@ -48,7 +53,9 @@ export const API_ENDPOINTS = {
     SAVE_SESSION: `${BASE_URL}/api/chat/save-session`,
     DELETE_SESSION: `${BASE_URL}/api/chat/delete-session`,
     DOWNLOAD_CHAT: `${BASE_URL}/api/chat/download-chat-json`
-  }
+
+  },
+
 };
 
 export default API_ENDPOINTS;

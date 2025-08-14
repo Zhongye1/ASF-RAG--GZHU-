@@ -5,12 +5,48 @@ import { MessagePlugin } from 'tdesign-vue-next';
 
 // 生成文件 hash，这里使用SHA256
 const generateFileHash = async (file: File): Promise<string> => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+    // 检查文件参数是否有效
+    if (!file) {
+        throw new Error('文件对象为空');
+    }
+
+    if (!(file instanceof File)) {
+        throw new Error('参数不是有效的File对象');
+    }
+
+    try {
+        // 检查浏览器是否支持crypto.subtle API
+        if (window.crypto && window.crypto.subtle) {
+            const buffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+
+            // 检查hashBuffer是否有效
+            if (!hashBuffer) {
+                throw new Error('生成文件哈希失败');
+            }
+
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        } else {
+            // 备选方案：使用文件名、大小和最后修改时间生成标识符
+            console.warn('浏览器不支持crypto.subtle API，使用备选方案生成文件标识符');
+            const identifier = `${file.name}-${file.size}-${file.lastModified}`;
+            let hash = 0;
+            for (let i = 0; i < identifier.length; i++) {
+                const char = identifier.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            return Math.abs(hash).toString(16);
+        }
+    } catch (error) {
+        console.error('生成文件哈希时出错:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(`生成文件哈希失败: ${errorMessage}`);
+    }
 };
+
 // ... 已有代码 ...
 
 export const uploadFiles = async (
@@ -19,6 +55,19 @@ export const uploadFiles = async (
     uploadProgress: Ref<number>,
     KLB_id: string // 添加知识库ID参数
 ) => {
+    // 检查参数
+    if (!uploadedFiles || !uploadedFiles.value) {
+        console.error('上传文件列表为空');
+        MessagePlugin.error('上传文件列表为空');
+        return;
+    }
+
+    if (!KLB_id) {
+        console.error('知识库ID为空');
+        MessagePlugin.error('知识库ID为空');
+        return;
+    }
+
     if (uploadedFiles.value.length === 0) return;
 
     isUploading.value = true;
@@ -29,6 +78,12 @@ export const uploadFiles = async (
 
     try {
         for (const file of uploadedFiles.value) {
+            // 检查文件是否有效
+            if (!file) {
+                console.warn('跳过空文件');
+                continue;
+            }
+
             const chunkSize = 0.1 * 1024 * 1024; // 每个分块大小 512KB
             const totalChunks = Math.ceil(file.size / chunkSize);
             console.log(`文件 ${file.name} 分成了 ${totalChunks} 个分块`);
@@ -80,7 +135,7 @@ export const uploadFiles = async (
         }
 
         console.log('文件上传完成');
-        MessagePlugin.success('文件上传完成：' + fileInfoList[0].fileName);
+        MessagePlugin.success('文件上传完成：' + (fileInfoList.length > 0 ? fileInfoList[0].fileName : '所有文件'));
         // 遍历文件信息列表，逐个调用上传完成接口
         for (const fileInfo of fileInfoList) {
             await axios.post('/api/upload-complete', {
@@ -96,7 +151,8 @@ export const uploadFiles = async (
         // 上传完成后可添加刷新文档列表等操作
     } catch (error) {
         console.error('文件上传失败:', error);
-        MessagePlugin.error('文件上传失败:' + error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        MessagePlugin.error('文件上传失败:' + errorMessage);
         isUploading.value = false;
     }
 };
