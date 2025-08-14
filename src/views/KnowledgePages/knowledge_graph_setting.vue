@@ -83,6 +83,9 @@ import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, watch, computed, defineProps, defineEmits, onMounted } from 'vue';
 import graphMain from '@/components/graph-unit/graph-main.vue';
 
+import API_ENDPOINTS from '@/utils/apiConfig';
+
+
 interface KnowledgeBaseSettings {
     pdfParser: string;
     docxParser: string;
@@ -226,7 +229,7 @@ const fetchKnowledgeBaseConfig = async () => {
     try {
         configLoading.value = true;
 
-        const response = await fetch(`http://localhost:8000/api/get-knowledge-item/${props.kbId}/`, {
+        const response = await fetch(API_ENDPOINTS.KNOWLEDGE.GET_ITEM(props.kbId), {
             headers: {
                 'accept': 'application/json'
             }
@@ -356,13 +359,6 @@ const toggleEntityType = (entityType: string) => {
 };
 
 
-// 重置为默认设置
-const resetToDefaults = () => {
-    if (confirm('确定要重置为默认设置吗？这将丢失所有自定义配置。')) {
-        settings.value = { ...defaultSettings };
-    }
-};
-
 // 保存设置
 const onSaveClick = async () => {
     if (!validateForm()) return;
@@ -438,17 +434,6 @@ const onSaveClick = async () => {
     } catch (error) {
         console.error('保存配置失败:', error);
         MessagePlugin.error('保存配置失败');
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-// 删除知识库
-const onDeleteClick = async () => {
-    try {
-        await emit('delete');
-    } catch (error) {
-        console.error('删除失败:', error);
     } finally {
         isLoading.value = false;
     }

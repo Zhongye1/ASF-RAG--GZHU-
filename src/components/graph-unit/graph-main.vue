@@ -20,7 +20,7 @@
         </div>
         <div v-if="errorMessage" class="text-red-500 mb-4 p-3 bg-red-50 border border-red-200 rounded self-start">{{
             errorMessage
-        }}</div>
+            }}</div>
         <div id="sigma-container" class="w-[400px] h-[300px] bg-white rounded-lg border border-[#d9d9d9] shadow-md">
         </div>
     </div>
@@ -29,6 +29,8 @@
 <script setup lang="ts">
 
 import { useRoute } from 'vue-router';
+import API_ENDPOINTS from '@/utils/apiConfig';
+
 
 const route = useRoute();
 
@@ -94,17 +96,25 @@ const fetchGraphData = async (): Promise<void> => {
     errorMessage.value = '';
 
     try {
+        // 确保我们有有效的知识库ID
+        const folderPath = props.kbId || route.params.id;
+
+        // 检查folderPath是否有效
+        if (!folderPath) {
+            throw new Error('未提供有效的知识库ID');
+        }
+
         // 使用新的API端点并传递知识库ID
-        console.log('Fetching graph data for folder ID:', props.kbId || route.params.id);
-        const response = await fetch('http://localhost:8000/api/kg/process-knowledge-base', {
+        console.log('Fetching graph data for folder ID:', folderPath);
+        const response = await fetch(API_ENDPOINTS.KNOWLEDGE_GRAPH.PROCESS_KNOWLEDGE_BASE, {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 // 从props或路由参数获取知识库ID
-                "folder_path": props.kbId || route.params.id
+                "folder_path": folderPath
             })
         });
 

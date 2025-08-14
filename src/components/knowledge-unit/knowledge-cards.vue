@@ -45,6 +45,8 @@ import { useCardDataStore } from "@/store";
 import axios from "axios";
 import { useDataUserStore } from '@/store/modules/useDataUser';
 
+import API_ENDPOINTS from "@/utils/apiConfig";
+
 interface Card {
   id: string;
   title: string;
@@ -84,7 +86,7 @@ const displayAvatar = computed(() => {
 
   const avatar = userStore.userData?.avatar || props.card.avatar || '';
   if (avatar && avatar.startsWith('/static/')) {
-    return `http://localhost:8000${avatar}`;
+    return API_ENDPOINTS.USER.AVATAR(avatar);
   }
   return avatar || 'https://tdesign.gtimg.com/site/avatar.jpg';
 });

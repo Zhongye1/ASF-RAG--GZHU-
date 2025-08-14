@@ -151,7 +151,7 @@ import { useDataUserStore } from '@/store';
 
 const userStore = useDataUserStore();
 
-
+import API_ENDPOINTS from '@/utils/apiConfig';
 
 // 修改 userAvatar 计算属性，添加加载状态处理
 const userAvatar = computed(() => {
@@ -163,7 +163,7 @@ const userAvatar = computed(() => {
 
   const avatar = userStore.userData?.avatar || '';
   if (avatar && avatar.startsWith('/static/')) {
-    return `http://localhost:8000${avatar}`;
+    return API_ENDPOINTS.USER.AVATAR(avatar);
   }
   return avatar || 'https://tdesign.gtimg.com/site/avatar.jpg';
 });

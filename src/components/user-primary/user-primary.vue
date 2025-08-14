@@ -154,6 +154,7 @@ import {
   MessagePlugin,
   DialogPlugin,    // 使用DialogPlugin代替Dialog
 } from 'tdesign-vue-next';
+import API_ENDPOINTS from '@/utils/apiConfig';
 import router from '@/router';
 
 // 用户体验改进计划开关
@@ -186,7 +187,7 @@ const languageOptions = [
 // 添加计算属性处理头像URL
 const displayAvatar = computed(() => {
   if (userInfo.avatar && userInfo.avatar.startsWith('/static/')) {
-    return `http://localhost:8000${userInfo.avatar}`;
+    return API_ENDPOINTS.USER.AVATAR(userInfo.avatar);
   }
   return userInfo.avatar;
 });

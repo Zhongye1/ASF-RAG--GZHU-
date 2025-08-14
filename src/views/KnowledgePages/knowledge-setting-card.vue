@@ -265,7 +265,7 @@
 import { MessagePlugin } from 'tdesign-vue-next';
 import { ref, watch, computed, defineProps, defineEmits, onMounted } from 'vue';
 //import { useChatImgtore } from '@/store';
-
+import API_ENDPOINTS from '@/utils/apiConfig';
 const triggerFileInput = () => {
     imageInput.value?.click();
 };
@@ -420,7 +420,7 @@ const fetchKnowledgeBaseConfig = async () => {
     try {
         configLoading.value = true;
 
-        const response = await fetch(`http://localhost:8000/api/get-knowledge-item/${props.kbId}/`, {
+        const response = await fetch(API_ENDPOINTS.KNOWLEDGE.GET_ITEM(props.kbId), {
             headers: {
                 'accept': 'application/json'
             }
@@ -605,7 +605,7 @@ async function uploadImage(file: File) {
         }
 
         const data = await response.json();
-        const imageUrl = data.imageUrl.startsWith('http') ? data.imageUrl : `http://localhost:8000${data.imageUrl}`;
+        const imageUrl = data.imageUrl.startsWith('http') ? data.imageUrl : API_ENDPOINTS.USER.AVATAR(data.imageUrl);
         localKbImageUrl.value = imageUrl;
 
         console.log('图片上传成功:', data.imageUrl);

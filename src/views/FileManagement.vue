@@ -145,6 +145,9 @@ import {
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next';
 import axios from 'axios';
 import { marked } from 'marked';
+import API_ENDPOINTS from '@/utils/apiConfig';
+
+
 
 interface Document {
   id: number;
@@ -268,7 +271,7 @@ const refreshData = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get<ApiResponse>('http://localhost:8000/api/files/api/all-documents/');
+    const response = await axios.get<ApiResponse>(API_ENDPOINTS.FILES.ALL_DOCUMENTS);
     folders.value = response.data.folders;
 
     // 合并所有文档到一个数组
@@ -312,7 +315,7 @@ const previewDocument = async (document: Document) => {
 
   try {
     const response = await axios.get<DocumentPreviewResponse>(
-      `http://localhost:8000/api/files/api/document/preview/?file_path=${encodeURIComponent(document.file_path)}`
+      API_ENDPOINTS.FILES.DOCUMENT_PREVIEW(document.file_path)
     );
     previewDocumentDetail.value = response.data;
   } catch (error) {
@@ -364,7 +367,7 @@ const deleteDocument = (document: Document) => {
 const performDelete = async (document: Document) => {
   try {
     await axios.delete(
-      `http://localhost:8000/api/files/api/document/?file_path=${encodeURIComponent(document.file_path)}`
+      API_ENDPOINTS.FILES.DELETE_DOCUMENT(document.file_path)
     );
 
     MessagePlugin.success(`文件 "${document.file_name}" 已删除`);

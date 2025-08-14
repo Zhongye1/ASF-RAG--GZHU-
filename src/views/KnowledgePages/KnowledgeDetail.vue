@@ -573,7 +573,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import knowledgeSettingCard from './knowledge-setting-card.vue';
-
+import API_ENDPOINTS from '@/utils/apiConfig';
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -720,8 +720,9 @@ const fetchKnowledgeBaseConfig = async () => {
   try {
     configLoading.value = true;
 
+
     const response = await axios.get<ApiResponse<KnowledgeBaseConfig>>(
-      `http://localhost:8000/api/get-knowledge-item/${KLB_id}/`,
+      API_ENDPOINTS.KNOWLEDGE.GET_ITEM(KLB_id),
       {
         headers: {
           'accept': 'application/json'
@@ -817,7 +818,7 @@ const runSearchTest = async () => {
     const docsDir = `local-KLB-files/${KLB_id}`;
 
     // 创建EventSource连接
-    const response = await fetch('http://localhost:8000/api/RAG/ingest', {
+    const response = await fetch(API_ENDPOINTS.KNOWLEDGE.INGEST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -917,7 +918,7 @@ const performRagQuery = async () => {
     const docsDir = `local-KLB-files/${KLB_id}`;
 
     // 创建fetch请求
-    const response = await fetch('http://localhost:8000/api/RAG/RAG_query', {
+    const response = await fetch(API_ENDPOINTS.KNOWLEDGE.QUERY, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1078,7 +1079,7 @@ const processFileUpload = async () => {
   await uploadFiles(uploadedFiles, isUploading, uploadProgress, KLB_id);
 
   try {
-    const response = await axios.get<Document[]>('http://localhost:8000/api/documents-list/' + KLB_id + '/', {
+    const response = await axios.get<Document[]>(API_ENDPOINTS.KNOWLEDGE.DOCUMENTS_LIST(KLB_id), {
       headers: {
         'accept': 'application/json'
       }
@@ -1178,7 +1179,7 @@ onMounted(async () => {
   const fetchDocuments = async () => {
     try {
       const response = await axios.get<Document[]>(
-        `http://localhost:8000/api/documents-list/${KLB_id}/`,
+        API_ENDPOINTS.KNOWLEDGE.DOCUMENTS_LIST(KLB_id),
         {
           headers: {
             'accept': 'application/json'

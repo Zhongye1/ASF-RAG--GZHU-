@@ -181,6 +181,9 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import axios from 'axios'
 import VueTypewriterEffect from 'vue-typewriter-effect'
 
+import API_ENDPOINTS from '@/utils/apiConfig'
+
+
 // 新增：自定义服务器URL
 const customServerUrl = ref('')
 
@@ -214,9 +217,9 @@ const selectedSizes = ref({})
 const fetchModels = async () => {
     loading.value = true
     try {
-        console.log('调用 API:', `http://localhost:8000/api/ollama-models?page_id=${currentPage.value}`)
+        console.log('调用 API:', `${API_ENDPOINTS.OLLAMA.MODELS}?page_id=${currentPage.value}`)
         console.log('分页数:', currentPage.value)
-        const response = await axios.post('http://localhost:8000/api/ollama-models', {
+        const response = await axios.post(API_ENDPOINTS.OLLAMA.MODELS, {
             page_id: currentPage.value
         })
 

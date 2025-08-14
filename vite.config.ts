@@ -10,6 +10,11 @@ export default defineConfig({
   server: {
     // 确保开发服务器配置正确
     hmr: true,
+    host: '0.0.0.0', // 允许外部访问
+    port: 5173,      // 端口号
+    watch: {
+      usePolling: true // 在Docker中启用文件监听
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',

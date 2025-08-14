@@ -149,7 +149,7 @@
                     </div>
 
                     <div v-else-if="!searchLoading && !searchPerformed"
-                        class="flex flex-col items-center justify-center p-5 py-40">
+                        class="flex flex-col items-center justify-center p-5 h-420">
                         <t-icon name="search" size="36px" class="text-gray-300 mb-4" />
                         <p class="text-gray-500 text-center">
                             输入关键词开始学术搜索
@@ -175,10 +175,10 @@
 
                     <div class="flex flex-wrap gap-2">
                         <t-tag v-if="selectedPaper.year" theme="primary" variant="light">{{ selectedPaper.year
-                        }}</t-tag>
+                            }}</t-tag>
                         <t-tag v-if="selectedPaper.sourceTitle" theme="success" variant="light">{{
                             selectedPaper.sourceTitle
-                        }}</t-tag>
+                            }}</t-tag>
                         <t-tag v-if="selectedPaper.scholarlyCitationsCount !== undefined" theme="warning"
                             variant="light">
                             引用: {{ selectedPaper.scholarlyCitationsCount }}
